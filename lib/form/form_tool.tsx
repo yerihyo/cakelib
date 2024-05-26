@@ -1,10 +1,18 @@
 import React from 'react';
 import { Form } from "semantic-ui-react";
-import CakeaholicFrame from '../../singleton/frame/CakeaholicFrame';
 import ArrayTool from '../collection/array/array_tool';
 import DateTool from "../date/date_tool";
 
 export default class FormTool{
+  
+  static text2width(text:string, offset?:number){
+    if(text == null){ return undefined; }
+
+    const v = [...text].reduce((v,c) => v + ([...'(,)'].includes(c) ? 0.5 : 1.05), 0);
+    return `${v + (offset ?? 0) + .5}ch`;
+    // return (text.length + 0.5) + 'ch';
+  }
+
   static GrowingInput = (props: {
     value?: string,
     // onChange?: (x:string) => void,
@@ -21,7 +29,7 @@ export default class FormTool{
     return (<>
       <Form.Input 
         value={value}
-        style={{ color: 'inherit', display: 'inline-block', width: CakeaholicFrame.text2width(value), }}
+        style={{ color: 'inherit', display: 'inline-block', width: FormTool.text2width(value), }}
         // onChange={e => {
         //   console.log({ callname, event:'onChange', 'e.target.value': e.target.value, })
         //   onChange(e.target.value);
@@ -47,7 +55,7 @@ export default class FormTool{
     return (<>
       <Form.Input 
         value={text}
-        style={{ color: 'inherit', display: 'inline-block', width: CakeaholicFrame.text2width(text), }}
+        style={{ color: 'inherit', display: 'inline-block', width: FormTool.text2width(text), }}
         onChange={e => {
           // console.log({ callname, event:'onChange', 'e.target.value': e.target.value, })
           setText(''+e.target.value);
