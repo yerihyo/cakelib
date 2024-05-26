@@ -22,6 +22,11 @@
       // "jsx":"react",
       "strictNullChecks":false,
       "incremental": true,
+      "baseUrl": ".",
+      "paths": {
+        "@submodule": ["lib"],
+        "@submodule/*": ["lib/*"]
+      },
       "types": [
         // "node",
         // "cypress",
