@@ -1,0 +1,43 @@
+{
+  "name": "cakelib",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5",
+    "yup": "^0.32.11"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.5.2",
+    "@fortawesome/fontawesome-svg-core": "^6.5.2",
+    "@fortawesome/free-brands-svg-icons": "^6.5.2",
+    "@fortawesome/free-regular-svg-icons": "^6.5.2",
+    "@fortawesome/free-solid-svg-icons": "^6.5.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "amazon-s3-uri": "^0.1.1",
+    "csv-stringify": "^6.5.0",
+    "formik": "^2.4.6",
+    "hangul-js": "^0.2.6",
+    "iron-session": "^6.3.1",
+    "lodash": "^4.17.21",
+    "luxon": "^3.4.4",
+    "nanoid": "^5.0.7",
+    "next": "^14.2.3",
+    "react": "^18.3.1",
+    "react-daum-postcode": "^3.1.3",
+    "react-dom": "^18.3.1",
+    "react-kakao-maps-sdk": "^1.1.6",
+    "react-spring": "^9.7.3",
+    "semantic-ui-react": "^2.1.5",
+    "swr": "^1.3.0"
+  }
+}

@@ -1,0 +1,38 @@
+{
+    "compilerOptions": {
+      "target": "es5",
+      // "target": "es6",
+      // "target": "ES2017",
+      // "target": "es2015",  // https://stackoverflow.com/a/49221814/1902064
+      "downlevelIteration": true,
+      "lib": ["dom", "dom.iterable", "esnext"],
+      "allowJs": true,
+      "skipLibCheck": true,
+      // "strict": true,
+      "strict": false,
+      "forceConsistentCasingInFileNames": true,
+      "noEmit": true,
+      "esModuleInterop": true,
+      "module": "esnext",
+      // "module": "commonjs", // https://stackoverflow.com/a/62837086/1902064 (had trouble with react-anime)
+      "moduleResolution": "node",
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "jsx": "preserve",
+      // "jsx":"react",
+      "strictNullChecks":false,
+      "incremental": true,
+      "types": [
+        // "node",
+        // "cypress",
+        // "kakao.maps.d.ts",
+        // "navermaps",
+      ],
+      // "strictPropertyInitialization": false,
+    },
+    // "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.jsx"],
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx",],
+    "exclude": ["node_modules"]
+  }
+  
+  
