@@ -1,5 +1,10 @@
 import CmpTool, { Bicomparator, Comparator, EqualTool } from '../../cmp/CmpTool';
 import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
+import lodash from 'lodash';
+import FunctionTool, { Typeinvariantfunc } from '../../function/function_tool';
+import GroupbyTool from '../../groupby/groupby_tool';
+import MathTool from '../../number/math/math_tool';
+import DictTool from '../dict/dict_tool';
 
 // const assert = require('assert');
 const assert = (v:any, msg?:string) => { if(!v){ throw new Error(msg ? `${msg} (${v})` : `${v}`)}}
@@ -1341,9 +1346,3 @@ export class PairTool {
 
   static pair<T>(x1: T, x2: T): Pair<T> { return [x1, x2]; }
 }
-
-import lodash from 'lodash';
-import FunctionTool, { Typeinvariantfunc } from '../../function/function_tool';
-import GroupbyTool from '../../groupby/groupby_tool';
-import MathTool from '../../number/math/math_tool';
-import DictTool from '../dict/dict_tool';
