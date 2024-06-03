@@ -36,7 +36,7 @@ export default class CacheTool {
     },
   ): ((...args: K[]) => T) {
     // const isEqual = options?.isEqual ?? lodash.isEqual;
-    const isEqual = options?.isEqual ?? ArrayTool.isTriequalEvery; // CmpTool.isEqual;
+    const isEqual = options?.isEqual ?? ArrayTool.areAllTriequal; // CmpTool.isEqual;
 
     var prev: any = undefined;
     const logname = options?.logname;

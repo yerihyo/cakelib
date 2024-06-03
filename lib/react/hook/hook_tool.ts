@@ -805,7 +805,7 @@ export default class HookTool{
       decode,
       encode: (cs_post: C[], ps_prev: P[]):P[] => {
         const cs_prev = decode(ps_prev);
-        if (ArrayTool.isTriequalEvery(cs_prev, cs_post)) { return ps_prev; }
+        if (ArrayTool.areAllTriequal(cs_prev, cs_post)) { return ps_prev; }
 
         const ps_post = cs_post?.map((c_post, i) => JsonTool.reduceUp(ps_prev[i] ?? {}, jpath, c_post, edge2reduced) as P);
         return ps_post;
@@ -925,7 +925,7 @@ export default class HookTool{
   //       const bools = ps_prev?.map(predicate);
   //       // const cs_prev = ps_prev?.filter((_, i) => bools[i]);
   //       const [cs_prev, cs_prev_excluded] = ArrayTool.bisect_by(ps_prev, (_, i) => bools[i]);
-  //       if (ArrayTool.isTriequalEvery(cs_prev, cs_post)) { return ps_prev; }
+  //       if (ArrayTool.areAllTriequal(cs_prev, cs_post)) { return ps_prev; }
 
   //       const f_key = option?.f_key;
   //       if(!f_key){
@@ -982,10 +982,10 @@ export default class HookTool{
         const [cs_prev, cs_prev_excluded] = ArrayTool.bisect_by(ps_prev, (p_prev, i) => bools[i]);
         // console.log({
         //   callname, cs_post, ps_prev, bools, cs_prev,
-        //   'ArrayTool.isTriequalEvery(cs_prev, cs_post)': ArrayTool.isTriequalEvery(cs_prev, cs_post),
+        //   'ArrayTool.areAllTriequal(cs_prev, cs_post)': ArrayTool.areAllTriequal(cs_prev, cs_post),
         // });
 
-        if (ArrayTool.isTriequalEvery(cs_prev, cs_post)) { return ps_prev; }
+        if (ArrayTool.areAllTriequal(cs_prev, cs_post)) { return ps_prev; }
 
         const ps_post = [
           ...(cs_prev_excluded ?? []), // things not filtered
@@ -993,7 +993,7 @@ export default class HookTool{
         ];
 
         // console.log({callname, cs_post, ps_prev, cs_prev, ps_post});
-        // if(ArrayTool.isTriequalEvery(ps_prev, ps_post)){ return ps_prev; }
+        // if(ArrayTool.areAllTriequal(ps_prev, ps_post)){ return ps_prev; }
 
         return ps_post;
       },
@@ -1061,6 +1061,22 @@ export default class HookTool{
       HookTool.listcodec_filter_n_extend<V>(predicate),
       HookTool.codec_singleton(),
     ]);
+  }
+
+  static codec2codec_each<P,C>(codec:Hookcodec<P,C>):Hookcodec<P[],C[]> {
+    const callname = `HookTool.codec2codec_each @ ${DateTool.time2iso(new Date())}`;
+
+    const decode = (ps:P[]) => ps?.map(p => codec.decode(p));
+    return {
+      decode,
+      encode: (cs: C[], ps_prev: P[]): P[] => {
+        const cs_prev = decode(ps_prev);
+        return ArrayTool.f_bool2f_every(CmpTool.isTriequal)(cs_prev, cs)
+          ? ps_prev
+          : cs?.map((c,i) => codec.encode(c, ps_prev?.[i]))
+          ;
+      },
+    }
   }
 
   static codec_singleton<V>():Hookcodec<V[],V> {

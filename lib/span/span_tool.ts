@@ -1,3 +1,4 @@
+import lodash from 'lodash'
 import CmpTool, { BicmpTool, Bicomparator, Comparator } from '../cmp/CmpTool'
 import ArrayTool from '../collection/array/array_tool'
 import MinimaxTool, { AbsoluteOrder } from '../collection/array/minimax_tool'
@@ -13,6 +14,21 @@ export default class SpanTool {
       span[0] ?? -Infinity,
       span[1] ?? Infinity,
     ];
+  }
+
+  static inf2null = <T>(span: Pair<T>): Pair<T> => {
+    return span == null
+      ? span
+      : [
+        span[0] === -Infinity ? null : span[0],
+        span[1] === Infinity ? null : span[1],
+      ];
+  }
+
+  static span2norm = SpanTool.inf2null;
+
+  static span2is_infinf = <T>(span:Pair<T>):boolean => {
+    return ArrayTool.areAllTriequal(SpanTool.span2norm(span), [null, null]);
   }
 
   static pivot_span2cmp(

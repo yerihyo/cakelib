@@ -22,23 +22,27 @@ export default class MathTool {
     if (array?.some(x => x == null)) { return undefined; }
     return array?.reduce((a, b) => a + b, 0);
   }
-  static add = (...array: number[]) => MathTool.sum(array); // to deal with nullable
+  static plus = (...array: number[]) => MathTool.sum(array); // to deal with nullable
+  static add = MathTool.plus;
 
-  static sub = MathTool.binary2nullableskippped((x1, x2) => x1 - x2);
+  static minus = MathTool.binary2nullableskippped((x1, x2) => x1 - x2);
+  static sub = MathTool.minus;
 
   static product(array: number[]): number { // to deal with nullable
     if (array?.some(x => x == 0)) { return 0; }
     if (array?.some(x => x == null)) { return undefined; }
     return array?.reduce((a, b) => a * b, 1);
   }
-  static mul = (...array: number[]) => MathTool.product(array); // to deal with nullable
+  
+  static times = (...array: number[]) => MathTool.product(array); // to deal with nullable
+  static mul = MathTool.times;
 
   static div = MathTool.binary2nullableskippped((x1, x2) => x1 / x2);
 
   static muldiv = (v: number, m: number, d: number) => {
     return m == d // m & d might be both zero, in which case we just ignore both
       ? v
-      : MathTool.div(MathTool.mul(v, m), d);
+      : MathTool.div(MathTool.times(v, m), d);
   }
 
   static mod = MathTool.binary2nullableskippped((x1, x2) => x1 % x2);
@@ -46,7 +50,7 @@ export default class MathTool {
 
   static round = FunctionTool.func2nullargsskipped(Math.round); // (v:number) => v == null ? undefined : Math.round(v);
 
-  static changerate = (v1:number, v2:number):number => MathTool.div(MathTool.sub(v1, v2), v2);
+  static changerate = (v1:number, v2:number):number => MathTool.div(MathTool.minus(v1, v2), v2);
   static ratio2str_percentile = (v: number,): string => {
     return v == null
       ? undefined
@@ -54,7 +58,7 @@ export default class MathTool {
         ? '(계산오류)'
         : v == Infinity
           ? 'NEW'
-          : `${MathTool.mul(v, 100)?.toFixed(1)}%`
+          : `${MathTool.times(v, 100)?.toFixed(1)}%`
       ;
   };
   // static round = (v:number) => v == null ? undefined : Math.round(v);
@@ -70,7 +74,7 @@ export default class MathTool {
     }
   ){
     const rounder = option?.rounder ?? MathTool.round;
-    return MathTool.mul(rounder(MathTool.div(v, unit)), unit);
+    return MathTool.times(rounder(MathTool.div(v, unit)), unit);
   }
 
   // static sum_or_undef(array: number[]): number {
@@ -96,7 +100,7 @@ export default class MathTool {
   static gt = (...p:Pair<number>) => { const c = MathTool.pair2cmp(...p); return c != null ? c > 0 : undefined; };
   static lte = (...p:Pair<number>) => { const c = MathTool.pair2cmp(...p); return c != null ? c <= 0 : undefined; };
   static lt = (...p:Pair<number>) => { const c = MathTool.pair2cmp(...p); return c != null ? c < 0 : undefined; };
-  static eq = (...p:Pair<number>) => { const c = MathTool.pair2cmp(...p); return c != null ? c == 0 : undefined; };
+  static eq = (...p:Pair<number>) => { const c = MathTool.pair2cmp(...p); return c != null ? c === 0 : undefined; };
   static ne = (...p:Pair<number>) => { const c = MathTool.pair2cmp(...p); return c != null ? c != 0 : undefined; };
 
   

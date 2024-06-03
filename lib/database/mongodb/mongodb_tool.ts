@@ -3,9 +3,10 @@ import ArrayTool from "../../collection/array/array_tool";
 import DictTool from "../../collection/dict/dict_tool";
 import DateTool from "../../date/date_tool";
 import { Pair } from "../../native/native_tool";
-import { BicmpTool } from "../../cmp/CmpTool";
 
 export default class MongodbTool {
+  static value2is_unspecified = (v:any):boolean => v === undefined;
+
   static op2complement = (op:string) => {
     return {
       "$gt":"$lte",
@@ -42,8 +43,12 @@ export default class MongodbTool {
   //   }[op];
   // }
 
-  static span2qexpr<T>(span: Pair<T>): { "$gte"?: T, "$lt"?: T } {
+  static span2qexpr<T>(span: Pair<T>): any {
     const callname = `MongodbTool.span2qexpr @ ${DateTool.time2iso(new Date())}`;
+    if(span === undefined){ return undefined; } // all values
+    if(span === null){ return null; } // specifically 'null' only
+
+    if(ArrayTool.areAllTriequal(span, [null,null])){ return {$exists:true}; } // any value
 
     const [s, e] = span;
     const qexpr = {
@@ -78,17 +83,18 @@ export default class MongodbTool {
       : ArrayTool.v2l_or_undef(qexpr as T);
   }
 
-  static bicmp_fvpairs2query = (
-    bicmp:string,
+  static fvpairs_bicmp2query = (
     fvpairs:{field:string,vexpr:any}[],
+    bicmp:string,
   ) => {
     return {
       '$or': fvpairs.map((_, i) => {
         return {
           ...DictTool.merge_dicts(
-            ArrayTool.range(i).map(j => (
-              {[fvpairs[j].field]: fvpairs[j].vexpr,}
-              )),
+            fvpairs.slice(0,i).map(fvpair => ({[fvpair.field]: fvpair.vexpr,})),
+            // ArrayTool.range(i).map(j => (
+            //   {[fvpairs[j].field]: fvpairs[j].vexpr,}
+            //   )),
             DictTool.WritePolicy.no_duplicate_key,
           ),
           [fvpairs[i].field]: { [bicmp]: fvpairs[i].vexpr },
@@ -97,89 +103,234 @@ export default class MongodbTool {
     };
   }
 
-  static fvpairs2query_lt = lodash.partial(MongodbTool.bicmp_fvpairs2query, '$lt');
-  static fvpairs2query_gt = lodash.partial(MongodbTool.bicmp_fvpairs2query, '$gt');
-
-  static bicmp_ffvs2query = (
-    bicmp:string,
-    ffvs:{field:string,nestedfield?:string, vexpr:any}[],
+  static fbvs2query = (
+    fbvs:{field:string, bicmp:string, vexpr:any}[],
+    // bicmp:string,
   ) => {
-    type FFV = { field: string; nestedfield?: string; vexpr: any; };
+    return {
+      '$or': fbvs.map((fbv_i, i) => {
+        return {
+          ...DictTool.merge_dicts(
+            fbvs.slice(0,i).map(fbv => ({[fbv.field]: fbv.vexpr,})),
+            // ArrayTool.range(i).map(j => fbvs_list[j].map(fbv => ({[fbv.field]: fbv.vexpr,})))?.flat(),
+            DictTool.WritePolicy.no_duplicate_key,
+          ),
+          [fbv_i.field]: { [fbv_i.bicmp]: fbv_i.vexpr },
+        };
+      }),
+    };
+  }
+
+  static fbvs_list2query = (
+    fbvs_list:{field:string, bicmp:string, vexpr:any}[][],
+    // bicmp:string,
+  ) => {
+    return {
+      '$or': fbvs_list.map((_, i) => {
+        return {
+          ...DictTool.merge_dicts(
+            fbvs_list.slice(0,i).flat().map(fbv => ({[fbv.field]: fbv.vexpr,})),
+            // ArrayTool.range(i).map(j => fbvs_list[j].map(fbv => ({[fbv.field]: fbv.vexpr,})))?.flat(),
+            DictTool.WritePolicy.no_duplicate_key,
+          ),
+          ...(fbvs_list[i]?.map(fbv => ({[fbv.field]: { [fbv.bicmp]: fbv.vexpr },})))
+        };
+      }),
+    };
+  }
+
+  // static bicmp_ffvs2query = (
+  //   bicmp:string,
+  //   ffvs:{field:string,nestedfield?:string, vexpr:any}[],
+  // ) => {
+  //   // const ffvs = [
+  //   //   ...(
+  //   //     fulfillrts_pivot
+  //   //       ? [
+  //   //         { field: 'fulfills', nestedfield: 'schedule.fulfillrts', vexpr: fulfillrts_pivot, },
+  //   //         { field: 'fulfills', nestedfield: 'schedule.specified', vexpr: true, },
+  //   //       ]
+  //   //       : []
+  //   //   ),
+  //   //   { field: '_id', vexpr: { "$oid": order_last?.['_id'] }, }
+  //   // ];
+
+  //   type FFV = { field: string; nestedfield?: string; vexpr: any; };
+
+  //   // const bicmp_eqadded = MongodbTool.op2eqadded(bicmp);
+  //   const bicmp_complement = MongodbTool.op2complement(bicmp);
+  //   const bicmp_opposite = MongodbTool.op2opposite(bicmp);
+
+  //   const ffv2fullpath = (ffv:FFV) => [ffv.field, ...(ArrayTool.v2l_or_undef(ffv.nestedfield) ?? [])].join('.');
+  //   const ffv2query_bicmp = (ffv:FFV) => {
+  //     return ffv.nestedfield == null
+  //       ? { [ffv.field]: { [bicmp]: ffv.vexpr, } }
+  //       : {
+  //         [ffv2fullpath(ffv)]: { '$exists': true, },
+  //         // [ffv.field]: { "$not": { "$elemMatch": { [ffv.nestedfield]: { [bicmp_complement]: ffv.vexpr } } } },
+  //         [ffv.field]: { "$not": { "$elemMatch": { "$or": [
+  //           {[ffv.nestedfield]: { [bicmp_complement]: ffv.vexpr } },
+  //           {[ffv.nestedfield]: { '$eq': null  } },
+  //         ] } } },
+  //         // [ffv.field]: { "$not": { "$elemMatch": { [ffv.nestedfield]: {"$or": [{ [bicmp_complement]: ffv.vexpr }, { '$eq': null }]} } } },
+  //         // [ffv.field]: { "$not": { "$elemMatch": { [ffv.nestedfield]: {"$or": [{ [bicmp_complement]: ffv.vexpr }, { '$eq': null }]} } } },
+  //       };
+  //   }
+  //   const ffv2query_bicmp_eqadded = (ffv:FFV) => {
+  //     return ffv.nestedfield == null
+  //       ? { [ffv.field]: ffv.vexpr, }
+  //       : {
+  //         [ffv2fullpath(ffv)]: { '$exists': true, },
+  //         [ffv.field]: { "$not": { "$elemMatch": { [ffv.nestedfield]: { [bicmp_opposite]: ffv.vexpr } } } },
+  //       };
+  //   }
+
+  //   return {
+  //     '$or': ffvs.map((_, i) => {
+  //       return {
+  //         ...DictTool.merge_dicts(
+  //           ArrayTool.range(i).map(j => ffv2query_bicmp_eqadded(ffvs[j])),
+  //           DictTool.WritePolicy.no_duplicate_key,
+  //         ),
+  //         ...ffv2query_bicmp(ffvs[i]),
+  //       };
+  //     }),
+  //   };
+  // }
+  // static ffvs2query_lt = lodash.partial(MongodbTool.bicmp_ffvs2query, '$lt');
+  // static ffvs2query_gt = lodash.partial(MongodbTool.bicmp_ffvs2query, '$gt');
+
+
+  static ffbvs2query = (
+    ffbvs: {field:string,nestedfield?:string, bicmp:string, vexpr:any}[],
+  ) => {
+    // const fulfillrts_pivot = MinimaxTool.min(
+    //   order_last?.fulfills?.map(Fulfill.fulfill2rts),
+    //   AbsoluteOrder.f_cmp2f_cmp_nullable2max(DateTool.pair2cmp),
+    // );
+    
+    // const ffbvs = [
+    //   ...(
+    //     fulfillrts_pivot
+    //       ? [
+    //         { field: 'fulfills', nestedfield: 'schedule.fulfillrts', bicmp:'$gt', vexpr: fulfillrts_pivot, },
+    //         { field: 'fulfills', nestedfield: 'schedule.specified', bicmp:'$eq', vexpr: true, },
+    //       ]
+    //       : []
+    //   ),
+    //   { field: '_id', bicmp: '$gt', vexpr: { "$oid": order_last?.['_id'] }, }
+    // ];
+
+
+    type FFBV = { field: string; nestedfield?: string; bicmp:string; vexpr: any; };
 
     // const bicmp_eqadded = MongodbTool.op2eqadded(bicmp);
-    const bicmp_complement = MongodbTool.op2complement(bicmp);
-    const bicmp_opposite = MongodbTool.op2opposite(bicmp);
+    // const bicmp_complement = MongodbTool.op2complement(bicmp);
+    // const bicmp_opposite = MongodbTool.op2opposite(bicmp);
 
-    const ffv2fullpath = (ffv:FFV) => [ffv.field, ...(ArrayTool.v2l_or_undef(ffv.nestedfield) ?? [])].join('.');
-    const ffv2query_bicmp = (ffv:FFV) => {
-      return ffv.nestedfield == null
-        ? { [ffv.field]: { [bicmp]: ffv.vexpr, } }
+    const ffbv2fullpath = (ffbv:FFBV) => [ffbv.field, ...(ArrayTool.v2l_or_undef(ffbv.nestedfield) ?? [])].join('.');
+    const ffbv2query_bicmp = (ffbv:FFBV) => {
+      const bicmp_complement = MongodbTool.op2complement(ffbv.bicmp);
+      return ffbv.nestedfield == null
+        ? { [ffbv.field]: { [ffbv.bicmp]: ffbv.vexpr, } }
         : {
-          [ffv2fullpath(ffv)]: { '$exists': true, },
+          [ffbv2fullpath(ffbv)]: { '$exists': true, },
           // [ffv.field]: { "$not": { "$elemMatch": { [ffv.nestedfield]: { [bicmp_complement]: ffv.vexpr } } } },
-          [ffv.field]: { "$not": { "$elemMatch": { "$or": [
-            {[ffv.nestedfield]: { [bicmp_complement]: ffv.vexpr } },
-            {[ffv.nestedfield]: { '$eq': null  } },
+          [ffbv.field]: { "$not": { "$elemMatch": { "$or": [
+            {[ffbv.nestedfield]: { [bicmp_complement]: ffbv.vexpr } },
+            {[ffbv.nestedfield]: { '$eq': null  } },
           ] } } },
           // [ffv.field]: { "$not": { "$elemMatch": { [ffv.nestedfield]: {"$or": [{ [bicmp_complement]: ffv.vexpr }, { '$eq': null }]} } } },
           // [ffv.field]: { "$not": { "$elemMatch": { [ffv.nestedfield]: {"$or": [{ [bicmp_complement]: ffv.vexpr }, { '$eq': null }]} } } },
         };
     }
-    const ffv2query_bicmp_eqadded = (ffv:FFV) => {
-      return ffv.nestedfield == null
-        ? { [ffv.field]: ffv.vexpr, }
+    const ffbv2query_bicmp_eqadded = (ffbv:FFBV) => {
+      const bicmp_opposite = MongodbTool.op2opposite(ffbv.bicmp);
+      return ffbv.nestedfield == null
+        ? { [ffbv.field]: ffbv.vexpr, }
         : {
-          [ffv2fullpath(ffv)]: { '$exists': true, },
-          [ffv.field]: { "$not": { "$elemMatch": { [ffv.nestedfield]: { [bicmp_opposite]: ffv.vexpr } } } },
+          [ffbv2fullpath(ffbv)]: { '$exists': true, },
+          [ffbv.field]: { "$not": { "$elemMatch": { [ffbv.nestedfield]: { [bicmp_opposite]: ffbv.vexpr } } } },
         };
     }
 
     return {
-      '$or': ffvs.map((_, i) => {
+      '$and': ffbvs.map((_, i) => {
         return {
           ...DictTool.merge_dicts(
-            ArrayTool.range(i).map(j => ffv2query_bicmp_eqadded(ffvs[j])),
+            ArrayTool.range(i).map(j => ffbv2query_bicmp_eqadded(ffbvs[j])),
             DictTool.WritePolicy.no_duplicate_key,
           ),
-          ...ffv2query_bicmp(ffvs[i]),
+          ...ffbv2query_bicmp(ffbvs[i]),
         };
       }),
     };
-
-    // return {
-    //   '$or': [
-    //     {
-    //       'fulfills.fulfill_rts': { "$exists": true },
-    //       'fulfills': { "$not": { "$elemMatch": { "fulfill_rts": { "$lte": fulfillrts_min } } } },
-    //     },
-    //     {
-    //       '$and': [
-    //         { 'fulfills': { "$not": { "$elemMatch": { "fulfill_rts": { "$lt": fulfillrts_min } } } } },
-    //         { 'fulfills.fulfill_rts': { "$exists": true, } },
-
-    //         { '_id': { '$gt': { "$oid": order_last?.['_id'] } } },
-    //       ]
-    //     }
-    //   ]
-    // }
-
-    // return {
-    //   'fulfills': { "$elemMatch": { "fulfill_rts": { "$gte": fulfillrts_min } } },
-    //   '$or': [
-    //     { 'fulfills': {"$not": { "$elemMatch": { "fulfill_rts": { "$lte": fulfillrts_min } } } } },
-    //     {
-    //       '$and': [
-    //         { 'fulfills': { "$not": { "$elemMatch": { "fulfill_rts": { "$lt": fulfillrts_min } } } } },
-    //         { 'fulfills': { "$elemMatch": { "fulfill_rts": fulfillrts_min } } },
-    //         { '_id': { '$gt': { "$oid": order_last?.['_id'] } } },
-    //       ]
-    //     }
-    //   ]
-    // }
   }
-  static ffvs2query_lt = lodash.partial(MongodbTool.bicmp_ffvs2query, '$lt');
-  static ffvs2query_gt = lodash.partial(MongodbTool.bicmp_ffvs2query, '$gt');
 
+  static fieldpair2transducer_unwind = <V,>(
+    field_from:string, // "fulfills"
+    field_to:string, // "fulfill"
+  ):((v:V) => V) =>{
+    const cls = MongodbTool;
+    const callname = `MongodbTool.fieldpair2transducer_unwind @ ${DateTool.time2iso(new Date())}`;
 
+    // recursion necessary because of "$and", "$or" & etc
+    const transducer = (v0_in: V): V => {
+      if (ArrayTool.is_array(v0_in)) {
+        return (v0_in as any[])?.map(transducer) as V;
+      } else if (DictTool.is_dict(v0_in)) {
 
+        // sample: {"fulfills":{'$elemMatch': {k3:v3, ...}}, ...} => {"fulfill.k3":v2, ...}
+        // console.log({callname, v0_in, 'Object.keys(v0_in)':Object.keys(v0_in),})
+        const v0_outs_list:V[][] = Object.keys(v0_in).map((k1):V[] => {
+          const v1_in = v0_in?.[k1];
+          const v2_in = v1_in?.["$elemMatch"];
+
+          return ArrayTool.all([
+            k1 === field_from, // need to generalize later when ${field_from} is suffix of xpath
+            DictTool.is_dict(v1_in) && ArrayTool.areAllTriequal(Object.keys(v1_in), ["$elemMatch"]),
+          ])
+            ? Object.keys(v2_in).map((k3) => ({ [`${field_to}.${k3}`]: transducer(v2_in?.[k3]) } as V))
+            : [{ [k1]: transducer(v1_in) } as V];
+        });
+        return DictTool.merge_dicts(v0_outs_list?.flat(), DictTool.WritePolicy.no_duplicate_key)
+      } else {
+        return v0_in;
+      }
+    };
+    return transducer;
+  };
+}
+
+export class Mongosubquery {
+  field:string;
+  subfield: string;
+  expression: any;
+}
+
+export class Mongocmpquery {
+  comparison: Record<string,any>;
+  equality: Record<string,any>;
+}
+
+export class MongopagingTool {
+  static cmpqueries2query = (
+    cqs:Mongocmpquery[],
+    // bicmp:string,
+  ) => {
+    return cqs == null
+      ? undefined
+      : {
+        '$or': cqs.map((cq_i, i) => {
+          return {
+            ...DictTool.merge_dicts(
+              cqs.slice(0,i).map(cq_j => cq_j.equality),
+              // ArrayTool.range(i).map(j => fbvs_list[j].map(fbv => ({[fbv.field]: fbv.vexpr,})))?.flat(),
+              DictTool.WritePolicy.no_duplicate_key,
+            ),
+            ...cq_i.comparison,
+          };
+        }),
+      };
+  }
 }

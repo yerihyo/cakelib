@@ -5,6 +5,7 @@ import NativeTool, { Dictkey } from '../../native/native_tool';
 import ArrayTool from '../array/array_tool';
 import assert from "assert";
 
+const time2iso = (d:Date) => d?.toISOString()?.split("T")?.[1];
 // const assert = require('assert');
 export default class DictTool{
     static keys = <K=Dictkey>(obj:any): K[] => (obj != null ? (Object.keys(obj) as K[]) : undefined);
@@ -171,6 +172,9 @@ export default class DictTool{
 
     static invalid_values2excluded<X=any>(obj:X, value2is_valid:(x:any) => boolean):X{
         const self = DictTool;
+        const callname = `DictTool.invalid_values2excluded @ ${time2iso(new Date())}`;
+        
+        // console.log({callname, obj})
         if(obj == null){ return undefined; }
 
         if(Array.isArray(obj)){ return obj; }
@@ -178,14 +182,19 @@ export default class DictTool{
         const keys = Object.keys(obj);
         if(ArrayTool.is_empty(keys)){ return obj; }
         
+        const is_object = (v:any) => typeof v === "object";
+        
         // https://stackoverflow.com/a/38340730
         return keys
             .filter(k => value2is_valid(obj[k])) // Remove undef. and null.
             .reduce(
-                (newObj, k) =>
-                    typeof obj[k] === "object"
+                (newObj, k) => {
+                    const is_dict = DictTool.is_dict(obj[k]);
+                    // console.log({callname, is_dict, k, obj, 'obj[k]':obj[k],})
+                    return is_dict
                         ? { ...newObj, [k]: self.invalid_values2excluded(obj[k], value2is_valid) } // Recurse.
-                        : { ...newObj, [k]: obj[k] }, // Copy value.
+                        : { ...newObj, [k]: obj[k] };
+                }, // Copy value.
                 {} as X,
             );
     }
@@ -253,6 +262,19 @@ export default class DictTool{
             h1[k] = h2[k]
             return h1
         }
+
+        // static overwrite_notnull(h1, h2, k){
+        //     assert(k in h2)
+        //     if(h2[k]!=null){ h1[k] = h2[k]; }
+        //     return h1
+        // }
+
+        // static overwrite_notnonzerofalse(h1, h2, k){
+        //     assert(k in h2)
+        //     if(h2[k]===0 || !!h2[k]){ h1[k] = h2[k]; }
+        //     return h1
+        // }
+
         static skip_if_exists(h1, h2, k){
             assert(k in h2)
             if(! (k in h1)){
@@ -339,7 +361,9 @@ export default class DictTool{
         static dict_overwrite = (h1,h2,k) => DictTool.WritePolicy.policy2dict_policy(DictTool.WritePolicy.overwrite)(h1,h2,k);
         static dict_skip_if_exists = (h1,h2,k) => DictTool.WritePolicy.policy2dict_policy(DictTool.WritePolicy.skip_if_exists)(h1,h2,k);
         static dict_no_duplicate_key = (h1,h2,k) => DictTool.WritePolicy.policy2dict_policy(DictTool.WritePolicy.no_duplicate_key)(h1,h2,k);
-
+        // static dict_overwrite_notnull = (h1,h2,k) => DictTool.WritePolicy.policy2dict_policy(DictTool.WritePolicy.overwrite_notnull)(h1,h2,k);
+        // static dict_overwrite_notnonzerofalse = (h1,h2,k) => DictTool.WritePolicy.policy2dict_policy(DictTool.WritePolicy.overwrite_notnonzerofalse)(h1,h2,k);
+        
     }
 
     static merge2dict<T>( //) K extends Dictkey=Dictkey,>(
@@ -372,6 +396,8 @@ export default class DictTool{
         dicts.slice(1,).forEach((h) => { cls.merge2dict(h_out, h, write_policy) })
         return h_out
     }
+
+    static path_v2dict = (path:string[], v:any) => ArrayTool.reversed(path)?.reduce((h, edge) => ({[edge]:h}), v);
 }
 
 export class CounterTool {

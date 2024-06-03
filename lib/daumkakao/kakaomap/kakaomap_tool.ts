@@ -2,7 +2,6 @@ import React from "react";
 import { MutableRefObject } from "react";
 import { Pair } from "../../native/native_tool";
 
-
 export default class KakaomapTool{
   static latlon2mapimage_ref = <V extends Node,>(
     latlon:Pair<number>

@@ -22,7 +22,7 @@ export default class DateTool {
   static secoffset_noon():number{ return 12*60*60; }
 
   static day8time42daytime12(day8:number, time4:number):number{
-    return MathTool.add(MathTool.mul(day8, 10000), time4);
+    return MathTool.plus(MathTool.times(day8, 10000), time4);
   }
 
   static daytime122day8time4 = (daytime12:number):{day8:number, time4:number} => {
@@ -231,33 +231,18 @@ export default class DateTool {
   }
 
   static millisecs2added = function (d: Date, millisecs: number): Date {
-    if (NativeTool.is_null_or_undefined(d)) { return d; }
+    if (d == null) { return undefined; }
+    if (millisecs == null) { return undefined; }
     // console.log({d});
     // https://stackoverflow.com/a/12795802
-    return new Date(d.getTime() + millisecs);
+    return new Date(d?.getTime() + millisecs);
   }
-  static ms2added = function (d: Date, ms: number): Date {
-    return DateTool.millisecs2added(d, ms)
-  }
+  static ms2added = DateTool.millisecs2added;
 
-  static secs2added = function (d: Date, secs: number): Date {
-    if (!d || !secs) { return d; }
-    return DateTool.millisecs2added(d, secs * 1000)
-  }
-
-  static date2secs_added = function (d: Date, secs: number): Date {
-    return DateTool.secs2added(d, secs);
-  }
-
-  static hours2added = function (d: Date, hours: number): Date {
-    if (!d || !hours) { return d; }
-    return DateTool.millisecs2added(d, hours * 60 * 60 * 1000)
-  }
-
-  static days2added = function (d: Date, days: number): Date {
-    if (!d || !days) { return d; }
-    return DateTool.millisecs2added(d, days * 24 * 60 * 60 * 1000)
-  }
+  static secs2added = (d: Date, secs: number): Date  =>  DateTool.ms2added(d, MathTool.times(secs,1000));
+  static mins2added = (d: Date, mins: number): Date  =>  DateTool.secs2added(d, MathTool.times(mins,60));
+  static hours2added = (d: Date, hours: number): Date  =>  DateTool.mins2added(d, MathTool.times(hours,60));
+  static days2added = (d: Date, days: number): Date  =>  DateTool.hours2added(d, MathTool.times(days,24));
 
   static date2iso = function (d: Date): string {
     return d?.toISOString()
@@ -347,8 +332,8 @@ export default class DateTool {
   //   return undefined;
   // }
 
-  static equal = CmpTool.f_cmp2f_eq(DateTool.pair2cmp);
-  static isEqual = DateTool.equal;
+  static isEqual = CmpTool.f_cmp2f_eq(DateTool.pair2cmp);
+  static equal = DateTool.isEqual;
 
   static date2midnight(d: Date) {
     const d_out = new Date(d.getTime());

@@ -78,7 +78,8 @@ export default class NativeTool {
     return x;
   }
 
-  static negate3 = (b:boolean) => (b == null ? b : !b);
+  static bool3 = (x:any):boolean => x == null ? undefined : !!x;
+  static negate3 = (b:boolean):boolean => (b == null ? b : !b);
 }
 
 export class GriddisplayTool{

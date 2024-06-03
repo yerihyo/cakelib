@@ -26,7 +26,7 @@ export class JpathTool{
     }
 
     // static equals = (l1:Jpath, l2:Jpath):boolean => ArrayTool.equals<Jstep>(l1,l2);
-    static equals = ArrayTool.f_bicmp2f_bicmp_every<Jstep>(CmpTool.isBiequal);
+    static equals = ArrayTool.f_bool2f_every<Jstep>(CmpTool.isBiequal);
     
 }
 export class XpathTool {
@@ -169,8 +169,8 @@ export default class JsonTool {
 
             return x;
         }
-        const f = TraversileTool.func2traversile(f_node);
-        const hdoc_out = f(jdoc_in);
+        // const f = TraversileTool.f_leaf2f_tree(f_node);
+        const hdoc_out = TraversileTool.f_leaf2f_tree<T>(f_node)(jdoc_in);
 
         // console.log({callname, jdoc_in, hdoc_out});
         return hdoc_out;
@@ -192,8 +192,7 @@ export default class JsonTool {
 
             return x;
         }
-        const f = TraversileTool.func2traversile(f_node);
-        const jdoc_out = f(hdoc_in) as J;
+        const jdoc_out = TraversileTool.f_leaf2f_tree<H,J>(f_node)(hdoc_in);
 
         return jdoc_out;
     }
@@ -269,6 +268,12 @@ export default class JsonTool {
             return undefined;
         }
     ])
+
+    static jpath_v2xdoc = <PO,CI>(jpath:Jpath, v:CI):PO => JsonTool.reduceUp<{},PO,CI,CI>({}, jpath, v, JsonTool.edge2reduced_create);
+    static jpaths2filtered = <I,O>(h:I, jpaths:Jpath[], ):O => DictTool.merge_dicts(
+        jpaths?.map(jpath => JsonTool.jpath_v2xdoc(jpath, JsonTool.down(h, jpath))),
+        DictTool.WritePolicy.dict_no_duplicate_key,
+    )
 
     static reducer2delete_if_empty = (reducer:typeof JsonTool.edge2reduced_create) => lodash.flow([
         reducer,
@@ -390,16 +395,17 @@ export default class JsonTool {
         return (obj:PI) => JsonTool.reduceUp<PI,PO,CI,CO>(obj, jpath, action, reducer);
     }
 
-    static jdoc2nullexcluded(jdoc_in: any) {
-        const callname = `JsonTool.jdoc2nullexcluded @ ${DateTool.time2iso(new Date())}`;
+    // static jdoc2nullexcluded = TraversileTool.validator2pruner(x => x!=null);
+    // static jdoc2nullexcluded(jdoc_in: any) {
+    //     const callname = `JsonTool.jdoc2nullexcluded @ ${DateTool.time2iso(new Date())}`;
 
-        const merger = TraversileTool.merger_nullexcluded;
-        const f = TraversileTool.func2traversile(x => x, { merger });
-        const jdoc_out = f(jdoc_in);
+    //     const merger = TraversileTool.merger_nullexcluded;
+    //     const f = TraversileTool.f_leaf2f_tree(x => x, { merger });
+    //     const jdoc_out = f(jdoc_in);
 
-        // console.log({callname, jdoc_in, jdoc_out});
-        return jdoc_out;
-    }
+    //     // console.log({callname, jdoc_in, jdoc_out});
+    //     return jdoc_out;
+    // }
 
     static keys2reduced(jdoc_in:any, key2mapped:(k:string)=>string){
         const cls = JsonTool;

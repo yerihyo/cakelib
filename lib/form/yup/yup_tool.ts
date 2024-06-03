@@ -2,13 +2,32 @@ import * as Yup from 'yup';
 import DateTool from '../../date/date_tool';
 import HookTool, { Hookcodec, Reacthooksetter } from '../../react/hook/hook_tool';
 import JsonTool, { Jpath, XpathTool } from '../../collection/dict/json/json_tool';
-import { ObjectShape } from 'yup/lib/object';
+import ObjectSchema, { ObjectShape } from 'yup/lib/object';
 import DictTool from '../../collection/dict/dict_tool';
 import ArrayTool from '../../collection/array/array_tool';
 import lodash from 'lodash';
+import { AnyObject } from 'yup/lib/types';
+
+// use YupContext
+// export interface TestContextExtended {
+//   from: {
+//     schema: ObjectSchema<ObjectShape>;
+//     value: any;
+//   }[];
+// }
 
 export default class YupTool{
 
+  /**
+   * Yup.StringSchema.matches() is not called when input doesn't exists. This is an alternative approach.
+   */
+  static regex_message2f_test = <C extends AnyObject>(
+    regex:RegExp,
+    message:string
+  ): Yup.TestFunction<string, C> => {
+    
+    return (x: string, { createError }) => x?.match(regex) ? true : createError({message})
+  }
   static error2is_rooterror = (error:Yup.ValidationError):boolean => !error.path;
 
   static error2errors(error:Yup.ValidationError):Yup.ValidationError[]{
@@ -97,6 +116,7 @@ export default class YupTool{
     // return /^(?!\s+$)/;
     // return /^\w+/;
     return /([^\s]+)/;
+    // return /^\S+$/;
   }
   static async schema2validated(
     validate: () => void | Promise<void>,

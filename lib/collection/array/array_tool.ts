@@ -1004,7 +1004,7 @@ export default class ArrayTool {
     return ArrayTool.len(l);
   }
 
-  static f_bicmp2f_bicmp_every = <X>(f_bicmp: Bicomparator<X>): Bicomparator<X[]> => {
+  static f_bool2f_every = <X>(f_bicmp: Bicomparator<X>): Bicomparator<X[]> => {
     return (a: X[], b: X[]) => {
       // https://stackoverflow.com/a/16436975
 
@@ -1025,9 +1025,8 @@ export default class ArrayTool {
       return true;
     };
   };
-  static f_eq2f_eq_array = ArrayTool.f_bicmp2f_bicmp_every;
 
-  static f_bicmp2f_bicmp_some = <X>(f_bicmp: Bicomparator<X>): Bicomparator<X[]> => {
+  static f_bool2f_some = <X>(f_bicmp: Bicomparator<X>): Bicomparator<X[]> => {
     return (a: X[], b: X[]) => {
       // https://stackoverflow.com/a/16436975
 
@@ -1049,10 +1048,8 @@ export default class ArrayTool {
     };
   };
 
-  static isBiequalEvery = ArrayTool.f_bicmp2f_bicmp_every(CmpTool.isBiequal);
-  static isTriequalEvery = ArrayTool.f_bicmp2f_bicmp_every(CmpTool.isTriequal);
-  static equals = ArrayTool.isBiequalEvery;
-  static areItemsEqual = ArrayTool.isTriequalEvery;
+  static areAllBiequal = ArrayTool.f_bool2f_every(CmpTool.isBiequal);
+  static areAllTriequal = ArrayTool.f_bool2f_every(CmpTool.isTriequal);
   // static areItemsEqual<T>(
   //   l1: T[],
   //   l2: T[],
@@ -1334,6 +1331,17 @@ export default class ArrayTool {
     return (x: X, ...args: A): Promise<R> =>
       fa_manytomany(ArrayTool.v2l_or_undef(x), ...args).then((rr) => ArrayTool.l2one(rr));
   };
+  
+  static sortArrayBasedOnOriginal = (original: string[], newArray: string[]): string[] => {
+    if (!original) return [];
+    if (!newArray) return [];
+    const indexMap: { [key: string]: number } = {};
+    original.forEach((item, index) => {
+        indexMap[item] = index;
+    });
+
+    return newArray.sort((a, b) => (indexMap[a] ?? Infinity) - (indexMap[b] ?? Infinity));
+  }
 }
 
 export class PairTool {
