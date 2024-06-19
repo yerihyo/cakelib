@@ -267,6 +267,42 @@ export default class MongodbTool {
     };
   }
 
+  static ops_logical = () => ['$and','$or','$nor','$not'];
+  static query2is_logical = (query:any):boolean => {
+    const cls = MongodbTool;
+    const keys = Object.keys(query);
+    return cls.ops_logical().some(x => lodash.isEqual(ArrayTool.v2l_or_undef(x), keys));
+  }
+
+  static query2prefixed = <I,O=I>(query_in:I, prefix:string,):O => {
+    const cls = MongodbTool;
+    const callname = `MongodbTool.query2prefixed @ ${DateTool.time2iso(new Date())}`;
+
+    // console.log({callname, query_in, prefix,});
+    const rv = (() => {
+      if (ArrayTool.is_array(query_in)) {
+        return (query_in as any[])?.map(c_in => cls.query2prefixed(c_in, prefix)) as O;
+      } else if (DictTool.is_dict(query_in)) {
+        const keys = Object.keys(query_in);
+        if(!cls.query2is_logical(query_in)){
+          return DictTool.merge_dicts(
+            keys.map(k_ => ({[`${prefix}.${k_}`]: query_in[k_]})),
+            DictTool.WritePolicy.no_duplicate_key,
+          ) as O;
+          // return keys.reduce((h, k_) => ({...h, [`${prefix}.${k_}`]:query_in[k_]}), {}) as O;
+        }
+
+        const op = ArrayTool.l2one(keys);
+        return {[op]: cls.query2prefixed(query_in[op], prefix)} as O;
+      } else{
+        return query_in as unknown as O;
+      }
+    })();
+
+    // console.log({callname, query_in, prefix, rv});
+    return rv;
+  }
+
   static fieldpair2transducer_unwind = <V,>(
     field_from:string, // "fulfills"
     field_to:string, // "fulfill"
@@ -290,7 +326,9 @@ export default class MongodbTool {
             k1 === field_from, // need to generalize later when ${field_from} is suffix of xpath
             DictTool.is_dict(v1_in) && ArrayTool.areAllTriequal(Object.keys(v1_in), ["$elemMatch"]),
           ])
-            ? Object.keys(v2_in).map((k3) => ({ [`${field_to}.${k3}`]: transducer(v2_in?.[k3]) } as V))
+            // ? cls.query2prefixed(transducer(v2_in), field_to)
+            ? Object.keys(v2_in).map((k3) => cls.query2prefixed({ [k3]: transducer(v2_in?.[k3]) }, field_to) as V)
+            // ? Object.keys(v2_in).map((k3) => ({ [`${field_to}.${k3}`]: transducer(v2_in?.[k3]) } as V))
             : [{ [k1]: transducer(v1_in) } as V];
         });
         return DictTool.merge_dicts(v0_outs_list?.flat(), DictTool.WritePolicy.no_duplicate_key)
