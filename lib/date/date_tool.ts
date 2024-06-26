@@ -28,7 +28,7 @@ export default class DateTool {
   static daytime122day8time4 = (daytime12:number):{day8:number, time4:number} => {
     if (daytime12 == null) { return undefined; }
 
-    const floor = FunctionTool.unary2nullskipped(Math.floor);
+    const floor = FunctionTool.func2undef_ifany_nullarg(Math.floor);
     const day8 = floor(MathTool.div(daytime12, 10000));
     const time4 = MathTool.mod(daytime12, 10000);
     return {day8, time4};

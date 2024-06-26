@@ -10,9 +10,9 @@ export default class PhonenumberTool{
   }
   
   static x2tokens(v:string):string[]{
-    const self = PhonenumberTool;
+    const cls = PhonenumberTool;
     
-    const match = self.x2nodash(v)?.match(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,);
+    const match = cls.x2nodash(v)?.match(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,);
     return match?.slice(1);
   }
 
@@ -49,5 +49,20 @@ export default class PhonenumberTool{
     ]);
     // console.log({callname, is_valid, n})
     return is_valid;
+  }
+
+  static regex_countrycode = ():RegExp => {
+    // https://stackoverflow.com/a/62192894
+    return /(?:\+|00)(1|7|2[07]|3[0123469]|4[013456789]|5[12345678]|6[0123456]|8[1246]|9[0123458]|(?:2[12345689]|3[578]|42|5[09]|6[789]|8[035789]|9[679])\d)/;
+  }
+  static number_countrycode2e164 = (phonenumber_in:string, countrycode:string):string => {
+    const cls = PhonenumberTool;
+    if(!phonenumber_in){ return undefined; }
+
+    const phonenumber_nodash = cls.x2nodash(phonenumber_in);
+
+    // const match:RegExpExecArray = cls.regex_countrycode().exec(x_in);
+    const has_countrycode = cls.regex_countrycode().test(phonenumber_nodash);
+    return has_countrycode ? phonenumber_nodash : `${countrycode}${phonenumber_nodash?.replace(/^0/,'')}`;
   }
 }

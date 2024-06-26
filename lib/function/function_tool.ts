@@ -14,6 +14,7 @@ export type Typeinvariantfunc<X> = (i:X) => X;
 //     return <any>newFunc;
 // }
 
+export type Funcwrapper<O,A extends any[]> = (f:((...args:A) => O)) => ((...args:A) => O);
 
 export default class FunctionTool{
 
@@ -27,24 +28,61 @@ export default class FunctionTool{
         return (l:X[], ...args:A):R[] => l?.map(x => f_single(x, ...args))?.flat();
     }
 
-    static func_condition2skipped = <A extends any[]=any[],F extends Function=Function>(f: F, f_cond: (...any: A) => boolean): F => {
+    static f_skip2wrapper = <O, A extends any[]>(
+        f_skip:(...args:A) => boolean,
+    ):Funcwrapper<O,A> => {
         // https://stackoverflow.com/a/28998603
-        return <any>((...args:A) => {
-            if(f_cond(...args)){ return undefined; }
-            return f(...args)
-        });
+        return (f:((...args:A) => O)) => {
+            return (...args:A):O => {
+                return f_skip(...args) ? undefined : f(...args);
+            }
+        }
     }
 
-    static func2nullargsskipped = <
-        A extends any[] = any[],
-        F extends Function = Function
-    >(f: F): F => FunctionTool.func_condition2skipped(f, (...any: A) => any?.some(x => x == null))
+    static f_skip2func_conditioned = <O,A extends any[],>(
+        f: (...args:A) => O,
+        f_skip: (...args: A) => boolean,
+    ): (...args:A) => O => {
+        return FunctionTool.f_skip2wrapper<O,A>(f_skip)(f)
+    }
+    
+    static func2conditioned = <
+        O,
+        A extends any[],
+        // F extends (...any:A) => R,
+    >(
+        f: (...args:A) => O,
+        f_cond: (...args: A) => boolean,
+    ): (...args:A) => O => {
+        // https://stackoverflow.com/a/28998603
+        return (...args:A) => f_cond(...args) ? f(...args) : undefined;
+    }
+
+    // static func_condition2skipped = <
+    //     O,
+    //     A extends any[],
+    //     // F extends (...any:A) => R,
+    // >(
+    //     f: (...args:A) => O,
+    //     f_cond: (...args: A) => boolean,
+    // ): (...args:A) => O => {
+    //     // https://stackoverflow.com/a/28998603
+    //     return (...args:A) => f_cond(...args) ? f(...args) : undefined;
+    // }
+
+    // static wrapper_nullargsskip = <O, A extends any[],>() => FunctionTool.f_skip2wrapper<O,A>((...args) => (args?.some(x => x == null)));
+    static func2undef_ifany_nullarg = <O, A extends any[],>(
+        f: (...args:A) => O,
+    ): ((...args:A) => O) => {
+        const wrapper_nullargsskip = FunctionTool.f_skip2wrapper<O,A>((...args) => (args?.some(x => x == null)));
+        return wrapper_nullargsskip(f)
+    }
 
     static unary_condition2skipped = <I,O>(f:Unaryfunc<I,O>, f_cond:(x?:I) => boolean):Unaryfunc<I,O> => {
         return (x:I) => f_cond(x) ? (x as unknown as O) : f(x);
     }
-    static unary2nullskipped = <I = any, O = any>(f: Unaryfunc<I, O>): Unaryfunc<I, O> => FunctionTool.func2nullargsskipped(f);
-    static binary2nullskipped = <Y, X1, X2>(f: Binaryfunc<Y, X1, X2>): Binaryfunc<Y, X1, X2> => FunctionTool.func2nullargsskipped(f);
+    static unary2nullskipped = <I = any, O = any>(f: Unaryfunc<I, O>): Unaryfunc<I, O> => FunctionTool.func2undef_ifany_nullarg(f);
+    static binary2nullskipped = <Y, X1, X2>(f: Binaryfunc<Y, X1, X2>): Binaryfunc<Y, X1, X2> => FunctionTool.func2undef_ifany_nullarg(f);
 
     // static func2skipped<F extends CallableFunction> = (
     //     f:CallableFunction,
@@ -58,6 +96,15 @@ export default class FunctionTool{
             // return f();    
         }
     }
+
+    static func2preempted = <O1,O2,A extends any[]>(
+        f:(...args:A) => O1,
+        f_preempt:(...args:A) => O2,
+    ):((...args:A) => O2) => {
+        return f_preempt;
+        // return (...args:A) => f_preempt(...args);
+    }
+
     static is_function(v:any){
         // https://stackoverflow.com/a/6000009
         return typeof v === 'function';
@@ -70,7 +117,7 @@ export default class FunctionTool{
     // static func2negated3 = (f:Function) => FunctionTool.unary2nullskipped(lodash.negate(f));
     // static func2negated3 = lodash.flow(
     //     lodash.negate,
-    //     FunctionTool.func2nullargsskipped,
+    //     FunctionTool.func2undef_ifany_nullarg,
     // );
     static func2negated3 = <A extends any[]=any[]>(f:(...args:A) => boolean):((...args:A) => boolean) => lodash.flow(f, NativeTool.negate3);
     // static func2negated3 = <A extends any[]=any[]>(f:(...args:A) => boolean):((...args:A) => boolean) => {

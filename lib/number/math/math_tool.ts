@@ -48,7 +48,7 @@ export default class MathTool {
   static mod = MathTool.binary2nullableskippped((x1, x2) => x1 % x2);
 
 
-  static round = FunctionTool.func2nullargsskipped(Math.round); // (v:number) => v == null ? undefined : Math.round(v);
+  static round = FunctionTool.func2undef_ifany_nullarg(Math.round); // (v:number) => v == null ? undefined : Math.round(v);
 
   static changerate = (v1:number, v2:number):number => MathTool.div(MathTool.minus(v1, v2), v2);
   static ratio2str_percentile = (v: number,): string => {

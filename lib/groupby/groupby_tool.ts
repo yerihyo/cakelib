@@ -355,19 +355,4 @@ export default class GroupbyTool{
             ?.map(([k, vs]) => kvs2flat(k2flat(k), vs.map(v2flat)))
             ?.flat();
     }
-
-    // static array2items_list_countsorted(items, item2key){
-    //     const dict_key2items = GroupbyTool.dict_groupby_1step(items, item2key);
-    //     return GroupbyTool.dict_groupby2items_countsorted(dict_key2items);
-    // }
-
-    // static array2count_item_list(items, item2key){
-    //     const dict_key2count = GroupbyTool.array2dict_count(items, item2key);
-    //     const dict_key2item = ArrayTool.array2dict(ArrayTool.uniq(items, item2key), item2key);
-
-    //     const keys_sorted = ArrayTool.sorted(Object.keys(dict_key2count), (k1, k2) => (dict_key2count[k2] - dict_key2count[k1]));
-
-    //     const count_item_list = keys_sorted.map(k => (dict_key2count[k], dict_key2item[k]));
-    //     return count_item_list;
-    // }
 }

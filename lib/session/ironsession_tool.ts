@@ -19,4 +19,5 @@ export default class IronsessionTool {
     )
     return session;
   }
+
 }

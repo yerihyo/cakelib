@@ -5,6 +5,9 @@ import DateTool from "../../date/date_tool";
 import { Pair } from "../../native/native_tool";
 
 export default class MongodbTool {
+
+  static obj2id_removed = <T>(t:T):Omit<T,'_id'> => DictTool.keys2excluded(t,['_id'],);
+
   static value2is_unspecified = (v:any):boolean => v === undefined;
 
   static op2complement = (op:string) => {
@@ -139,88 +142,9 @@ export default class MongodbTool {
     };
   }
 
-  // static bicmp_ffvs2query = (
-  //   bicmp:string,
-  //   ffvs:{field:string,nestedfield?:string, vexpr:any}[],
-  // ) => {
-  //   // const ffvs = [
-  //   //   ...(
-  //   //     fulfillrts_pivot
-  //   //       ? [
-  //   //         { field: 'fulfills', nestedfield: 'schedule.fulfillrts', vexpr: fulfillrts_pivot, },
-  //   //         { field: 'fulfills', nestedfield: 'schedule.specified', vexpr: true, },
-  //   //       ]
-  //   //       : []
-  //   //   ),
-  //   //   { field: '_id', vexpr: { "$oid": order_last?.['_id'] }, }
-  //   // ];
-
-  //   type FFV = { field: string; nestedfield?: string; vexpr: any; };
-
-  //   // const bicmp_eqadded = MongodbTool.op2eqadded(bicmp);
-  //   const bicmp_complement = MongodbTool.op2complement(bicmp);
-  //   const bicmp_opposite = MongodbTool.op2opposite(bicmp);
-
-  //   const ffv2fullpath = (ffv:FFV) => [ffv.field, ...(ArrayTool.v2l_or_undef(ffv.nestedfield) ?? [])].join('.');
-  //   const ffv2query_bicmp = (ffv:FFV) => {
-  //     return ffv.nestedfield == null
-  //       ? { [ffv.field]: { [bicmp]: ffv.vexpr, } }
-  //       : {
-  //         [ffv2fullpath(ffv)]: { '$exists': true, },
-  //         // [ffv.field]: { "$not": { "$elemMatch": { [ffv.nestedfield]: { [bicmp_complement]: ffv.vexpr } } } },
-  //         [ffv.field]: { "$not": { "$elemMatch": { "$or": [
-  //           {[ffv.nestedfield]: { [bicmp_complement]: ffv.vexpr } },
-  //           {[ffv.nestedfield]: { '$eq': null  } },
-  //         ] } } },
-  //         // [ffv.field]: { "$not": { "$elemMatch": { [ffv.nestedfield]: {"$or": [{ [bicmp_complement]: ffv.vexpr }, { '$eq': null }]} } } },
-  //         // [ffv.field]: { "$not": { "$elemMatch": { [ffv.nestedfield]: {"$or": [{ [bicmp_complement]: ffv.vexpr }, { '$eq': null }]} } } },
-  //       };
-  //   }
-  //   const ffv2query_bicmp_eqadded = (ffv:FFV) => {
-  //     return ffv.nestedfield == null
-  //       ? { [ffv.field]: ffv.vexpr, }
-  //       : {
-  //         [ffv2fullpath(ffv)]: { '$exists': true, },
-  //         [ffv.field]: { "$not": { "$elemMatch": { [ffv.nestedfield]: { [bicmp_opposite]: ffv.vexpr } } } },
-  //       };
-  //   }
-
-  //   return {
-  //     '$or': ffvs.map((_, i) => {
-  //       return {
-  //         ...DictTool.merge_dicts(
-  //           ArrayTool.range(i).map(j => ffv2query_bicmp_eqadded(ffvs[j])),
-  //           DictTool.WritePolicy.no_duplicate_key,
-  //         ),
-  //         ...ffv2query_bicmp(ffvs[i]),
-  //       };
-  //     }),
-  //   };
-  // }
-  // static ffvs2query_lt = lodash.partial(MongodbTool.bicmp_ffvs2query, '$lt');
-  // static ffvs2query_gt = lodash.partial(MongodbTool.bicmp_ffvs2query, '$gt');
-
-
   static ffbvs2query = (
     ffbvs: {field:string,nestedfield?:string, bicmp:string, vexpr:any}[],
   ) => {
-    // const fulfillrts_pivot = MinimaxTool.min(
-    //   order_last?.fulfills?.map(Fulfill.fulfill2rts),
-    //   AbsoluteOrder.f_cmp2f_cmp_nullable2max(DateTool.pair2cmp),
-    // );
-    
-    // const ffbvs = [
-    //   ...(
-    //     fulfillrts_pivot
-    //       ? [
-    //         { field: 'fulfills', nestedfield: 'schedule.fulfillrts', bicmp:'$gt', vexpr: fulfillrts_pivot, },
-    //         { field: 'fulfills', nestedfield: 'schedule.specified', bicmp:'$eq', vexpr: true, },
-    //       ]
-    //       : []
-    //   ),
-    //   { field: '_id', bicmp: '$gt', vexpr: { "$oid": order_last?.['_id'] }, }
-    // ];
-
 
     type FFBV = { field: string; nestedfield?: string; bicmp:string; vexpr: any; };
 

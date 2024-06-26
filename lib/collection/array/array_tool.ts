@@ -908,6 +908,14 @@ export default class ArrayTool {
     return items_uniq;
   }
 
+  static f_array2f_array_backtoforward = <T, A extends any[]>(
+    f_array:(l:T[], ...args:A) => T[],
+  ) : ((l:T[], ...args:A) => T[]) => {
+    return (l:T[], ...args:A) => ArrayTool.reversed(f_array(ArrayTool.reversed(l), ...args));
+  }
+
+  static uniq_rearpreferred = ArrayTool.f_array2f_array_backtoforward(ArrayTool.uniq);
+
   static push2self<T>(items: T[], item: T): T[] {
     items.push(item);
     return items;
