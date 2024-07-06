@@ -10,7 +10,7 @@ import DictTool from '../dict/dict_tool';
 const assert = (v:any, msg?:string) => { if(!v){ throw new Error(msg ? `${msg} (${v})` : `${v}`)}}
 // var lodash = require('lodash');
 // var _ = require('lodash/core');
-type ArrayElement<A> = A extends readonly (infer T)[] ? T : never
+export type ArrayElement<A> = A extends readonly (infer T)[] ? T : never
 
 function date2str_time(d: Date) {
   return (d).toISOString().split("T")[1];

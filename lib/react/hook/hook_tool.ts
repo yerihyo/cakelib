@@ -2084,6 +2084,7 @@ export class Asynctracker {
     };
   }
 
+  // use Asynctracker.afunc_statehook2conn instead!
   static async2tracked = <K, T,>(
     action_in: (...args: K[]) => Promise<T>,
     options?: {
