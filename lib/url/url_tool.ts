@@ -227,8 +227,7 @@ export default class UrlTool{
     if(urlstring==null){ return undefined; }
     if(!ArrayTool.bool(params_in)){ return urlstring; }
 
-    const tokens = StringTool.splitonce(urlstring, '?');
-    const [baseurl, str_params_prev] = tokens;
+    const [baseurl, str_params_prev] = urlstring?.split('?', 2);
     const params_prev = new URLSearchParams(str_params_prev || '');
     
     const keys_in = new Set(params_in.map(([k,_]) => k));
