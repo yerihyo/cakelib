@@ -167,6 +167,71 @@ export default class SpanTool {
     return l_out
   }
 
+  static mergeSpans = <T>(span1: Pair<T>, span2: Pair<T>, option?: { comparator?: Comparator<T> }): Pair<T> => {
+    const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
+    const start = MinimaxTool.min(
+      [span1[0], span2[0]],
+      AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator)
+    );
+    const end = MinimaxTool.max(
+      [span1[1], span2[1]],
+      AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator)
+    );
+    return [start, end];
+  }
+  
+  static unionSpans = <T>(spans_original: Pair<T>[], option?: { comparator?: Comparator<T> }): Pair<T>[] => {
+    console.log(JSON.stringify(spans_original))
+    let spans = JSON.parse(JSON.stringify(spans_original)) as Pair<T>[];
+    console.log({spans, spans_original})
+    if (!spans || spans.length === 0) return [];
+
+    // Check if there's any span that covers the entire range
+    for (let span of spans) {
+      if (span[0] == null && span[1] == null) {
+        return [[null, null]];
+      }
+    }
+    const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
+
+    // Sort spans by start value
+    spans = ArrayTool.sorted(spans, (a, b) => {
+    const comparator_lb = AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator);
+    return comparator_lb(a?.[0], b?.[0])
+    })
+
+    const result: Pair<T>[] = [];
+    let currentSpan = spans[0];
+
+    for (let i = 1; i < spans.length; i++) {
+      const span = spans[i];
+
+      // If we encounter a span that covers the entire range, the result is just that span
+      if (span[0] == null && span[1] == null) {
+        return [[null, null]];
+      }
+
+      if (currentSpan[1] == null || span[0] == null || comparator(currentSpan[1], span[0]) >= 0) {
+        // Merge spans if they overlap or are contiguous
+        if (currentSpan[1] == null || span[1] == null || comparator(currentSpan[1], span[1]) < 0) {
+          currentSpan[1] = span[1];
+        }
+      } else {
+        result.push(currentSpan);
+        currentSpan = JSON.parse(JSON.stringify(span)) as Pair<T>;
+      }
+    }
+
+    result.push(currentSpan);
+
+    // If the entire range is covered, return [[null, null]]
+    if (result.length === 1 && result[0][0] == null && result[0][1] == null) {
+      return [[null, null]];
+    }
+
+    return result;
+  };
+
   static intersect = <T>(
     spans: Pair<T>[],
     option?:{comparator?: Comparator<T>,},
@@ -183,6 +248,64 @@ export default class SpanTool {
 
     if (start != null && end != null && !(comparator(start, end) < 0)) { return null; }
     return [start, end]
+  }
+
+  static intersectSpans = <T>(
+    span1: Pair<T>[],
+    span2: Pair<T>[],
+    option?: { comparator?: Comparator<T> }
+  ): Pair<T>[] => {
+    const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
+  
+    const events: Array<[T | null | undefined, 'start' | 'end', number]> = [];
+  
+    span1.forEach((pair, index) => {
+      events.push([pair[0], 'start', index]);
+      events.push([pair[1], 'end', index]);
+    });
+    
+    span2.forEach((pair, index) => {
+      events.push([pair[0], 'start', index + span1.length]);
+      events.push([pair[1], 'end', index + span1.length]);
+    });
+  
+    events.sort((a, b) => {
+      if (a[0] === null || a[0] === undefined) return -1;
+      if (b[0] === null || b[0] === undefined) return 1;
+      const comp = comparator(a[0], b[0]);
+      if (comp !== 0) return comp;
+      if (a[1] === 'start' && b[1] === 'end') return -1;
+      if (a[1] === 'end' && b[1] === 'start') return 1;
+      return 0;
+    });
+  
+    const activeSpans = new Set<number>();
+    const intersections: Pair<T>[] = [];
+    let intersectionStart: T | null | undefined = null;
+  
+    for (const [value, type, index] of events) {
+      if (type === 'start') {
+        if (activeSpans.size === 1) {
+          intersectionStart = value;
+        }
+        activeSpans.add(index);
+      } else {
+        if (activeSpans.size === 2) {
+          intersections.push([intersectionStart, value]);
+        }
+        activeSpans.delete(index);
+        if (activeSpans.size === 1 && value !== null && value !== undefined) {
+          intersectionStart = value;
+        }
+      }
+    }
+  
+    // Handle case where intersection extends to infinity
+    if (activeSpans.size === 2) {
+      intersections.push([intersectionStart, null]);
+    }
+  
+    return intersections;
   }
 
   static subtract = <T>(span1: Pair<T>, span2: Pair<T>, option?:{comparator?:Comparator<T>,}): Pair<T>[] => {
@@ -205,6 +328,87 @@ export default class SpanTool {
       ...(comparator_ub(cup[1], span1[1])<0 ? [[cup[1], span1[1]] as Pair<T>] : []),
     ];
   }
+  static subtractSpans = <T>(
+    spans1: Pair<T>[],
+    spans2: Pair<T>[],
+    option?: { comparator?: Comparator<T> }
+  ): Pair<T>[] => {
+    if (!spans1 || spans1.length === 0) return [];
+    if (!spans2 || spans2.length === 0) return spans1;
+
+    const comparator = option?.comparator ?? ((a: T, b: T) => (a < b ? -1 : a > b ? 1 : 0));
+
+    const result: Pair<T>[] = [];
+
+    spans1.forEach(span1 => {
+      let [start1, end1] = span1;
+
+      spans2.forEach(span2 => {
+        let [start2, end2] = span2;
+
+        if (start1 == null && end1 == null) {
+          // span1 is from -∞ to +∞
+          if (start2 != null) {
+            // span2 has a defined start
+            result.push([null, start2]);
+            start1 = end2;
+            end1 = null;
+          }
+        } else if (start1 == null || end1 == null || start2 == null || end2 == null) {
+          // Handle spans with null or undefined bounds
+          if (start1 == null || (start2 != null && comparator(start1, start2) < 0)) {
+            if (end2 != null && (end1 == null || comparator(end2, end1) < 0)) {
+              start1 = end2;
+            } else {
+              start1 = null;
+              end1 = null;
+            }
+          } else if (end1 == null || (end2 != null && comparator(end1, end2) > 0)) {
+            if (start2 != null && (start1 == null || comparator(start2, start1) > 0)) {
+              end1 = start2;
+            } else {
+              start1 = null;
+              end1 = null;
+            }
+          }
+        } else {
+          // Normal case with defined bounds
+          if (comparator(end1, start2) <= 0 || comparator(start1, end2) >= 0) {
+            return;
+          }
+          if (comparator(start1, start2) < 0) {
+            if (comparator(end1, end2) > 0) {
+              result.push([start1, start2]);
+              start1 = end2;
+            } else {
+              end1 = start2;
+            }
+          } else {
+            if (comparator(end1, end2) > 0) {
+              start1 = end2;
+            } else {
+              start1 = null;
+              end1 = null;
+            }
+          }
+        }
+      });
+
+      if (start1 != null || end1 != null) {
+        result.push([start1, end1]);
+      }
+    });
+
+    return result;
+  };
+
+  static symmetricDifference = <T>(spans1: Pair<T>[], spans2: Pair<T>[], option?: { comparator?: Comparator<T> }): Pair<T>[] => {
+    const unionSpans = SpanTool.unionSpans([...spans1, ...spans2], option);
+    const intersect = SpanTool.intersectSpans(spans1, spans2, option);
+    const result = SpanTool.subtractSpans(unionSpans, intersect, option);
+    console.log({spans1, spans2, unionSpans, intersect, result})
+    return result;
+  };
 
   static spans2span_subtracted = <T>(spans:Pair<T>[], span:Pair<T>, option?:{comparator?:Comparator<T>,}):Pair<T>[] => {
     const cls = SpanTool;
