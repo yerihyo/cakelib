@@ -1,5 +1,9 @@
+import StringTool from "../string/string_tool";
 import ArrayTool from "../collection/array/array_tool";
 import DateTool from "../date/date_tool";
+import lodash from "lodash";
+import FunctionTool from "../function/function_tool";
+
 
 export default class PhonenumberTool{
   static x2nodash(v:string):string{
@@ -7,33 +11,6 @@ export default class PhonenumberTool{
     return v?.replace(/[^+a-zA-Z0-9]+/g, "");  // https://stackoverflow.com/a/71202366
     // return v?.replaceAll("[()\\s-]+", ""); // not working
     // return v?.replaceAll("\\D+", ""); // not working
-  }
-  
-  static x2tokens(v:string):string[]{
-    const cls = PhonenumberTool;
-    
-    const match = cls.x2nodash(v)?.match(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,);
-    return match?.slice(1);
-  }
-
-  static x2dashed(v:string):string{
-    const cls = PhonenumberTool;
-    const callname = `PhonenumberTool.x2dashed @ ${DateTool.time2iso(new Date())}`;
-    // https://jhlov.github.io/전화번호-입력시-자동으로-하이픈(-)-삽입하는-자바스크립트-코드/
-    
-    // const v_nodash = cls.x2nodash(v);
-    const v_dashed = cls.x2tokens(v)?.join('-');
-    // console.log({callname,
-    //   v,
-    //   '"(123) 456-7890".replace(/[^+\d]+/g, "")':"(123) 456-7890".replace(/[^+\d]+/g, ""),
-    //   'v.replace(/[^+\d]+/g, "")':v.replace(/[^+\d]+/g, ""),
-    //   v_nodash,
-    //   v_dashed});
-    return v_dashed;
-    // return self.x2nodash(v)?.replace(
-    //   /(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,
-    //   "$1-$2-$3"
-    // );
   }
 
   static string2is_cellphonenumber(phonenumber:string):boolean{
@@ -53,8 +30,10 @@ export default class PhonenumberTool{
 
   static regex_countrycode = ():RegExp => {
     // https://stackoverflow.com/a/62192894
-    return /(?:\+|00)(1|7|2[07]|3[0123469]|4[013456789]|5[12345678]|6[0123456]|8[1246]|9[0123458]|(?:2[12345689]|3[578]|42|5[09]|6[789]|8[035789]|9[679])\d)/;
+    // return /(?:\+|00)(1|7|2[07]|3[0123469]|4[013456789]|5[12345678]|6[0123456]|8[1246]|9[0123458]|(?:2[12345689]|3[578]|42|5[09]|6[789]|8[035789]|9[679])\d)/;
+    return /(?:\+|00)(?:1|7|2[07]|3[0123469]|4[013456789]|5[12345678]|6[0123456]|8[1246]|9[0123458]|(?:2[12345689]|3[578]|42|5[09]|6[789]|8[035789]|9[679]))/;
   }
+
   static number_countrycode2e164 = (phonenumber_in:string, countrycode:string):string => {
     const cls = PhonenumberTool;
     if(!phonenumber_in){ return undefined; }
@@ -65,4 +44,63 @@ export default class PhonenumberTool{
     const has_countrycode = cls.regex_countrycode().test(phonenumber_nodash);
     return has_countrycode ? phonenumber_nodash : `${countrycode}${phonenumber_nodash?.replace(/^0/,'')}`;
   }
+
+  // static splitonce_domestic_countrycode = lodash.flow(
+  //   lodash.partial(StringTool.splitonce, PhonenumberTool.regex_countrycode()),
+  //   ArrayTool.reversed,
+  // )
+  static splitonce_domestic_countrycode = (x:string):[string,string] => {
+    const cls = PhonenumberTool;
+    const callname = `PhonenumberTool.splitonce_domestic_countrycode @ ${DateTool.time2iso(new Date())}`;
+
+    const tokens = StringTool.trisplit_once(PhonenumberTool.regex_countrycode(), x);
+    // const tokens = PhonenumberTool.regex_countrycode()[Symbol.split](x, 3)?.map(x => x?.trim())
+    const countrycode_domestic = tokens?.slice(1,)?.map(x => x?.trim());
+    // console.log({callname, x, tokens, countrycode_domestic});
+    return ArrayTool.reversed(countrycode_domestic) as [string,string];
+  }
+}
+
+export class PhonenumberkrTool{
+  static is_zdom = (dom:string):boolean => dom?.startsWith('0');
+  static dom2zdom = (dom:string):string => dom == null ? undefined : PhonenumberkrTool.is_zdom(dom) ? dom : `0${dom}`;
+  static dom2nzdom = (dom:string):string => dom == null ? undefined : PhonenumberkrTool.is_zdom(dom) ? dom?.substring(1) : dom;
+  static x2dom = lodash.flow(
+    PhonenumberTool.splitonce_domestic_countrycode,
+    x => x?.[0],
+  )
+
+  static zdom2tokens = FunctionTool.deprecated((zdom:string):string[] => {
+    // https://jhlov.github.io/전화번호-입력시-자동으로-하이픈(-)-삽입하는-자바스크립트-코드/
+    // this is the original form but prefer dom2tokens as long as it works
+    const match = PhonenumberTool.x2nodash(zdom)?.match(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,);
+    return match?.slice(1);
+  })
+
+  static dom2tokens = (dom:string):string[] => {
+    const cls = PhonenumberkrTool;
+    // https://jhlov.github.io/전화번호-입력시-자동으로-하이픈(-)-삽입하는-자바스크립트-코드/
+    
+    const match = PhonenumberTool.x2nodash(dom)?.match(/(^0?2.{0}|^0?1.{1}|[0-9]{2,3})([0-9]+)([0-9]{4})/,);
+    return match?.slice(1);
+  }
+
+  static x2dashed = (x:string):string => {
+    const cls = PhonenumberkrTool;
+    const callname = `PhonenumberkrTool.x2dashed @ ${DateTool.time2iso(new Date())}`;
+    
+    if(x == null){ return undefined; }
+
+    // console.log({callname, x})
+    const [dom, countrycode] = PhonenumberTool.splitonce_domestic_countrycode(x)
+    // const zdom = cls.dom2zdom(dom);
+    const dom_dashed = cls.dom2tokens(dom)?.join('-');
+
+    // return countrycode
+    //   ? [countrycode, dom]?.filter(Boolean)?.join(' ')
+    //   : cls.zdom2tokens(cls.dom2zdom(dom))
+    // const zdomestic_dashed = cls.zdom2tokens(zdom)?.join('-');
+    return [countrycode, dom_dashed]?.filter(Boolean)?.join(' ');
+  }
+    
 }

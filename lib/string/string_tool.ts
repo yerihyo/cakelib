@@ -1,8 +1,11 @@
+import lodash from "lodash";
 import CmpTool from "../cmp/CmpTool";
 import ArrayTool from "../collection/array/array_tool";
 import DateTool from "../date/date_tool";
 import NativeTool from "../native/native_tool";
 import SpanTool from "../span/span_tool";
+import FunctionTool from "../function/function_tool";
+import RegexTool from "../regex/regex_tool";
 
 export default class StringTool {
 
@@ -22,17 +25,34 @@ export default class StringTool {
   // references:
   //  https://stackoverflow.com/a/2878746
   //  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/search
-  static splitonce = (
-    s:string,
-    // splitter:Parameters<typeof String.prototype.split>[0],
+  static trisplit_once = (
     splitter:string|RegExp,
+    x:string,
+    // splitter:Parameters<typeof String.prototype.split>[0],
     // splitter:Parameters<typeof String.prototype.search>[0],
     // option?:{splitlimit?:number},
-  ):string[] => {
-    if(s == null){ return undefined; }
+  ):[string,string?,string?] => {
+    const callname = `StringTool.trisplit_once @ ${DateTool.time2iso(new Date())}`;
 
-    const i = (splitter instanceof RegExp) ? s?.search(splitter) : s?.indexOf(splitter);
-    return i<0 ? [s] : [s.slice(0,i), s.slice(i+1)];
+    if(x == null){ return undefined; }
+    if(splitter == null){ return undefined; }
+
+    const span = (splitter instanceof RegExp)
+      ? RegexTool.match2span(splitter.exec(x))
+      : (i => i>0 ? [i, i+splitter.length] : undefined)(x.indexOf(splitter))
+    // if(is_regex){
+      
+    //   splitter?.exec(s)
+    // }
+    // const i = is_regex ? s?.exec(splitter) : s?.indexOf(splitter);
+    return span == null
+      ? [x]
+      : [
+        x.slice(0,span[0]),
+        x.slice(span[0], span[1]),
+        x.slice(span[1]),
+      ]
+      ;
   }
 
   // static func2stringonly = <X,Y>(func: (s:string) => Y):((x:X) => (X|Y)) => {
