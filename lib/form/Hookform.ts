@@ -420,6 +420,17 @@ export default class Hookform<T>{
   //   return false;
   // }
 
+  static element2scrollTo = (element:HTMLElement) => {
+    if(!element){ return ; }
+    
+    const yOffset = -10;
+    const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+
+    // console.log({callname, y});
+    // element_first.scrollIntoView();
+    window.scrollTo({top: y, behavior: 'smooth'});
+  }
+
   static errors2handled = (
     errors:Yup.ValidationError[],
     hookform:Hookform<any>,
@@ -446,37 +457,16 @@ export default class Hookform<T>{
       )
     )?.[0]
 
+    cls.element2scrollTo(fieldinfo0?.ref?.current);
+    // const element0 = fieldinfo0?.ref?.current;
+    // if(element0){
+    //   const yOffset = -10;
+    //   const y = element0.getBoundingClientRect().top + window.scrollY + yOffset;
 
-    // console.log({
-    //   callname, 
-    //   fieldinfos,
-    //   fieldinfo0, 
-    //   'fieldinfos?.map(f => XpathTool.jpath2xpath(f.jpath))':fieldinfos?.map(f => XpathTool.jpath2xpath(f.jpath)),
-    //   xpaths_error,
-    //   errors_all,
-    // });
-
-    // const xpath0 = ArrayTool.min(
-    //   errors_all?.map(e => e.path),
-    //   {
-    //     comparator: Fieldinfo.fieldinfos2xpath_comparator(fieldinfoshook[0]),
-    //   }
-    // );
-    
-    // const fieldinfo0 = xpath0 == null
-    //   ? undefined
-    //   : ArrayTool.filter2one(f => XpathTool.jpath2xpath(f.jpath) == xpath0, fieldinfoshook[0],)
-    //   ;
-    // console.log({callname, errors_all, fieldinfo0, });
-    const element0 = fieldinfo0?.ref?.current;
-    if(element0){
-      const yOffset = -10;
-      const y = element0.getBoundingClientRect().top + window.scrollY + yOffset;
-
-      // console.log({callname, y});
-      // element_first.scrollIntoView();
-      window.scrollTo({top: y, behavior: 'smooth'});
-    }
+    //   // console.log({callname, y});
+    //   // element_first.scrollIntoView();
+    //   window.scrollTo({top: y, behavior: 'smooth'});
+    // }
     errorshook[1](errors_all);
     
     // set_dict_errors(GroupbyTool.dict_groupby(errors, [e => e.path]));
