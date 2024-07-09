@@ -49,12 +49,17 @@ export default class PhonenumberTool{
   //   lodash.partial(StringTool.splitonce, PhonenumberTool.regex_countrycode()),
   //   ArrayTool.reversed,
   // )
-  static splitonce_domestic_countrycode = (x:string):[string,string] => {
+  static splitonce_domestic_countrycode = (x:string):[string,string?] => {
     const cls = PhonenumberTool;
     const callname = `PhonenumberTool.splitonce_domestic_countrycode @ ${DateTool.time2iso(new Date())}`;
 
     const tokens = StringTool.trisplit_once(PhonenumberTool.regex_countrycode(), x);
+    // console.log({callname, x, tokens});
     // const tokens = PhonenumberTool.regex_countrycode()[Symbol.split](x, 3)?.map(x => x?.trim())
+
+    if(!tokens){ return undefined; }
+    if(tokens.length == 1){ return [x]; }
+
     const countrycode_domestic = tokens?.slice(1,)?.map(x => x?.trim());
     // console.log({callname, x, tokens, countrycode_domestic});
     return ArrayTool.reversed(countrycode_domestic) as [string,string];
@@ -91,11 +96,11 @@ export class PhonenumberkrTool{
     
     if(x == null){ return undefined; }
 
-    // console.log({callname, x})
+    
     const [dom, countrycode] = PhonenumberTool.splitonce_domestic_countrycode(x)
     // const zdom = cls.dom2zdom(dom);
     const dom_dashed = cls.dom2tokens(dom)?.join('-');
-
+    // console.log({callname, x, dom, countrycode, dom_dashed})
     // return countrycode
     //   ? [countrycode, dom]?.filter(Boolean)?.join(' ')
     //   : cls.zdom2tokens(cls.dom2zdom(dom))
