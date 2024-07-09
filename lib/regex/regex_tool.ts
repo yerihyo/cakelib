@@ -11,28 +11,28 @@ export default class RegexTool{
     return matches;
   }
 
-  static pattern2span = (pattern:RegExp, str:string):[number,number] => {
-    const callname = `RegexTool.pattern2span @ ${time2iso(new Date())}`;
+  // static pattern2span = (pattern:RegExp, str:string):[number,number] => {
+  //   const callname = `RegexTool.pattern2span @ ${time2iso(new Date())}`;
 
-    const match = pattern.exec(str);
-    console.log({
-      callname,
-      'match?.index':match?.index,
-      'pattern.lastIndex':pattern.lastIndex,
-      match,
-    });
-    return match == null ? undefined : [match.index, pattern.lastIndex];
-  }
+  //   const match = pattern.exec(str);
+  //   console.log({
+  //     callname,
+  //     'match?.index':match?.index,
+  //     'pattern.lastIndex':pattern.lastIndex,
+  //     match,
+  //   });
+  //   return match == null ? undefined : [match.index, pattern.lastIndex];
+  // }
 
   static match2span = (match:RegExpExecArray):[number,number] => {
     const callname = `RegexTool.match2span @ ${time2iso(new Date())}`;
 
-    console.log({
-      callname,
-      // 'match?.index':match?.index,
-      // 'pattern.lastIndex':pattern.lastIndex,
-      match,
-    });
+    // console.log({
+    //   callname,
+    //   // 'match?.index':match?.index,
+    //   // 'pattern.lastIndex':pattern.lastIndex,
+    //   match,
+    // });
     return match == null ? undefined : [match.index, match.index + match[0].length];
   }
 

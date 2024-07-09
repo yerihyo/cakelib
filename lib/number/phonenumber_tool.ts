@@ -70,12 +70,12 @@ export class PhonenumberkrTool{
     x => x?.[0],
   )
 
-  static zdom2tokens = FunctionTool.deprecated((zdom:string):string[] => {
-    // https://jhlov.github.io/전화번호-입력시-자동으로-하이픈(-)-삽입하는-자바스크립트-코드/
-    // this is the original form but prefer dom2tokens as long as it works
-    const match = PhonenumberTool.x2nodash(zdom)?.match(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,);
-    return match?.slice(1);
-  })
+  // static zdom2tokens = FunctionTool.deprecated((zdom:string):string[] => {
+  //   // https://jhlov.github.io/전화번호-입력시-자동으로-하이픈(-)-삽입하는-자바스크립트-코드/
+  //   // this is the original form but prefer dom2tokens as long as it works
+  //   const match = PhonenumberTool.x2nodash(zdom)?.match(/(^02.{0}|^01.{1}|[0-9]{3})([0-9]+)([0-9]{4})/,);
+  //   return match?.slice(1);
+  // })
 
   static dom2tokens = (dom:string):string[] => {
     const cls = PhonenumberkrTool;
