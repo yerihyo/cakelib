@@ -17,47 +17,81 @@ export type Typeinvariantfunc<X> = (i:X) => X;
 export type Funcwrapper<O,A extends any[]> = (f:((...args:A) => O)) => ((...args:A) => O);
 
 export default class FunctionTool{
+    static deprecated = <O, A extends any[]>(
+        f:(...args:A) => O,
+    ) => {
+        return (...args:A):O => {
+            throw new Error(`Function deprecated : ${f.name}`)
+            // return f();    
+        }
+    }
 
-    static f_onetoone2f_manytomany_notnull = <X, A extends any[], R>(
+    static f_onetoone2f_manytomany = <X, A extends any[], R>(
         f_onetoone:(x:X, ...args:A) => R,
     ):((l:X[], ...args:A) => R[]) => {
-        return (l:X[], ...args:A):R[] => l?.map(x => f_onetoone(x, ...args))?.filter(r => r!=null);
+        return (l:X[], ...args:A):R[] => l?.map(x => f_onetoone(x, ...args));
     }
+
+
+    // static f_onetoone2f_manytomany_notnull = <X, A extends any[], R>(
+    //     f_onetoone:(x:X, ...args:A) => R,
+    // ):((l:X[], ...args:A) => R[]) => {
+    //     return (l:X[], ...args:A):R[] => l?.map(x => f_onetoone(x, ...args))?.filter(r => r!=null);
+    // }
 
     static f_onetomany2f_manytomany = <X, A extends any[], R>(f_single:(x:X, ...args:A) => R[]):((l:X[], ...args:A) => R[]) => {
         return (l:X[], ...args:A):R[] => l?.map(x => f_single(x, ...args))?.flat();
     }
 
-    static f_skip2wrapper = <O, A extends any[]>(
-        f_skip:(...args:A) => boolean,
+    /** 
+     * WARNING!!!!
+     * Typescript cannot automatically propagate original input functions types to wrapped output function types.
+     * When used, another manual wrapper necessary for proper type propagation
+     **/
+    static f_cond2wrapper = FunctionTool.deprecated(<O, A extends any[]>(
+        f_cond:(...args:A) => boolean,
     ):Funcwrapper<O,A> => {
         // https://stackoverflow.com/a/28998603
         return (f:((...args:A) => O)) => {
             return (...args:A):O => {
-                return f_skip(...args) ? undefined : f(...args);
+                if(f_cond(...args)){ return f(...args); }
+                else{ return undefined; }
             }
         }
-    }
+    });
 
-    static f_skip2func_conditioned = <O,A extends any[],>(
-        f: (...args:A) => O,
-        f_skip: (...args: A) => boolean,
-    ): (...args:A) => O => {
-        return FunctionTool.f_skip2wrapper<O,A>(f_skip)(f)
-    }
+    /** 
+     * WARNING!!!!
+     * Typescript cannot automatically propagate original input functions types to wrapped output function types.
+     * When used, another manual wrapper necessary for proper type propagation
+     **/
+    static f_skip2wrapper = FunctionTool.deprecated(<O, A extends any[]>(
+        f_skip:(...args:A) => boolean,
+    ):Funcwrapper<O,A> => {
+        return FunctionTool.f_cond2wrapper(lodash.flow(f_skip, Boolean));
+    })
+
+    // static f_skip2func_conditioned = <O,A extends any[],>(
+    //     f_skip: (...args: A) => boolean,
+    //     f: (...args:A) => O,
+    // ): (...args:A) => O => {
+    //     return FunctionTool.f_skip2wrapper<O,A>(f_skip)(f)
+    // }
     
-    static func2conditioned = <
-        O,
-        A extends any[],
-        // F extends (...any:A) => R,
-    >(
-        f: (...args:A) => O,
+    static fcond_func2wrapped = <O,A extends any[],>(
         f_cond: (...args: A) => boolean,
+        f: (...args:A) => O,
     ): (...args:A) => O => {
-        // https://stackoverflow.com/a/28998603
-        return (...args:A) => f_cond(...args) ? f(...args) : undefined;
+      return (...args: A) => {
+        if(!f_cond(...args)){ return undefined; }
+        return f(...args);
+      }
     }
-
+    static fskip_func2wrapped = <O,A extends any[],>(
+        f_skip: (...args: A) => boolean,
+        f: (...args:A) => O,
+    ): (...args:A) => O => FunctionTool.fcond_func2wrapped(lodash.flow(f_skip, Boolean), f);
+    
     // static func_condition2skipped = <
     //     O,
     //     A extends any[],
@@ -88,14 +122,6 @@ export default class FunctionTool{
     //     f:CallableFunction,
     //     f_cond:
     // ) 
-    static deprecated(
-        f:CallableFunction
-    ){
-        return (...args:any[]) => {
-            throw new Error(`Function deprecated : ${f.name}`)
-            // return f();    
-        }
-    }
 
     static func2preempted = <O1,O2,A extends any[]>(
         f:(...args:A) => O1,
