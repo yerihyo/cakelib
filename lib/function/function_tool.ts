@@ -108,8 +108,10 @@ export default class FunctionTool{
     static func2undef_ifany_nullarg = <O, A extends any[],>(
         f: (...args:A) => O,
     ): ((...args:A) => O) => {
-        const wrapper_nullargsskip = FunctionTool.f_skip2wrapper<O,A>((...args) => (args?.some(x => x == null)));
-        return wrapper_nullargsskip(f)
+        return FunctionTool.fskip_func2wrapped<O,A>(
+            (...args) => args?.some(x => x == null),
+            f,
+        );
     }
 
     static unary_condition2skipped = <I,O>(f:Unaryfunc<I,O>, f_cond:(x?:I) => boolean):Unaryfunc<I,O> => {
