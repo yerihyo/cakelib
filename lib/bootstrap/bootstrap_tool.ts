@@ -50,28 +50,73 @@ export class Gridsize{
   static lte = CmpTool.f_cmp2f_lte(AbsoluteOrder.f_cmp2f_cmp_nullable(Gridsize.pair2cmp));
   static lt = CmpTool.f_cmp2f_lt(AbsoluteOrder.f_cmp2f_cmp_nullable(Gridsize.pair2cmp));
 
-  static window2gridsize(): string{
+  static useScreenwidth = (): number  => {
     const cls = Gridsize;
-    const callname = `Gridsize.window2gridsize @ ${DateTool.time2iso(new Date())}`;
+    const callname = `Gridsize.useGridsize @ ${DateTool.time2iso(new Date())}`;
 
-    // console.log({
-    //   callname,
-    //   'window.innerWidth': window?.innerWidth,
-    //   'document.body.scrollWidth': document.body.scrollWidth,
-    //   'document.documentElement.scrollWidth': document.documentElement.scrollWidth,
-    //   'document.body.offsetWidth': document.body.offsetWidth,
-    //   'document.documentElement.offsetWidth': document.documentElement.offsetWidth,
-    //   'document.documentElement.clientWidth': document.documentElement.clientWidth,
-    // });
+    const screenwidth_hook = React.useState<number>();
 
-    // const width = window.innerWidth;
-    const screenwidth = Math.min(...[
-      document.body.scrollWidth,
-      document.documentElement.scrollWidth,
-      document.body.offsetWidth,
-      document.documentElement.offsetWidth,
-      document.documentElement.clientWidth,
-    ].filter(x => x != null))
+    const handle_resize = () => {
+      const screenwidth = Math.min(...[
+        document.body.scrollWidth,
+        document.documentElement.scrollWidth,
+        document.body.offsetWidth,
+        document.documentElement.offsetWidth,
+        document.documentElement.clientWidth,
+      ].filter(x => x != null));
+
+      screenwidth_hook[1](screenwidth);
+    };
+
+    React.useEffect(() => {
+      window.addEventListener("resize", handle_resize);
+      handle_resize();
+    }, []);
+    
+
+    // console.log({callname, gridsize});
+
+    return screenwidth_hook[0];
+  }
+
+  // static window2gridsize(): string{
+  //   const cls = Gridsize;
+  //   const callname = `Gridsize.window2gridsize @ ${DateTool.time2iso(new Date())}`;
+
+  //   // console.log({
+  //   //   callname,
+  //   //   'window.innerWidth': window?.innerWidth,
+  //   //   'document.body.scrollWidth': document.body.scrollWidth,
+  //   //   'document.documentElement.scrollWidth': document.documentElement.scrollWidth,
+  //   //   'document.body.offsetWidth': document.body.offsetWidth,
+  //   //   'document.documentElement.offsetWidth': document.documentElement.offsetWidth,
+  //   //   'document.documentElement.clientWidth': document.documentElement.clientWidth,
+  //   // });
+
+  //   // const width = window.innerWidth;
+  //   const screenwidth = Math.min(...[
+  //     document.body.scrollWidth,
+  //     document.documentElement.scrollWidth,
+  //     document.body.offsetWidth,
+  //     document.documentElement.offsetWidth,
+  //     document.documentElement.clientWidth,
+  //   ].filter(x => x != null))
+
+  //   if(!screenwidth){ return undefined; }
+  //   if (screenwidth < Gridsizeinfo.SM.minwidth_screen) { return cls.XS; }
+  //   if (screenwidth < Gridsizeinfo.MD.minwidth_screen) { return cls.SM; }
+  //   if (screenwidth < Gridsizeinfo.LG.minwidth_screen) { return cls.MD; }
+  //   if (screenwidth < Gridsizeinfo.XL.minwidth_screen) { return cls.LG; }
+  //   if (screenwidth < Gridsizeinfo.XXL.minwidth_screen) { return cls.XL; }
+  //   if (screenwidth >= Gridsizeinfo.XXL.minwidth_screen) { return cls.XXL; }
+
+  //   throw new Error(`screenwidth: ${screenwidth}`);
+  // }
+
+  static screenwidth2gridsize(screenwidth:number): string{
+    const cls = Gridsize;
+    const callname = `Gridsize.screenwidth2gridsize @ ${DateTool.time2iso(new Date())}`;
+
 
     if(!screenwidth){ return undefined; }
     if (screenwidth < Gridsizeinfo.SM.minwidth_screen) { return cls.XS; }
@@ -84,30 +129,15 @@ export class Gridsize{
     throw new Error(`screenwidth: ${screenwidth}`);
   }
 
-    /**
+  /**
    * https://stackoverflow.com/a/66828111
    */
   static useGridsize = (): string  => {
     const cls = Gridsize;
     const callname = `Gridsize.useGridsize @ ${DateTool.time2iso(new Date())}`;
 
-    const [gridsize, setGridsize] = React.useState<string>();
-
-    const handle_resize = () => {
-      const gridsize = cls.window2gridsize();
-      // console.log({callname, gridsize});
-      setGridsize(gridsize);
-    };
-
-    React.useEffect(() => {
-      window.addEventListener("resize", handle_resize);
-      handle_resize();
-    }, []);
-    
-
-    // console.log({callname, gridsize});
-
-    return gridsize;
+    const screenwidth = cls.useScreenwidth();
+    return cls.screenwidth2gridsize(screenwidth);
   }
 }
 
@@ -159,5 +189,15 @@ export class Pagelayout{
       layout === cls.DESKTOP,
       layout === cls.MOBILE,
     ]
+  }
+}
+
+export default class BootstrapTool{
+  // REFERNCE: https://stackoverflow.com/a/55649820
+  static vw2margin = (vw:number):number => {
+    if(vw>=1200){ return vw/2 - 585; } // 600-15
+    if(vw>=992){ return vw/2 - 485; } // 500-15
+    if(vw>=768){ return vw/2 - 375; } // 390-15
+    return 0;
   }
 }
