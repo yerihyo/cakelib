@@ -34,6 +34,8 @@ export default class PhonenumberTool{
     return /(?:\+|00)(?:1|7|2[07]|3[0123469]|4[013456789]|5[12345678]|6[0123456]|8[1246]|9[0123458]|(?:2[12345689]|3[578]|42|5[09]|6[789]|8[035789]|9[679]))/;
   }
 
+  // static countrycode2norm = (countrycode_in:string) => countrycode_in?.[0] === '+' ? countrycode_in : `+${countrycode_in}`;
+  
   static number_countrycode2e164 = (phonenumber_in:string, countrycode:string):string => {
     const cls = PhonenumberTool;
     if(!phonenumber_in){ return undefined; }
@@ -42,7 +44,14 @@ export default class PhonenumberTool{
 
     // const match:RegExpExecArray = cls.regex_countrycode().exec(x_in);
     const has_countrycode = cls.regex_countrycode().test(phonenumber_nodash);
-    return has_countrycode ? phonenumber_nodash : `${countrycode}${phonenumber_nodash?.replace(/^0/,'')}`;
+
+    // YET cannot handle +821027363820
+    return has_countrycode 
+      ? phonenumber_nodash
+      : [
+        countrycode,
+        PhonenumberkrTool.dom2nzdom(phonenumber_nodash),
+      ].join(' ');
   }
 
   // static splitonce_domestic_countrycode = lodash.flow(
