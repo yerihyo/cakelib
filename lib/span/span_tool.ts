@@ -171,7 +171,7 @@ export default class SpanTool {
     const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
     const start = MinimaxTool.min(
       [span1[0], span2[0]],
-      AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator)
+      AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator)
     );
     const end = MinimaxTool.max(
       [span1[1], span2[1]],
