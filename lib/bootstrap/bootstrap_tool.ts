@@ -194,7 +194,7 @@ export class Pagelayout{
 
 export default class BootstrapTool{
   // REFERNCE: https://stackoverflow.com/a/55649820
-  static vw2margin = (vw:number):number => {
+  static vw2margin_container = (vw:number):number => {
     if(vw>=1200){ return vw/2 - 585; } // 600-15
     if(vw>=992){ return vw/2 - 485; } // 500-15
     if(vw>=768){ return vw/2 - 375; } // 390-15

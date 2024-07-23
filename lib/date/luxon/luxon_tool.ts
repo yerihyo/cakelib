@@ -25,18 +25,33 @@ export class DatetimeUnit {
   }
 }
 export default class LuxonTool{
+  static MONDAY:WeekdayNumbers = 1;
+  static TUESDAY:WeekdayNumbers = 2;
+  static WEDNESDAY:WeekdayNumbers = 3;
+  static THURSDAY:WeekdayNumbers = 4;
+  static FRIDAY:WeekdayNumbers = 5;
+  static SATURDAY:WeekdayNumbers = 6;
+  static SUNDAY:WeekdayNumbers = 7;
   // static units = () => ['year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'second', 'millisecond']
 
   static weekday2is_montofri = (weekday:WeekdayNumbers):boolean => ArrayTool.in(weekday, [1,2,3,4,5])
   static dt2clone = (dt_in:DateTime): DateTime => dt_in == null ? dt_in : DateTime.fromMillis(dt_in.toMillis());
-
+  
   // static dt_comparator:Comparator<DateTime>
   static dtpair2cmp:Comparator<DateTime> = CmpTool.f_key2f_cmp(dt => dt?.toMillis(), MathTool.pair2cmp,);
   static dtpair2eq:Bicomparator<DateTime> = CmpTool.f_cmp2f_eq(LuxonTool.dtpair2cmp)
 
   static startOf = (dt:DateTime, unit:DateTimeUnit):DateTime => LuxonTool.dt2clone(dt)?.startOf(unit);
   static endOf = (dt:DateTime, unit:DateTimeUnit):DateTime => LuxonTool.dt2clone(dt)?.endOf(unit);
-  
+
+  // https://github.com/moment/luxon/issues/1517#issuecomment-1747219492
+  // static nextWeekday = (dt:DateTime, weekday:WeekdayNumbers) => dt.plus({days: (7 - dt.weekday + weekday) % 7});
+  static latestWeekday = (dt:DateTime, weekday:WeekdayNumbers) => dt?.minus({days: (dt?.weekday - weekday + 7) % 7});
+  static nearestWeekday = (dt:DateTime, weekday:WeekdayNumbers) => dt?.plus({days: (weekday - dt.weekday + 7) % 7});
+
+  static startOfSundayweek = (dt:DateTime,) => LuxonTool.latestWeekday(dt, LuxonTool.SUNDAY);
+  static endOfSundayweek = (dt:DateTime,) => LuxonTool.nearestWeekday(dt, LuxonTool.SATURDAY);
+    
   static plus = (dt:DateTime, duration:DurationLike):DateTime => LuxonTool.dt2clone(dt)?.plus(duration);
   static minus = (dt:DateTime, duration:DurationLike):DateTime => LuxonTool.dt2clone(dt)?.minus(duration);
 

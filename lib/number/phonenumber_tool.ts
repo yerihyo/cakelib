@@ -34,6 +34,8 @@ export default class PhonenumberTool{
     return /(?:\+|00)(?:1|7|2[07]|3[0123469]|4[013456789]|5[12345678]|6[0123456]|8[1246]|9[0123458]|(?:2[12345689]|3[578]|42|5[09]|6[789]|8[035789]|9[679]))/;
   }
 
+  // static countrycode2norm = (countrycode_in:string) => countrycode_in?.[0] === '+' ? countrycode_in : `+${countrycode_in}`;
+  
   static number_countrycode2e164 = (phonenumber_in:string, countrycode:string):string => {
     const cls = PhonenumberTool;
     if(!phonenumber_in){ return undefined; }
@@ -42,7 +44,14 @@ export default class PhonenumberTool{
 
     // const match:RegExpExecArray = cls.regex_countrycode().exec(x_in);
     const has_countrycode = cls.regex_countrycode().test(phonenumber_nodash);
-    return has_countrycode ? phonenumber_nodash : `${countrycode}${phonenumber_nodash?.replace(/^0/,'')}`;
+
+    // YET cannot handle +821027363820
+    return has_countrycode 
+      ? phonenumber_nodash
+      : [
+        countrycode,
+        PhonenumberkrTool.dom2nzdom(phonenumber_nodash),
+      ].join(' ');
   }
 
   // static splitonce_domestic_countrycode = lodash.flow(
@@ -68,7 +77,14 @@ export default class PhonenumberTool{
 
 export class PhonenumberkrTool{
   static is_zdom = (dom:string):boolean => dom?.startsWith('0');
-  static dom2zdom = (dom:string):string => dom == null ? undefined : PhonenumberkrTool.is_zdom(dom) ? dom : `0${dom}`;
+  static dom2zdom = (dom:string):string => dom == null
+    ? undefined
+    : !dom
+      ? dom
+      : PhonenumberkrTool.is_zdom(dom)
+      ? dom
+      : `0${dom}`
+      ; // prettier-ignore
   static dom2nzdom = (dom:string):string => dom == null ? undefined : PhonenumberkrTool.is_zdom(dom) ? dom?.substring(1) : dom;
   static x2dom = lodash.flow(
     PhonenumberTool.splitonce_domestic_countrycode,
@@ -84,9 +100,17 @@ export class PhonenumberkrTool{
 
   static dom2tokens = (dom:string):string[] => {
     const cls = PhonenumberkrTool;
+    const callname = `PhonenumberkrTool.dom2tokens @ ${DateTool.time2iso(new Date())}`;
     // https://jhlov.github.io/전화번호-입력시-자동으로-하이픈(-)-삽입하는-자바스크립트-코드/
     
+    if(dom == null){ return undefined; }
+    if(!dom){ return undefined; }
+
     const match = PhonenumberTool.x2nodash(dom)?.match(/(^0?2.{0}|^0?1.{1}|[0-9]{2,3})([0-9]+)([0-9]{4})/,);
+
+    // console.log({callname, match});
+
+    if(match == null){ return [dom]; }
     return match?.slice(1);
   }
 
@@ -100,12 +124,15 @@ export class PhonenumberkrTool{
     const [dom, countrycode] = PhonenumberTool.splitonce_domestic_countrycode(x)
     // const zdom = cls.dom2zdom(dom);
     const dom_dashed = cls.dom2tokens(dom)?.join('-');
-    // console.log({callname, x, dom, countrycode, dom_dashed})
+    
     // return countrycode
-    //   ? [countrycode, dom]?.filter(Boolean)?.join(' ')
+    //   ? [countrycode, dom]?.filter(x => x!=null)?.join(' ')
     //   : cls.zdom2tokens(cls.dom2zdom(dom))
     // const zdomestic_dashed = cls.zdom2tokens(zdom)?.join('-');
-    return [countrycode, dom_dashed]?.filter(Boolean)?.join(' ');
+    const dashed = [countrycode, dom_dashed]?.filter(x => x!=null)?.join(' '); // since ZERO is false
+
+    // console.log({callname, x, dom, countrycode, dom_dashed, dashed})
+    return dashed;
   }
     
 }

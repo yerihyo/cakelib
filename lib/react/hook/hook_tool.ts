@@ -2025,6 +2025,10 @@ export default class HookTool{
   }
 }
 
+export type Asyncresult = {
+  state:string;
+  errormessage?:any;
+}
 export class Asynctracker {
   static State = class {
     static READY = 'READY';
@@ -2040,51 +2044,54 @@ export class Asynctracker {
 
   static afunc_statehook2conn = <T=any, P extends any[]=any[]>(
     action:(...args:P) => (T|Promise<T>),
-    statehook:Reacthook<string>,
+    asyncresult_hook:Reacthook<Asyncresult>,
     option?:{
       is_actionable_whileinaction?:boolean,
       neverending_inaction?:boolean,
     }
   ):({
-    hook:Reacthook<string>,
+    hook:Reacthook<Asyncresult>,
     action:(...args:P) => Promise<T>,
   }) => {
     const cls = Asynctracker;
     const callname = `Asynctracker.afunc_statehook2conn @ ${DateTool.time2iso(new Date())}`;
 
+    const asyncstate_hook = HookTool.hook2down<Asyncresult, string>(asyncresult_hook, ['state'])
     // const [state, set_state] = React.useState<string>();
-    const [state, set_state] = statehook;
+    // const [state, set_state] = statehook;
     const is_actionable = ArrayTool.any([
       !!option?.is_actionable_whileinaction,
-      Asynctracker.State.state2is_actionable(state),
+      Asynctracker.State.state2is_actionable(asyncstate_hook[0]),
     ]);
 
     return {
-      hook: [state, set_state],
-      action: (...args: P) => {
+      hook: asyncresult_hook,
+      action: async (...args: P) => {
 
         // the following two statements must be ATOMIC because javascript doesn't context switch in random
         if(!is_actionable){ return; }
-        set_state(cls.State.INACTION);
+        asyncstate_hook[1](cls.State.INACTION);
 
         return Promise.resolve(action(...args))
           ?.then((t: T) => {
             // console.log({callname, state:cls.State.DONE});
+            // console.log({callname, t})
 
             if (!option?.neverending_inaction) {
-              set_state(cls.State.DONE);
+              asyncstate_hook[1](cls.State.DONE);
             }
             return t;
           })
-          ?.catch((error: any) => {
-            set_state(cls.State.ERROR);
-            throw error;
+          ?.catch((jdoc: any) => {
+            const errormessage = jdoc?.errors?.join(', ');
+            // console.log({callname, jdoc, errormessage})
+            asyncresult_hook[1]({state:cls.State.ERROR, errormessage});
+            throw jdoc;
           })
       },
     };
   }
 
-  // use Asynctracker.afunc_statehook2conn instead!
   static async2tracked = <K, T,>(
     action_in: (...args: K[]) => Promise<T>,
     options?: {
