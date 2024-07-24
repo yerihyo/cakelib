@@ -4,6 +4,7 @@ import CmpTool from '../cmp/CmpTool';
 import ArrayTool from '../collection/array/array_tool';
 import { AbsoluteOrder } from '../collection/array/minimax_tool';
 import DateTool from '../date/date_tool';
+import { WindowTool } from '../html/ComponentTool';
 
 export class Gridsizeinfo{
   index:number;
@@ -189,6 +190,17 @@ export class Pagelayout{
       layout === cls.DESKTOP,
       layout === cls.MOBILE,
     ]
+  }
+}
+
+export class Windowinfo{
+  pagelayout:string;
+  window:Window;
+
+  static use_windowinfo = ():Windowinfo => {
+    const { pagelayout, } = Pagelayout.gridsize_pivot2layout_info(Gridsize.useGridsize(), Gridsize.MD);
+    const window_hook = WindowTool.window_hook();
+    return { pagelayout, window: window_hook[0] };
   }
 }
 
