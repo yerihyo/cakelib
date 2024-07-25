@@ -5,7 +5,7 @@ import MathTool from "../../number/math/math_tool";
 import CmpTool, { Bicomparator, Comparator } from "../../cmp/CmpTool";
 import lodash from "lodash";
 import ArrayTool from "../../collection/array/array_tool";
-import FunctionTool from "@submodule/function/function_tool";
+import FunctionTool from "../../function/function_tool";
 
 // export class LuxonDuration{
 //   static units = () => ['years', 'months', 'days', ]
