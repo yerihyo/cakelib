@@ -94,6 +94,11 @@ export default class CmpTool {
     );
   };
 
+  static gt_default = CmpTool.f_cmp2f_gt(CmpTool.pair2cmp_default);
+  static gte_default = CmpTool.f_cmp2f_gte(CmpTool.pair2cmp_default);
+  static lt_default = CmpTool.f_cmp2f_lt(CmpTool.pair2cmp_default);
+  static lte_default = CmpTool.f_cmp2f_lte(CmpTool.pair2cmp_default);
+
   // static f_cmp2f_gt = <T>(f_cmp: (t1: T, t2: T) => number): ((t1: T, t2: T) => boolean) => CmpTool.f_cmp2funcs_richcmp(f_cmp).gt;
   // static f_cmp2f_gte = <T>(f_cmp: (t1: T, t2: T) => number): ((t1: T, t2: T) => boolean) => CmpTool.f_cmp2funcs_richcmp(f_cmp).gte;
   // static f_cmp2f_lt = <T>(f_cmp: (t1: T, t2: T) => number): ((t1: T, t2: T) => boolean) => CmpTool.f_cmp2funcs_richcmp(f_cmp).lt;
