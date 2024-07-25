@@ -5,6 +5,7 @@ import MathTool from "../../number/math/math_tool";
 import CmpTool, { Bicomparator, Comparator } from "../../cmp/CmpTool";
 import lodash from "lodash";
 import ArrayTool from "../../collection/array/array_tool";
+import FunctionTool from "@submodule/function/function_tool";
 
 // export class LuxonDuration{
 //   static units = () => ['years', 'months', 'days', ]
@@ -35,14 +36,15 @@ export default class LuxonTool{
   // static units = () => ['year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'second', 'millisecond']
 
   static weekday2is_montofri = (weekday:WeekdayNumbers):boolean => ArrayTool.in(weekday, [1,2,3,4,5])
-  static dt2clone = (dt_in:DateTime): DateTime => dt_in == null ? dt_in : DateTime.fromMillis(dt_in.toMillis());
+  // static dt2clone = (dt_in:DateTime): DateTime => dt_in == null ? dt_in : DateTime.fromMillis(dt_in.toMillis());
+  static dt2clone = FunctionTool.deprecated((dt_in:DateTime): DateTime => dt_in);  // Luxon DateTime is immutable
   
   // static dt_comparator:Comparator<DateTime>
   static dtpair2cmp:Comparator<DateTime> = CmpTool.f_key2f_cmp(dt => dt?.toMillis(), MathTool.pair2cmp,);
   static dtpair2eq:Bicomparator<DateTime> = CmpTool.f_cmp2f_eq(LuxonTool.dtpair2cmp)
 
-  static startOf = (dt:DateTime, unit:DateTimeUnit):DateTime => LuxonTool.dt2clone(dt)?.startOf(unit);
-  static endOf = (dt:DateTime, unit:DateTimeUnit):DateTime => LuxonTool.dt2clone(dt)?.endOf(unit);
+  // static startOf = (dt:DateTime, unit:DateTimeUnit):DateTime => LuxonTool.dt2clone(dt)?.startOf(unit);
+  // static endOf = (dt:DateTime, unit:DateTimeUnit):DateTime => LuxonTool.dt2clone(dt)?.endOf(unit);
 
   // https://github.com/moment/luxon/issues/1517#issuecomment-1747219492
   // static nextWeekday = (dt:DateTime, weekday:WeekdayNumbers) => dt.plus({days: (7 - dt.weekday + weekday) % 7});
@@ -52,11 +54,11 @@ export default class LuxonTool{
   static startOfSundayweek = (dt:DateTime,) => LuxonTool.latestWeekday(dt, LuxonTool.SUNDAY);
   static endOfSundayweek = (dt:DateTime,) => LuxonTool.nearestWeekday(dt, LuxonTool.SATURDAY);
     
-  static plus = (dt:DateTime, duration:DurationLike):DateTime => LuxonTool.dt2clone(dt)?.plus(duration);
-  static minus = (dt:DateTime, duration:DurationLike):DateTime => LuxonTool.dt2clone(dt)?.minus(duration);
+  // static plus = (dt:DateTime, duration:DurationLike):DateTime => LuxonTool.dt2clone(dt)?.plus(duration);
+  // static minus = (dt:DateTime, duration:DurationLike):DateTime => LuxonTool.dt2clone(dt)?.minus(duration);
 
   static md2dt_next = (dt_pivot:DateTime, unit:{month:number, day:number}) => {
-    const dt_new = LuxonTool.dt2clone(dt_pivot)?.set(unit)?.startOf('day');
+    const dt_new = dt_pivot?.set(unit)?.startOf('day');
     return dt_new >= dt_pivot ? dt_new : dt_new?.plus({year:1})
   }
   static md2dt_last = (dt_pivot:DateTime, unit:{month:number, day:number}) => {
@@ -119,13 +121,13 @@ export default class LuxonTool{
     const ms_ordinal = cls.datetime2ordinal_milliseconds(dt);
 
     const ms_rounded = f_round(ms_ordinal / unit_millisecs) * unit_millisecs;
-    const dt_out = cls.startOf(dt,'year').plus({milliseconds:ms_rounded});
+    const dt_out = dt?.startOf('year')?.plus({milliseconds:ms_rounded});
     
     return dt_out;
   }
 
   static pivot2datespan(pivot:DateTime, duration:DurationLike):Pair<DateTime>{
-    return [pivot, LuxonTool.plus(pivot,duration)];
+    return [pivot, pivot?.plus(duration)];
   }
 
 
