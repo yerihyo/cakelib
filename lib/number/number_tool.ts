@@ -16,6 +16,7 @@ export default class NumberTool {
     if(!cls.x2is_number(x)){ return false; }
     return x>0;
   }
+  static negated = (x:number):number => x == null ? undefined : -x;
 
   static number2str_sign3(v: number): string {
     if (v === 0) { return ''; }

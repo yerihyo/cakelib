@@ -201,85 +201,67 @@ export default class ArrayTool {
     return (i1: number, i2: number) => comparator(array[i1], array[i2]);
   }
 
-  static minindex<T>(
-    array: T[],
+  static minsinfo = <T>(
+    items: T[],
     options?: {
       comparator?: Comparator<T>;
     }
-  ): number {
+  ): { indexes: number[]; values: T[] } => {
     const cls = ArrayTool;
-    const callname = `ArrayTool.minindex @ ${date2str_time(new Date())}`;
+    const callname = `ArrayTool.minsinfo @ ${date2str_time(new Date())}`;
 
-    if (!ArrayTool.bool(array)) {
-      return undefined;
-    }
+    if (!ArrayTool.bool(items)) return undefined;
 
-    const n = array.length;
-    if (n === 0) {
-      return undefined;
-    }
+    const n = items.length;
+    if (n === 0) return undefined;
 
     const comparator = options?.comparator ?? CmpTool.pair2cmp_default;
-    const minindex = ArrayTool.range(0, n).reduce((i1, i2) => (comparator(array[i1], array[i2]) <= 0 ? i1 : i2));
+
+    const indexes = ArrayTool.range(0, n)
+      .reduce<number[]>((is, i) => {
+        if(!ArrayTool.bool(is)){ return [i]; }
+
+        const cmp = comparator(items[is[0]], items[i]);
+        if(cmp<0) return is;
+        if(cmp===0) return [...is, i];
+        if(cmp>0) return [i];
+
+        throw new Error(`Invalid cmp: ${cmp}`);
+      }, []);
 
     // console.log({callname, minindex,})
-    return minindex;
+    return {indexes, values:indexes?.map(i => items?.[i])};
   }
+  static minsindexes = lodash.flow(ArrayTool.minsinfo, h => h?.indexes);
+  static mins = lodash.flow(ArrayTool.minsinfo, h => h?.values);
 
-  static mininfo<T>(
+  static mininfo = <T>(l:T[], options?: Parameters<typeof ArrayTool.minsinfo<T>>[1],) => 
+    (h => !h ? undefined : {index:h?.indexes[0], value:h?.values[0]})(ArrayTool.minsinfo(l, options));
+  // static mininfo = lodash.flow(ArrayTool.minsinfo, h => !h ? undefined : ({index:h.indexes[0], value:h.values[0]}));
+  static minindex = lodash.flow(ArrayTool.mininfo, h => h?.index);
+  static min = lodash.flow(ArrayTool.mininfo, h => h?.value);
+
+  static maxsinfo = <T>(
     array: T[],
-    options?: {
-      comparator?: Comparator<T>;
-    }
-  ): { index: number; value: T } {
-    const cls = ArrayTool;
-    const callname = `ArrayTool.mininfo @ ${date2str_time(new Date())}`;
-
-    const index = cls.minindex(array, options);
-    const value = index != null ? array?.[index] : undefined;
-
-    // console.log({callname, index, array, value, })
-    return { index, value };
+    options?: Parameters<typeof ArrayTool.minsinfo<T>>[1],
+  ): ReturnType<typeof ArrayTool.minsinfo<T>> => {
+  // ): {indexes:number[], values:T[]} => {
+    return ArrayTool.minsinfo<T>(
+      array,
+      {
+        ...options,
+        comparator: CmpTool.f_cmp2reversed<T>(options?.comparator ?? CmpTool.pair2cmp_default),
+      },
+    );
   }
-  static min<T>(
-    array: T[],
-    options?: {
-      comparator?: Comparator<T>;
-    }
-  ): T {
-    return ArrayTool.mininfo(array, options)?.value;
-  }
+  static maxsindexes = lodash.flow(ArrayTool.maxsinfo, h => h?.indexes);
+  static maxs = lodash.flow(ArrayTool.maxsinfo, h => h?.values);
 
-  static maxindex<T>(
-    array: T[],
-    options?: {
-      comparator: Comparator<T>;
-    }
-  ): number {
-    const comparator = options?.comparator ?? CmpTool.pair2cmp_default;
-
-    return ArrayTool.minindex(array, { comparator: CmpTool.f_cmp2reversed(comparator) });
-  }
-
-  static maxinfo<T>(
-    array: T[],
-    options?: {
-      comparator: Comparator<T>;
-    }
-  ): { index: number; value: T } {
-    const comparator = options?.comparator ?? CmpTool.pair2cmp_default;
-
-    return ArrayTool.mininfo(array, { comparator: CmpTool.f_cmp2reversed(comparator) });
-  }
-
-  static max<T>(
-    array: T[],
-    options?: {
-      comparator: Comparator<T>;
-    }
-  ): T {
-    return ArrayTool.maxinfo(array, options)?.value;
-  }
+  static maxinfo = <T>(l:T[], options?: Parameters<typeof ArrayTool.minsinfo<T>>[1],) => 
+    (h => !h ? undefined : {index:h?.indexes[0], value:h?.values[0]})(ArrayTool.maxsinfo(l, options));
+  // static maxinfo = lodash.flow(ArrayTool.maxsinfo, h => !h ? undefined : ({index:h.indexes[0], value:h.values[0]}));
+  static maxindex = lodash.flow(ArrayTool.maxinfo, h => h?.index);
+  static max = lodash.flow(ArrayTool.maxinfo, h => h?.value);
 
   static array2pivot_aligned<X, K extends Dictkey = Dictkey>(items: X[], pivots: K[], item2pivot: (t: X) => K): X[] {
     if (pivots == null) {
@@ -1197,27 +1179,27 @@ export default class ArrayTool {
     return ArrayTool.zip(...rows).map(ArrayTool.void_cleaned);
   }
 
-  static array2minindexes<X>(items: X[], items2cmp: (x1: X, x2: X) => number, limit: number) {
-    const minindexes_list = GroupbyTool.array2firstK_minindexes_list(items, limit, { parents2cmp: items2cmp });
-    return ArrayTool.head(limit, ArrayTool.flatten(minindexes_list));
-  }
+  // static array2minindexes<X>(items: X[], items2cmp: (x1: X, x2: X) => number, limit: number) {
+  //   const minindexes_list = GroupbyTool.array2firstK_minindexes_list(items, limit, { parents2cmp: items2cmp });
+  //   return ArrayTool.head(limit, ArrayTool.flatten(minindexes_list));
+  // }
 
-  static array2maxindexes<X>(items: X[], items2cmp: (x1: X, x2: X) => number, limit: number) {
-    const maxindexes_list = GroupbyTool.array2firstK_maxindexes_list(items, limit, { parents2cmp: items2cmp });
-    return ArrayTool.head(limit, ArrayTool.flatten(maxindexes_list));
-  }
+  // static array2maxindexes<X>(items: X[], items2cmp: (x1: X, x2: X) => number, limit: number) {
+  //   const maxindexes_list = GroupbyTool.array2firstK_maxindexes_list(items, limit, { parents2cmp: items2cmp });
+  //   return ArrayTool.head(limit, ArrayTool.flatten(maxindexes_list));
+  // }
 
-  static array2mins<X>(items: X[], items2cmp: (x1: X, x2: X) => number, limit: number) {
-    const minindexes_list = GroupbyTool.array2firstK_minindexes_list(items, limit, { parents2cmp: items2cmp });
-    const minindexes = ArrayTool.head(limit, ArrayTool.flatten(minindexes_list));
-    return minindexes.map((i) => items[i]);
-  }
+  // static array2mins<X>(items: X[], items2cmp: (x1: X, x2: X) => number, limit: number) {
+  //   const minindexes_list = GroupbyTool.array2firstK_minindexes_list(items, limit, { parents2cmp: items2cmp });
+  //   const minindexes = ArrayTool.head(limit, ArrayTool.flatten(minindexes_list));
+  //   return minindexes.map((i) => items[i]);
+  // }
 
-  static array2maxs<X>(items: X[], items2cmp: (x1: X, x2: X) => number, limit: number) {
-    const maxindexes_list = GroupbyTool.array2firstK_maxindexes_list(items, limit, { parents2cmp: items2cmp });
-    const maxindexes = ArrayTool.head(limit, ArrayTool.flatten(maxindexes_list));
-    return maxindexes.map((i) => items[i]);
-  }
+  // static array2maxs<X>(items: X[], items2cmp: (x1: X, x2: X) => number, limit: number) {
+  //   const maxindexes_list = GroupbyTool.array2firstK_maxindexes_list(items, limit, { parents2cmp: items2cmp });
+  //   const maxindexes = ArrayTool.head(limit, ArrayTool.flatten(maxindexes_list));
+  //   return maxindexes.map((i) => items[i]);
+  // }
 
   // static arrays2cmp(l1, l2) : number{
   //     const n = ArrayTool.len(l1);
