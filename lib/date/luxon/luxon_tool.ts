@@ -187,9 +187,14 @@ export default class LuxonTool{
     return dt1.diff(dt2)?.milliseconds;
   }
 
-  static gt = CmpTool.f_cmp2f_gt(LuxonTool.diffms);
-  static gte = CmpTool.f_cmp2f_gte(LuxonTool.diffms);
-  static lt = CmpTool.f_cmp2f_lt(LuxonTool.diffms);
-  static lte = CmpTool.f_cmp2f_lte(LuxonTool.diffms);
+  // static gt = CmpTool.f_cmp2f_gt(LuxonTool.diffms);
+  // static gte = CmpTool.f_cmp2f_gte(LuxonTool.diffms);
+  // static lt = CmpTool.f_cmp2f_lt(LuxonTool.diffms);
+  // static lte = CmpTool.f_cmp2f_lte(LuxonTool.diffms);
+
+  static gt = CmpTool.gt_default;
+  static gte = CmpTool.gte_default;
+  static lt = CmpTool.lt_default;
+  static lte = CmpTool.lte_default;
 
 }
