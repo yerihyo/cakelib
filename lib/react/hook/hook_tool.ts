@@ -754,8 +754,8 @@ export default class HookTool{
   static jpaths2codec_or = <P>(jpaths:Jpath[]):Hookcodec<P,boolean> => HookTool.jpaths_merger2codec(jpaths, cs => cs?.some(Boolean));
   static jpaths2codec_and = <P>(jpaths:Jpath[]):Hookcodec<P,boolean> => HookTool.jpaths_merger2codec(jpaths, cs => cs?.every(Boolean));
 
-  static jpaths2codec_max = <P>(jpaths:Jpath[]):Hookcodec<P,number> => HookTool.jpaths_merger2codec(jpaths, cs => cs == null ? undefined : ArrayTool.maxinfo(cs)?.value);
-  static jpaths2codec_min = <P>(jpaths:Jpath[]):Hookcodec<P,number> => HookTool.jpaths_merger2codec(jpaths, cs => cs == null ? undefined : ArrayTool.mininfo(cs)?.value);
+  static jpaths2codec_max = <P>(jpaths:Jpath[]):Hookcodec<P,number> => HookTool.jpaths_merger2codec(jpaths, cs => cs == null ? undefined : ArrayTool.max(cs));
+  static jpaths2codec_min = <P>(jpaths:Jpath[]):Hookcodec<P,number> => HookTool.jpaths_merger2codec(jpaths, cs => cs == null ? undefined : ArrayTool.min(cs));
 
   static codec_bool2option = <C>(options:Pair<C>) => {
     const callname = `HookTool.codec_book2option @ ${DateTool.time2iso(new Date())}`;
