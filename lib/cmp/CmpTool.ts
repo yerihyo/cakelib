@@ -2,6 +2,7 @@ import lodash from "lodash";
 import FunctionTool from "../function/function_tool";
 import { Dictkey } from "../native/native_tool";
 import MathTool from "../number/math/math_tool";
+import NumberTool from "../number/number_tool";
 
 export type Comparator<T> = ((t1: T, t2: T) => number);
 export type Bicomparator<T> = ((t1: T, t2: T) => boolean);
@@ -338,11 +339,7 @@ export default class CmpTool {
   //     return CmpTool.f_cmp_key2f_cmp_item(ArrayTool.arrays2cmp, item2list,);
   // }
 
-  static f_cmp2reversed<X>(
-    f_cmp: (x1: X, x2: X) => number,
-  ): (x1: X, x2: X) => number {
-    return (x1, x2) => -f_cmp(x1, x2);
-  }
+  static f_cmp2reversed = <X>(f_cmp: Comparator<X>,): Comparator<X> => lodash.flow(f_cmp, NumberTool.negated);
 
   static f_cmp2f_cmp_stable<X>(
     f_cmp: (x1: X, x2: X) => number,
