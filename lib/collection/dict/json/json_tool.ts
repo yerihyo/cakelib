@@ -26,7 +26,7 @@ export class JpathTool{
     }
 
     // static equals = (l1:Jpath, l2:Jpath):boolean => ArrayTool.equals<Jstep>(l1,l2);
-    static equals = ArrayTool.f_bool2f_every<Jstep>(CmpTool.isBiequal);
+    static equals = ArrayTool.f_bicmp2f_every<Jstep>(CmpTool.isBiequal);
     
 }
 export class XpathTool {
@@ -246,20 +246,24 @@ export default class JsonTool {
         return dict_jpath2jitems(dict_in, []);
     }
 
-    static edge2reduced_upsert(node: Object, edge: Jstep, value: any) {
-        if(node?.[edge] === value){ return node; }
+    static edge2reduced_upsert = <O,C,P=O>(node: P, edge: Jstep, value: C):O => {
+        if(node?.[edge] === value){ return node as unknown as O; }
 
-        return Number.isInteger(edge)
-            ? (l => { l.splice(edge as number, 1, value); return l; })(node as Object[] || [])
-            : (h => { h[edge] = value; return h; })(node || {});
+        return (
+            Number.isInteger(edge)
+                ? (l => { l.splice(edge as number, 1, value); return l; })(node as Object[] || [])
+                : (h => { h[edge] = value; return h; })(node || {})
+            ) as O;
     }
 
-    static edge2reduced_create(node: Object, edge: Jstep, value: any) {
-        if(node?.[edge] === value){ return node; }
+    static edge2reduced_create = <O,C,P=O>(node: P, edge: Jstep, value: C):O => {
+        if(node?.[edge] === value){ return node as unknown as O; }
         
-        return Number.isInteger(edge)
-            ? ArrayTool.splice((node as Object[]) || [], edge as number, 1, value)
-            : { ...node, [edge]: value };
+        return (
+            Number.isInteger(edge)
+                ? ArrayTool.splice((node as Object[]) || [], edge as number, 1, value)
+                : { ...node, [edge]: value }
+            ) as O;
     }
 
     static reducer2delete = (reducer:typeof JsonTool.edge2reduced_create) => lodash.flow([

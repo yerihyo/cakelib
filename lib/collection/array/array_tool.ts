@@ -994,7 +994,18 @@ export default class ArrayTool {
     return ArrayTool.len(l);
   }
 
-  static f_bool2f_every = <X>(f_bicmp: Bicomparator<X>): Bicomparator<X[]> => {
+  static f_bool2f_filter = <X, A extends any[]>(f_bool: (x:X, ...args:A) => boolean,): ((l:X[], ...args:A) => X[]) => {
+    return (l:X[], ...args:A) => {
+      const bs = l?.map(x => f_bool(x, ...args));
+      return ArrayTool.all(bs) ? l : l?.filter((_,i) => bs[i]);
+    }
+  };
+
+  static f_bool2f_some = <X, A extends any[]>(f_bool: (x:X, ...args:A) => boolean,): ((l:X[], ...args:A) => boolean) => {
+    return (l:X[], ...args:A) => l?.some(x => f_bool(x, ...args));
+  };
+
+  static f_bicmp2f_every = <X>(f_bicmp: Bicomparator<X>): Bicomparator<X[]> => {
     return (a: X[], b: X[]) => {
       // https://stackoverflow.com/a/16436975
 
@@ -1016,11 +1027,11 @@ export default class ArrayTool {
     };
   };
 
-  static f_bool2f_some = <X>(f_bicmp: Bicomparator<X>): Bicomparator<X[]> => {
+  static f_bicmp2f_some = <X>(f_bicmp: Bicomparator<X>): Bicomparator<X[]> => {
     return (a: X[], b: X[]) => {
       // https://stackoverflow.com/a/16436975
 
-      if (a === b) return true;
+      // if (a === b) return true;
       if (a == null || b == null) return undefined;
       if (a.length !== b.length) return undefined;
 
@@ -1038,8 +1049,8 @@ export default class ArrayTool {
     };
   };
 
-  static areAllBiequal = ArrayTool.f_bool2f_every(CmpTool.isBiequal);
-  static areAllTriequal = ArrayTool.f_bool2f_every(CmpTool.isTriequal);
+  static areAllBiequal = ArrayTool.f_bicmp2f_every(CmpTool.isBiequal);
+  static areAllTriequal = ArrayTool.f_bicmp2f_every(CmpTool.isTriequal);
   // static areItemsEqual<T>(
   //   l1: T[],
   //   l2: T[],
