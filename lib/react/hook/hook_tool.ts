@@ -1071,7 +1071,7 @@ export default class HookTool{
       decode,
       encode: (cs: C[], ps_prev: P[]): P[] => {
         const cs_prev = decode(ps_prev);
-        return ArrayTool.f_bool2f_every(CmpTool.isTriequal)(cs_prev, cs)
+        return ArrayTool.f_bicmp2f_every(CmpTool.isTriequal)(cs_prev, cs)
           ? ps_prev
           : cs?.map((c,i) => codec.encode(c, ps_prev?.[i]))
           ;
