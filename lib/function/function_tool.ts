@@ -18,15 +18,19 @@ export type Funcwrapper<O,A extends any[]> = (f:((...args:A) => O)) => ((...args
 
 export default class FunctionTool{
 
-    static f_onetoone2f_manytomany_notnull = <X, A extends any[], R>(
-        f_onetoone:(x:X, ...args:A) => R,
-    ):((l:X[], ...args:A) => R[]) => {
-        return (l:X[], ...args:A):R[] => l?.map(x => f_onetoone(x, ...args))?.filter(r => r!=null);
+    // static f_onetoone2f_manytomany_notnull = <X, A extends any[], R>(
+    //     f_onetoone:(x:X, ...args:A) => R,
+    // ):((l:X[], ...args:A) => R[]) => {
+    //     return (l:X[], ...args:A):R[] => l?.map(x => f_onetoone(x, ...args))?.filter(r => r!=null);
+    // }
+
+    static f12fn = <X, A extends any[], R>(f1:(x:X, ...args:A) => R):((l:X[], ...args:A) => R[]) => {
+        return (l:X[], ...args:A):R[] => l?.map(x => f1(x, ...args));
     }
 
-    static f_onetomany2f_manytomany = <X, A extends any[], R>(f_single:(x:X, ...args:A) => R[]):((l:X[], ...args:A) => R[]) => {
-        return (l:X[], ...args:A):R[] => l?.map(x => f_single(x, ...args))?.flat();
-    }
+    // static f_onetomany2f_manytomany = <X, A extends any[], R>(f_single:(x:X, ...args:A) => R[]):((l:X[], ...args:A) => R[]) => {
+    //     return (l:X[], ...args:A):R[] => l?.map(x => f_single(x, ...args))?.flat();
+    // }
 
     static f_skip2wrapper = <O, A extends any[]>(
         f_skip:(...args:A) => boolean,

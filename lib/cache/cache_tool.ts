@@ -2,6 +2,7 @@ import lodash from "lodash";
 import ArrayTool from "../collection/array/array_tool";
 import DateTool from "../date/date_tool";
 import LruCache from "./lru_cache/lru_cache";
+import DictTool from "../collection/dict/dict_tool";
 
 
 export default class CacheTool {
@@ -80,7 +81,7 @@ export default class CacheTool {
     const callname = `CacheoTool.memo @ ${DateTool.time2iso(new Date())}`;
 
     const args2key = config?.args2key ?? ((...args) => args);
-    const limit = ('limit' in (config ?? {})) ? config.limit : 10;
+    const limit = DictTool.in('limit', config) ? config.limit : 10;
     // if (!args2key) { args2key = x => x; }
 
     const cache = new LruCache(limit);
