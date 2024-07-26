@@ -11,6 +11,10 @@ export default class DictTool{
     static keys = <K=Dictkey>(obj:any): K[] => (obj != null ? (Object.keys(obj) as K[]) : undefined);
     static values = <X,H=any>(obj:H):X[] => (obj != null ? Object.values(obj) : undefined);
 
+    static in = (k:Dictkey, obj:any):boolean => (k in (obj ?? {}));
+    static has_key = (h:any, k:Dictkey) => DictTool.in(k,h);
+
+
     static kv2h_or_undef = (k:Dictkey, v:any):Object => v== null ? undefined : {[k]:v};
 
     static entries = <K extends Dictkey=Dictkey,V=any>(obj:Record<K,V>):[K, V][] => {
@@ -154,21 +158,19 @@ export default class DictTool{
         return Object.keys(h).reverse().reduce((hh,k) => { hh[k] = h[k]; return hh; }, {});
     }
 
-    static has_key(h, k){ return k in h }
-
-    static partial2has_change(dict_prev, dict_partial){
-        for (const [k,v_partial] of Object.entries(dict_partial)){
-            if(! this.has_key(dict_prev, k)){
-                return true
-            }
+    // static partial2has_change(dict_prev, dict_partial){
+    //     for (const [k,v_partial] of Object.entries(dict_partial)){
+    //         if(! this.has_key(dict_prev, k)){
+    //             return true
+    //         }
             
-            const v_prev = dict_prev[k]
-            if(v_prev !== v_partial){
-                return true
-            }
-        }
-        return false
-    }
+    //         const v_prev = dict_prev[k]
+    //         if(v_prev !== v_partial){
+    //             return true
+    //         }
+    //     }
+    //     return false
+    // }
 
     static invalid_values2excluded<X=any>(obj:X, value2is_valid:(x:any) => boolean):X{
         const self = DictTool;
