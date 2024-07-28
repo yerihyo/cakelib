@@ -8,7 +8,9 @@ import SignTool from '../number/sign_tool'
 export default class SpanTool {
   static bool(span: Pair<any>) { return ArrayTool.bool(span) }
 
-  static nullable2inf(span: Pair<number>): Pair<number> {
+  static nullnull = <T>():Pair<T> => [null, null]; // semantically (-inf,inf)
+
+  static nullnull2infinf(span: Pair<number>): Pair<number> {
     if (span == null) { return undefined; }
     return [
       span[0] ?? -Infinity,
@@ -16,7 +18,7 @@ export default class SpanTool {
     ];
   }
 
-  static inf2null = <T>(span: Pair<T>): Pair<T> => {
+  static infinf2nullnull = <T>(span: Pair<T>): Pair<T> => {
     return span == null
       ? span
       : [
@@ -25,9 +27,9 @@ export default class SpanTool {
       ];
   }
 
-  static span2norm = SpanTool.inf2null;
+  static span2norm = SpanTool.infinf2nullnull;
 
-  static span2is_infinf = <T>(span:Pair<T>):boolean => {
+  static span2is_nullnull = <T>(span:Pair<T>):boolean => {
     return ArrayTool.areAllTriequal(SpanTool.span2norm(span), [null, null]);
   }
 
@@ -241,7 +243,7 @@ export default class SpanTool {
 
     if(spans == null){ return undefined; }
     if(spans?.some(span => span === undefined)){ return undefined; }
-    if(spans?.some(span => span == null)){ return null; }
+    if(spans?.some(span => span == null)){ return null; } // TODO: SHOULD WE KEEP IT THIS WAY?
 
     const start = MinimaxTool.max(spans.map(x => x[0]), AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator))
     const end = MinimaxTool.min(spans.map(x => x[1]), AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator))
@@ -250,7 +252,7 @@ export default class SpanTool {
     return [start, end]
   }
 
-  static intersectSpans = <T>(
+  static intersectSpanspair = <T>(
     span1: Pair<T>[],
     span2: Pair<T>[],
     option?: { comparator?: Comparator<T> }
@@ -306,6 +308,14 @@ export default class SpanTool {
     }
   
     return intersections;
+  }
+
+  static spans_list2intersected = <T>(
+    spans_list: Pair<T>[][],
+    option?: { comparator?: Comparator<T> }
+  ): Pair<T>[] => {
+    const cls = SpanTool;
+    return spans_list?.reduce((r, spans) => cls.intersectSpanspair(r, spans, option), [[null,null]],);
   }
 
   static subtract = <T>(span1: Pair<T>, span2: Pair<T>, option?:{comparator?:Comparator<T>,}): Pair<T>[] => {
@@ -404,7 +414,7 @@ export default class SpanTool {
 
   static symmetricDifference = <T>(spans1: Pair<T>[], spans2: Pair<T>[], option?: { comparator?: Comparator<T> }): Pair<T>[] => {
     const unionSpans = SpanTool.unionSpans([...spans1, ...spans2], option);
-    const intersect = SpanTool.intersectSpans(spans1, spans2, option);
+    const intersect = SpanTool.intersectSpanspair(spans1, spans2, option);
     const result = SpanTool.subtractSpans(unionSpans, intersect, option);
     console.log({spans1, spans2, unionSpans, intersect, result})
     return result;
@@ -494,6 +504,27 @@ export default class SpanTool {
     } while (pair2cmp(p, span[1]) < 0)
 
     return spans;
+  }
+
+  static spans2minmax = <T>(
+    spans:Pair<T>[],
+    option?: {
+      comparator?: Comparator<T>,
+    },
+  ):Pair<T> => {
+
+    const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
+
+    const min = MinimaxTool.min(
+      spans?.map(span => span?.[0]),
+      AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator),
+    );
+
+    const max = MinimaxTool.max(
+      spans?.map(span => span?.[1]),
+      AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator),
+    );
+    return [min, max];
   }
 
 }
