@@ -315,7 +315,10 @@ export default class SpanTool {
     option?: { comparator?: Comparator<T> }
   ): Pair<T>[] => {
     const cls = SpanTool;
-    return spans_list?.reduce((r, spans) => cls.intersectSpanspair(r, spans, option), [[null,null]],);
+    return spans_list?.reduce(
+      (r, spans) => spans == null ? undefined : cls.intersectSpanspair(r, spans, option),
+      [SpanTool.nullnull()],
+    );
   }
 
   static subtract = <T>(span1: Pair<T>, span2: Pair<T>, option?:{comparator?:Comparator<T>,}): Pair<T>[] => {
