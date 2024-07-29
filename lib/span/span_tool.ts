@@ -242,8 +242,8 @@ export default class SpanTool {
     const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
 
     if(spans == null){ return undefined; }
-    if(spans?.some(span => span === undefined)){ return undefined; }
-    if(spans?.some(span => span == null)){ return null; } // TODO: SHOULD WE KEEP IT THIS WAY?
+    // if(spans?.some(span => span === undefined)){ return undefined; }
+    if(spans?.some(span => span == null)){ return undefined; } // TODO: SHOULD WE KEEP IT THIS WAY?
 
     const start = MinimaxTool.max(spans.map(x => x[0]), AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator))
     const end = MinimaxTool.min(spans.map(x => x[1]), AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator))
