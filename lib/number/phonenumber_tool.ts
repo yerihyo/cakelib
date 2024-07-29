@@ -42,16 +42,19 @@ export default class PhonenumberTool{
 
     const phonenumber_nodash = cls.x2nodash(phonenumber_in);
 
-    // const match:RegExpExecArray = cls.regex_countrycode().exec(x_in);
-    const has_countrycode = cls.regex_countrycode().test(phonenumber_nodash);
+    const match:RegExpExecArray = cls.regex_countrycode().exec(phonenumber_nodash);
+    // const has_countrycode = cls.regex_countrycode().test(phonenumber_nodash);
 
     // YET cannot handle +821027363820
-    return has_countrycode 
-      ? phonenumber_nodash
+    return (match 
+      ? [
+        match[0],
+        phonenumber_nodash.slice(match[0].length)?.trim()
+      ]
       : [
         countrycode,
         PhonenumberkrTool.dom2nzdom(phonenumber_nodash),
-      ].join(' ');
+      ]).join('');
   }
 
   // static splitonce_domestic_countrycode = lodash.flow(
