@@ -6,7 +6,8 @@ import NumberTool from "../number/number_tool";
 
 export type Comparator<T> = ((t1: T, t2: T) => number);
 export type Bicomparator<T> = ((t1: T, t2: T) => boolean);
-export type Selectone<T> = ((...args:T[]) => T);
+export type Bestselector<T> = ((l:T[]) => T);
+// export type Bestselector<T> = ((...args:T[]) => T);
 
 class DateToolLocal {
   static time2iso = (d: Date): string => d?.toISOString()?.split("T")?.[1];
@@ -80,14 +81,14 @@ export default class CmpTool {
   static f_cmp2f_eq = <A extends any[]>(f_cmp: (...args:A) => number) => lodash.flow(f_cmp, (c:number) => MathTool.eq(c,0));
   static f_cmp2f_ne = <A extends any[]>(f_cmp: (...args:A) => number) => lodash.flow(f_cmp, (c:number) => MathTool.ne(c,0));
 
-  static f_cmp2f_max = <X,>(f_cmp: Comparator<X>): Selectone<X> => (...l: X[]) => {
+  static f_cmp2f_max = <X,>(f_cmp: Comparator<X>): Bestselector<X> => (l: X[]) => {
     return l?.reduce(
       (x0, x1, i) => i === 0 ? x1 : (f_cmp(x0,x1)>=0 ? x0 : x1),
       undefined,
     );
   };
 
-  static f_cmp2f_min = <X,>(f_cmp: Comparator<X>): Selectone<X> => (...l: X[]) => {
+  static f_cmp2f_min = <X,>(f_cmp: Comparator<X>): Bestselector<X> => (l: X[]) => {
     return l?.reduce(
       (x0, x1, i) => i === 0 ? x1 : (f_cmp(x0,x1)<=0 ? x0 : x1),
       undefined,
@@ -477,8 +478,8 @@ export class Comparatorkit<T>{
   lte: Bicomparator<T>;
   eq: Bicomparator<T>;
   ne: Bicomparator<T>;
-  max: Selectone<T>;
-  min: Selectone<T>;
+  // max: Bestselector<T>;
+  // min: Bestselector<T>;
 
   static comparator2kit = <T>(comparator:Comparator<T>) => {
     return {
@@ -488,8 +489,8 @@ export class Comparatorkit<T>{
       lte: CmpTool.f_cmp2f_lte(comparator),
       eq: CmpTool.f_cmp2f_eq(comparator),
       ne: CmpTool.f_cmp2f_eq(comparator),
-      max: CmpTool.f_cmp2f_max(comparator),
-      min: CmpTool.f_cmp2f_min(comparator),
+      // max: CmpTool.f_cmp2f_max(comparator),
+      // min: CmpTool.f_cmp2f_min(comparator),
     };
   }
 }
