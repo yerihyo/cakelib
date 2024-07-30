@@ -17,12 +17,16 @@ export default class PhonenumberTool{
     const cls = PhonenumberTool;
     const callname = `PhonenumberTool.string2is_cellphonenumber @ ${DateTool.time2iso(new Date())}`;
 
-    const nodash = cls.x2nodash(phonenumber);
-    const n = nodash?.length;
+    const zdom = lodash.flow(
+      cls.x2nodash,
+      PhonenumberkrTool.x2dom,
+      PhonenumberkrTool.dom2zdom,
+    )(phonenumber);
+    const n = zdom?.length;
   
     const is_valid = ArrayTool.all([
       !!n && n>= 10 && n<=11,
-      nodash?.startsWith('01'),
+      zdom?.startsWith('01'),
     ]);
     // console.log({callname, is_valid, n})
     return is_valid;
