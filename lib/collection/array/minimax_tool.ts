@@ -95,7 +95,7 @@ export class AbsoluteOrder{
   static f_cmp2f_cmp_nullable2max = <K>(f_cmp_in: Comparator<K>,): Comparator<K> =>
     AbsoluteOrder.f_cmp2f_cmp_abs(f_cmp_in, {v2is_absmax: x=> x == null});
 
-  static f_cmp2f_cmp_safeinf = <K>(f_cmp_in: Comparator<K>,): Comparator<K> =>
+  static f_cmp2f_cmp_infs2minmax = <K>(f_cmp_in: Comparator<K>,): Comparator<K> =>
     AbsoluteOrder.f_cmp2f_cmp_abs(
       f_cmp_in,
       {

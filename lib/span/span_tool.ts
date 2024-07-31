@@ -124,8 +124,8 @@ export default class SpanTool {
 
   // static comparator2comparator_lb = <T>(comparator:Comparator<T>):Comparator<T> => AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator);
   // static comparator2comparator_ub = <T>(comparator:Comparator<T>):Comparator<T> => AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator);
-  static comparator2comparator_lb = lodash.flow(AbsoluteOrder.f_cmp2f_cmp_safeinf, AbsoluteOrder.f_cmp2f_cmp_nullable2min);
-  static comparator2comparator_ub = lodash.flow(AbsoluteOrder.f_cmp2f_cmp_safeinf, AbsoluteOrder.f_cmp2f_cmp_nullable2max);
+  static comparator2comparator_lb = lodash.flow(AbsoluteOrder.f_cmp2f_cmp_infs2minmax, AbsoluteOrder.f_cmp2f_cmp_nullable2min);
+  static comparator2comparator_ub = lodash.flow(AbsoluteOrder.f_cmp2f_cmp_infs2minmax, AbsoluteOrder.f_cmp2f_cmp_nullable2max);
 
 
   static is_between<T>(
