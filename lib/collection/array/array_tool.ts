@@ -2,7 +2,6 @@ import CmpTool, { Bicomparator, Comparator, EqualTool } from '../../cmp/CmpTool'
 import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
 import lodash from 'lodash';
 import FunctionTool, { Typeinvariantfunc } from '../../function/function_tool';
-import GroupbyTool from '../../groupby/groupby_tool';
 import MathTool from '../../number/math/math_tool';
 import DictTool from '../dict/dict_tool';
 
@@ -11,6 +10,9 @@ const assert = (v:any, msg?:string) => { if(!v){ throw new Error(msg ? `${msg} (
 // var lodash = require('lodash');
 // var _ = require('lodash/core');
 export type ArrayElement<A> = A extends readonly (infer T)[] ? T : never
+
+// export type Bestsinfo<T> = {indexes:number[], values:T[]};
+export type Bestinfo<T> = {index:number, value:T};
 
 function date2str_time(d: Date) {
   return (d).toISOString().split("T")[1];
@@ -201,12 +203,22 @@ export default class ArrayTool {
     return (i1: number, i2: number) => comparator(array[i1], array[i2]);
   }
 
+  // static bestsinfo2bestinfo_first = <T,>(bestsinfo:Bestsinfo<T>):Bestinfo<T> => {
+  //   if(bestsinfo == null){ return undefined; }
+
+  //   const {indexes, values} = bestsinfo;
+  //   return {
+  //     index:indexes?.[0],
+  //     value:values?.[0],
+  //   };
+  // }
+
   static minsinfo = <T>(
     items: T[],
     options?: {
       comparator?: Comparator<T>;
     }
-  ): { indexes: number[]; values: T[] } => {
+  ): Bestinfo<T>[] => {
     const cls = ArrayTool;
     const callname = `ArrayTool.minsinfo @ ${date2str_time(new Date())}`;
 
@@ -230,13 +242,13 @@ export default class ArrayTool {
       }, []);
 
     // console.log({callname, minindex,})
-    return {indexes, values:indexes?.map(i => items?.[i])};
+    return indexes?.map(i => ({value:items?.[i], index:i}));
+    // return {indexes, values:indexes?.map(i => items?.[i])};
   }
-  static minsindexes = lodash.flow(ArrayTool.minsinfo, h => h?.indexes);
-  static mins = lodash.flow(ArrayTool.minsinfo, h => h?.values);
+  static minindexes = lodash.flow(ArrayTool.minsinfo, l => l?.map(x => x?.index));
+  static mins = lodash.flow(ArrayTool.minsinfo, l => l?.map(x => x?.value));
 
-  static mininfo = <T>(l:T[], options?: Parameters<typeof ArrayTool.minsinfo<T>>[1],) => 
-    (h => !h ? undefined : {index:h?.indexes[0], value:h?.values[0]})(ArrayTool.minsinfo(l, options));
+  static mininfo = lodash.flow(ArrayTool.minsinfo, l => l?.[0]);
   // static mininfo = lodash.flow(ArrayTool.minsinfo, h => !h ? undefined : ({index:h.indexes[0], value:h.values[0]}));
   static minindex = lodash.flow(ArrayTool.mininfo, h => h?.index);
   static min = lodash.flow(ArrayTool.mininfo, h => h?.value);
@@ -244,8 +256,7 @@ export default class ArrayTool {
   static maxsinfo = <T>(
     array: T[],
     options?: Parameters<typeof ArrayTool.minsinfo<T>>[1],
-  ): ReturnType<typeof ArrayTool.minsinfo<T>> => {
-  // ): {indexes:number[], values:T[]} => {
+  ): Bestinfo<T>[] => {
     return ArrayTool.minsinfo<T>(
       array,
       {
@@ -254,11 +265,11 @@ export default class ArrayTool {
       },
     );
   }
-  static maxsindexes = lodash.flow(ArrayTool.maxsinfo, h => h?.indexes);
-  static maxs = lodash.flow(ArrayTool.maxsinfo, h => h?.values);
+  static maxindexes = lodash.flow(ArrayTool.maxsinfo, l => l?.map(x => x?.index));
+  static maxs = lodash.flow(ArrayTool.maxsinfo, l => l?.map(x => x?.value));
 
-  static maxinfo = <T>(l:T[], options?: Parameters<typeof ArrayTool.minsinfo<T>>[1],) => 
-    (h => !h ? undefined : {index:h?.indexes[0], value:h?.values[0]})(ArrayTool.maxsinfo(l, options));
+  static maxinfo = lodash.flow(ArrayTool.maxsinfo, l => l?.[0]);
+    
   // static maxinfo = lodash.flow(ArrayTool.maxsinfo, h => !h ? undefined : ({index:h.indexes[0], value:h.values[0]}));
   static maxindex = lodash.flow(ArrayTool.maxinfo, h => h?.index);
   static max = lodash.flow(ArrayTool.maxinfo, h => h?.value);
