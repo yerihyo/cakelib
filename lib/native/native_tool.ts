@@ -6,6 +6,8 @@ export type Pair<T> = [T, T];
 export type Triple<T> = [T, T, T];
 
 export default class NativeTool {
+  // static minus = (t1:number, t2:number):number => t1-t2;
+
   static var2name = (variable: any): string => {
     return Object.keys(variable)[0]
   }

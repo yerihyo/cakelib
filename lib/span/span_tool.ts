@@ -1,27 +1,36 @@
-import lodash from 'lodash'
+import lodash from 'lodash';
 import CmpTool, { BicmpTool, Bicomparator, Comparator } from '../cmp/CmpTool'
 import ArrayTool from '../collection/array/array_tool'
 import MinimaxTool, { AbsoluteOrder } from '../collection/array/minimax_tool'
 import { Pair } from '../native/native_tool'
 import SignTool from '../number/sign_tool'
+import MathTool from '../number/math/math_tool'
 
 export default class SpanTool {
+  static zerospan = <T>() => ([] as unknown as Pair<T>);
   static bool(span: Pair<any>) { return ArrayTool.bool(span) }
 
   static nullnull = <T>():Pair<T> => [null, null]; // semantically (-inf,inf)
 
   static nullnull2infinf(span: Pair<number>): Pair<number> {
-    if (span == null) { return undefined; }
+    const cls = SpanTool;
+
+    if (span == null) return undefined;
+    if (!cls.bool(span)) return span;
+    
     return [
-      span[0] ?? -Infinity,
-      span[1] ?? Infinity,
+      span?.[0] === null ? -Infinity : span?.[0],
+      span?.[1] === null ? Infinity : span?.[1],
     ];
   }
 
   static infinf2nullnull = <T>(span: Pair<T>): Pair<T> => {
-    return span == null
-      ? span
-      : [
+    const cls = SpanTool;
+
+    if (span == null) return undefined;
+    if (!cls.bool(span)) return span;
+
+    return [
         span[0] === -Infinity ? null : span[0],
         span[1] === Infinity ? null : span[1],
       ];
@@ -37,8 +46,9 @@ export default class SpanTool {
     pivot: number,
     span: Pair<number>,
   ): number {
+    const cls = SpanTool;
     if (pivot == null) { return undefined; }
-    if (span == null) { return undefined; }
+    if(!cls.bool(span)){ return undefined; }
 
     if (pivot < span[0]) { return pivot - span[0]; }
     // else if (pivot <= span[1]) { return 0; }
@@ -46,19 +56,38 @@ export default class SpanTool {
     else { return pivot - (span[1] - 1); }
   }
 
-  static span2len = function (span) {
-    return span[1] - span[0]
+  
+  static span2len = <T,>(
+    span:Pair<T>,
+    option?:{minus?: (t1:T, t2:T) => number},
+  ):number => {
+    if(span == null){ return undefined; }
+    if(!ArrayTool.bool(span)){ return 0; }
+
+    const minus = option?.minus ?? ((t1:T, t2:T) => (t1 as number)-(t2 as number));
+    return minus(span[1], span[0])
   }
 
-  static value2proportion = function (span, v) {
+  static value2proportion = <X,>(
+    span:Pair<X>,
+    x:X,
+    option?:{minus?: (t1:X, t2:X) => number},
+  ) => {
+    if(span == null){ return undefined; }
+    if(!ArrayTool.bool(span)){ return undefined; }
+
     const s = span[0]
     const e = span[1]
-    return (v - s) / (e - s)
+
+    return MathTool.div(
+      SpanTool.span2len<X>([s,x], option),
+      SpanTool.span2len<X>([s,e], option),
+    )
   }
 
-  static span2diff = function (span) {
-    return span[1] - span[0]
-  }
+  // static span2diff = function (span) {
+  //   return span[1] - span[0]
+  // }
 
   static f_bicmp_pair2f_span_bicmp = <T>(
     bicomparator_pair: Pair<Bicomparator<T>>,
@@ -93,8 +122,11 @@ export default class SpanTool {
     return true;
   }
 
-  static comparator2comparator_lb = <T>(comparator:Comparator<T>):Comparator<T> => AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator);
-  static comparator2comparator_ub = <T>(comparator:Comparator<T>):Comparator<T> => AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator);
+  // static comparator2comparator_lb = <T>(comparator:Comparator<T>):Comparator<T> => AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator);
+  // static comparator2comparator_ub = <T>(comparator:Comparator<T>):Comparator<T> => AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator);
+  static comparator2comparator_lb = lodash.flow(AbsoluteOrder.f_cmp2f_cmp_safeinf, AbsoluteOrder.f_cmp2f_cmp_nullable2min);
+  static comparator2comparator_ub = lodash.flow(AbsoluteOrder.f_cmp2f_cmp_safeinf, AbsoluteOrder.f_cmp2f_cmp_nullable2max);
+
 
   static is_between<T>(
     value: T,
@@ -112,8 +144,8 @@ export default class SpanTool {
     if (span.length !== 2) { throw new Error(`span.length: ${span.length}`); }
 
     // const { pair2cmp: pair2cmp_in } = (options || {});
-    const comparator_lb = option?.comparator?.lb ?? AbsoluteOrder.f_cmp2f_cmp_nullable2min(CmpTool.pair2cmp_default);
-    const comparator_ub = option?.comparator?.ub ?? AbsoluteOrder.f_cmp2f_cmp_nullable2max(CmpTool.pair2cmp_default);
+    const comparator_lb = option?.comparator?.lb ?? SpanTool.comparator2comparator_lb(CmpTool.pair2cmp_default);
+    const comparator_ub = option?.comparator?.ub ?? SpanTool.comparator2comparator_ub(CmpTool.pair2cmp_default);
 
     const [s, e] = span;
     const cmp_lb = comparator_lb(s, value);
@@ -248,7 +280,7 @@ export default class SpanTool {
     const start = MinimaxTool.max(spans.map(x => x[0]), AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator))
     const end = MinimaxTool.min(spans.map(x => x[1]), AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator))
 
-    if (start != null && end != null && !(comparator(start, end) < 0)) { return null; }
+    if (start != null && end != null && !(comparator(start, end) < 0)) { return cls.zerospan(); }
     return [start, end]
   }
 
@@ -443,11 +475,9 @@ export default class SpanTool {
   }
 
   static comparator2comparator_span = <T>(comparator: Comparator<T>): Comparator<Pair<T>> => {
-    const comparator_lb = SpanTool.comparator2comparator_lb(comparator);
-    const comparator_ub = SpanTool.comparator2comparator_ub(comparator);
     return CmpTool.f_cmps2f_cmp([
-      (p1, p2) => comparator_lb(p1[0], p2[0]),
-      (p1, p2) => comparator_ub(p1[1], p2[1]),
+      CmpTool.f_key2f_cmp(p => p?.[0], SpanTool.comparator2comparator_lb(comparator)),
+      CmpTool.f_key2f_cmp(p => p?.[1], SpanTool.comparator2comparator_ub(comparator)),
     ]);
   }
 
