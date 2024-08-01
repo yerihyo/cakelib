@@ -239,10 +239,10 @@ export default class ArrayTool {
   static minindexes = lodash.flow(ArrayTool.minpacks, l => l?.map(x => x?.index));
   static mins = lodash.flow(ArrayTool.minpacks, l => l?.map(x => x?.value));
 
-  static mininfo = lodash.flow(ArrayTool.minpacks, l => l?.[0]);
-  // static mininfo = lodash.flow(ArrayTool.minpacks, h => !h ? undefined : ({index:h.indexes[0], value:h.values[0]}));
-  static minindex = lodash.flow(ArrayTool.mininfo, h => h?.index);
-  static min = lodash.flow(ArrayTool.mininfo, h => h?.value);
+  static minpack = lodash.flow(ArrayTool.minpacks, l => l?.[0]);
+  // static minpack = lodash.flow(ArrayTool.minpacks, h => !h ? undefined : ({index:h.indexes[0], value:h.values[0]}));
+  static minindex = lodash.flow(ArrayTool.minpack, h => h?.index);
+  static min = lodash.flow(ArrayTool.minpack, h => h?.value);
 
   static maxpacks = <T>(
     array: T[],
@@ -259,11 +259,11 @@ export default class ArrayTool {
   static maxindexes = lodash.flow(ArrayTool.maxpacks, l => l?.map(x => x?.index));
   static maxs = lodash.flow(ArrayTool.maxpacks, l => l?.map(x => x?.value));
 
-  static maxinfo = lodash.flow(ArrayTool.maxpacks, l => l?.[0]);
+  static maxpack = lodash.flow(ArrayTool.maxpacks, l => l?.[0]);
     
-  // static maxinfo = lodash.flow(ArrayTool.maxpacks, h => !h ? undefined : ({index:h.indexes[0], value:h.values[0]}));
-  static maxindex = lodash.flow(ArrayTool.maxinfo, h => h?.index);
-  static max = lodash.flow(ArrayTool.maxinfo, h => h?.value);
+  // static maxpack = lodash.flow(ArrayTool.maxpacks, h => !h ? undefined : ({index:h.indexes[0], value:h.values[0]}));
+  static maxindex = lodash.flow(ArrayTool.maxpack, h => h?.index);
+  static max = lodash.flow(ArrayTool.maxpack, h => h?.value);
 
   static array2pivot_aligned<X, K extends Dictkey = Dictkey>(items: X[], pivots: K[], item2pivot: (t: X) => K): X[] {
     if (pivots == null) {
