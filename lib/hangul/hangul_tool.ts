@@ -14,6 +14,18 @@ export default class HangulTool{
     return wisp === choseungs ? undefined : wisp;
   }
 
+  static text2is_vowelending = (text:string):boolean => {
+    const jamo_last = ArrayTool.last(Hangul.disassemble(text));
+    return Hangul.isVowel(jamo_last);
+  }
+
+  static text2eun_added = (text:string):string => {
+    const cls = HangulTool;
+    if(text == null){ return undefined; }
+
+    return cls.text2is_vowelending(text) ? `${text}는` : `${text}은`
+  }
+
   static text2ro_added(text:string):string{
     if(text == null){ return undefined; }
     

@@ -233,6 +233,7 @@ export default class DateTool {
   static millisecs2added = function (d: Date, millisecs: number): Date {
     if (d == null) { return undefined; }
     if (millisecs == null) { return undefined; }
+    // if (millisecs == Infinity){ return Infinity; }
     // console.log({d});
     // https://stackoverflow.com/a/12795802
     return new Date(d?.getTime() + millisecs);
