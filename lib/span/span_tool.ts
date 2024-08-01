@@ -8,7 +8,7 @@ import MathTool from '../number/math/math_tool'
 
 export default class SpanTool {
   static zerospan = <T>() => ([] as unknown as Pair<T>);
-  static bool(span: Pair<any>) { return ArrayTool.bool(span) }
+  static bool = ArrayTool.bool;
 
   static nullnull = <T>():Pair<T> => [null, null]; // semantically (-inf,inf)
 
@@ -94,7 +94,13 @@ export default class SpanTool {
   ) => {
     return (value: T, span: Pair<T>): boolean => {
       const [f_bicmp1, f_bicmp2] = bicomparator_pair;
-      return f_bicmp1(value, span[0],) && f_bicmp2(value, span[1],)
+      if(span == null){ return undefined; }
+      if(!SpanTool.bool(span)){ return false; }
+
+      return ArrayTool.all([
+        f_bicmp1(value, span[0],),
+        f_bicmp2(value, span[1],),
+      ]);
     };
   }
 
@@ -276,6 +282,7 @@ export default class SpanTool {
     if(spans == null){ return undefined; }
     // if(spans?.some(span => span === undefined)){ return undefined; }
     if(spans?.some(span => span == null)){ return undefined; } // TODO: SHOULD WE KEEP IT THIS WAY?
+    if(spans?.some(span => !SpanTool.bool(span))){ return cls.zerospan(); }
 
     const start = MinimaxTool.max(spans.map(x => x[0]), AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator))
     const end = MinimaxTool.min(spans.map(x => x[1]), AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator))
@@ -357,13 +364,15 @@ export default class SpanTool {
     const cls = SpanTool;
     const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
 
-    if (span1 === undefined || span2 === undefined) { return undefined; }
-    if (span1 == null) { return []; }
-    if (span2 == null) { return [span1]; }
+    if (span1 == null || span2 == null) { return undefined; }
+    // if (span1 === undefined || span2 === undefined) { return undefined; }
+    // if (span1 == null) { return []; }
+    // if (span2 == null) { return [span1]; }
 
     const cup = cls.intersect([span1, span2], {comparator});
-    if(cup === undefined){ throw new Error(`Invalid: span1:${span1}, span2:${span2}`); };
-    if(cup === null){ return [span1]; };
+    if(cup == null){ throw new Error(`Invalid: span1:${span1}, span2:${span2}`); };
+    if(!SpanTool.bool(cup)){ return ArrayTool.v2l_or_undef(span1); }
+    // if(cup === null){ return [span1]; };
 
     const comparator_lb = AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator);
     const comparator_ub = AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator);
@@ -444,14 +453,6 @@ export default class SpanTool {
       }
     });
 
-    return result;
-  };
-
-  static symmetricDifference = <T>(spans1: Pair<T>[], spans2: Pair<T>[], option?: { comparator?: Comparator<T> }): Pair<T>[] => {
-    const unionSpans = SpanTool.unionSpans([...spans1, ...spans2], option);
-    const intersect = SpanTool.intersectSpanspair(spans1, spans2, option);
-    const result = SpanTool.subtractSpans(unionSpans, intersect, option);
-    console.log({spans1, spans2, unionSpans, intersect, result})
     return result;
   };
 
