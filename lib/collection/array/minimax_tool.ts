@@ -1,3 +1,4 @@
+import { Pair } from "../../native/native_tool";
 import CmpTool, { Comparator } from "../../cmp/CmpTool";
 import DateTool from "../../date/date_tool";
 import ArrayTool from "./array_tool";
@@ -35,6 +36,11 @@ export default class MinimaxTool{
     const iMax = MinimaxTool.maxIndex(array, pair2cmp);
     return iMax == null ? undefined : array[iMax];
   }
+
+  static minmax = <X>(array: X[], pair2cmp?: Comparator<X>): Pair<X> => [
+    MinimaxTool.min(array, pair2cmp),
+    MinimaxTool.max(array, pair2cmp),
+  ]
 }
 
 
