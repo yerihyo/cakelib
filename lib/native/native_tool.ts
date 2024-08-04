@@ -5,6 +5,9 @@ export type PotentialPromise<T> = T | Promise<T>
 export type Pair<T> = [T, T];
 export type Triple<T> = [T, T, T];
 
+type Last<T extends any[]> = T extends [...infer I, infer L] ? L : T extends [...infer I, (infer L)?] ? L | undefined : never;
+export type LastParameter<F extends (...args: any) => any> = Last<Parameters<F>>;
+
 export default class NativeTool {
   // static minus = (t1:number, t2:number):number => t1-t2;
 

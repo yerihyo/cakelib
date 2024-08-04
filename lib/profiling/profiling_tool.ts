@@ -4,6 +4,7 @@ import DateTool from "../date/date_tool";
 // type Last<T extends any[]> = T extends [...infer I, infer L] ? L : never; // not working
 // type LastParameter<F extends (...args: any)=>any> = Last<Parameters<F>>;
 
+
 export default class ProfilingTool{
   
   static promise2profiled = async <T>(

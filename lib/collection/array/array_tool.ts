@@ -133,8 +133,8 @@ export default class ArrayTool {
   static is_empty = <T>(array: T[]): boolean => (array == null ? undefined : array.length === 0);
   static bool = <T>(array: T[]): boolean => (array == null ? undefined : !ArrayTool.is_empty(array));
   static itemgetter = (i: number) => (l: any[]) => l[i];
-  static all = <T>(array: T[]): boolean => array?.every((x) => !!x);
-  static any = <T>(array: T[]): boolean => array?.some((x) => !!x);
+  static all = <T>(array: T[], option?:{item2bool?:(t:T) => boolean},): boolean => array?.every(option?.item2bool ?? (x => !!x));
+  static any = <T>(array: T[], option?:{item2bool?:(t:T) => boolean},): boolean => array?.some(option?.item2bool ?? (x => !!x));
   static map = <I, O>(array: I[], item2value: (i: I) => O) => (array ? array.map(item2value) : undefined);
   static indexOf = <T>(array: T[], v: T) => (array ? array.indexOf(v) : undefined);
 
