@@ -287,7 +287,13 @@ export default class SpanTool {
     const start = MinimaxTool.max(spans.map(x => x[0]), AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator))
     const end = MinimaxTool.min(spans.map(x => x[1]), AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator))
 
-    if (start != null && end != null && !(comparator(start, end) < 0)) { return cls.zerospan(); }
+    const f_gte = CmpTool.f_cmp2f_gte(comparator);
+    if (ArrayTool.all([
+      start != null,
+      end != null,
+      f_gte(start, end),
+    ])) return cls.zerospan(); 
+
     return [start, end]
   }
 
@@ -382,7 +388,30 @@ export default class SpanTool {
       ...(comparator_ub(cup[1], span1[1])<0 ? [[cup[1], span1[1]] as Pair<T>] : []),
     ];
   }
+
   static subtractSpans = <T>(
+    spans1: Pair<T>[],
+    spans2: Pair<T>[],
+    option?: { comparator?: Comparator<T> }
+  ): Pair<T>[] => {
+    if(spans1 == null || spans2 == null){ return undefined; }
+
+    if(!ArrayTool.bool(spans1)){ return []; }
+    if(!ArrayTool.bool(spans2)){ return spans1; }
+    // if (!spans1 || spans1.length === 0) return [];
+    // if (!spans2 || spans2.length === 0) return spans1;
+
+    return spans1.map(span1 => {
+      return spans2.reduce<Pair<T>[]>((spans_,span2) => {
+        return spans_
+          .map(span_ => SpanTool.subtract(span_, span2, option))
+          .filter(SpanTool.bool)
+          .flat()
+      },[span1]);
+    }).flat();
+  };
+
+  static subtractSpans_deprecated = <T>(
     spans1: Pair<T>[],
     spans2: Pair<T>[],
     option?: { comparator?: Comparator<T> }
@@ -539,6 +568,30 @@ export default class SpanTool {
 
     return spans;
   }
+}
+
+export class SpansTool {
+  static bool = <T>(spans:Pair<T>[]):boolean => spans?.some(span => SpanTool.bool(span));
+  static norm = <T>(
+    spans_in:Pair<T>[],
+    option?:{comparator?:Comparator<T>},
+  ):Pair<T>[] => {
+    const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
+
+    const spans_sorted = ArrayTool.sorted(spans_in, SpanTool.comparator2comparator_span(comparator));
+    const spans_norm = spans_sorted?.reduce((spans_out, span_this, i, spans_in,) => {
+      if(!ArrayTool.bool(spans_out)){ return [span_this]; }
+
+      const span_last = ArrayTool.last(spans_out);
+      return !SpanTool.bool(SpanTool.intersect([span_last, span_this]))
+        ? i+1 === spans_in?.length ? spans_in : spans_in?.slice(0,i+1)
+        : [
+          ...spans_in?.slice(0,i),
+          [span_last[0], span_this[1]], // merged
+        ];
+    },[]);
+    return spans_norm;
+  }
 
   static spans2minmax = <T>(
     spans:Pair<T>[],
@@ -560,5 +613,4 @@ export default class SpanTool {
     );
     return [min, max];
   }
-
 }
