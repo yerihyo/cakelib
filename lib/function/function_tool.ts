@@ -34,16 +34,16 @@ export default class FunctionTool{
     //     return (l:X[], ...args:A):R[] => l?.map(x => f_single(x, ...args))?.flat();
     // }
 
-    static f_skip2wrapper = <O, A extends any[]>(
-        f_skip:(...args:A) => boolean,
-    ):Funcwrapper<O,A> => {
-        // https://stackoverflow.com/a/28998603
-        return (f:((...args:A) => O)) => {
-            return (...args:A):O => {
-                return f_skip(...args) ? undefined : f(...args);
-            }
-        }
-    }
+    // static f_skip2wrapper = <O, A extends any[]>(
+    //     f_skip:(...args:A) => boolean,
+    // ):Funcwrapper<O,A> => {
+    //     // https://stackoverflow.com/a/28998603
+    //     return (f:((...args:A) => O)) => {
+    //         return (...args:A):O => {
+    //             return f_skip(...args) ? undefined : f(...args);
+    //         }
+    //     }
+    // }
 
     static func2skipped = <O, A extends any[]>(
         f: FuncAO<O,A>,
