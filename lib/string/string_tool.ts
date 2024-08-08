@@ -268,6 +268,8 @@ export default class StringTool {
 
     return s[0].toLowerCase() + StringTool.camelCase2snakeCase(s.slice(1, s.length));
   }
+
+  static query2clean = (query:string):string => query?.trim(); // need to remove backspace (\b) character
 }
 
 
