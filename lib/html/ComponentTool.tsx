@@ -229,6 +229,15 @@ export default class ComponentTool {
 export class WindowTool{
   static window2top = (w:Window):number => { return w.scrollY || document.documentElement.scrollTop; };
 
+  // static is_backnavigated = ():boolean => {
+  //   const callname = `WindowTool.is_backnavigated @ ${DateTool.time2iso(new Date())}`;
+
+  //   const navtimings = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+  //   // const types = navtimings.map( navtiming => navtiming.type );
+  //   // console.log({callname, types});
+  //   return navtimings.some( navtiming => navtiming.type === 'back_forward');
+  // }
+
   // static fields_value = () => [
   //   'closed', 'innerHeight', 'innerWidth', 'length',
   //   'screenLeft', 'screenTop', 'screenX', 'screenY', 'scrollX', 'scrollY',
