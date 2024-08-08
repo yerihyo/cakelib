@@ -14,7 +14,9 @@ class DateToolLocal {
 }
 
 export default class CmpTool {
-  static f_always_equal = <X=any>(x1: X, x2: X) => 0;
+  static f_always_equal = <X>(x1: X, x2: X):number => 0;
+  static pair2cmp_always_eq = CmpTool.f_always_equal;
+
   static isBiequal = <X=any>(x1: X, x2: X): boolean => (x1 == x2);
   static isTriequal = <X=any>(x1: X, x2: X): boolean => (x1 === x2);
   static f_alwaysNotEqual<X>(x1: X, x2: X) { return false; }
