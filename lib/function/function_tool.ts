@@ -1,5 +1,5 @@
 
-import lodash, { flow, merge } from 'lodash';
+import lodash from 'lodash';
 import NativeTool from '../native/native_tool';
 
 export type Unaryfunc<I,O> = (i:I) => O;
