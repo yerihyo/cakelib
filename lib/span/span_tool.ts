@@ -1,5 +1,5 @@
 import lodash from 'lodash';
-import CmpTool, { BicmpTool, Bicomparator, Comparator } from '../cmp/CmpTool'
+import CmpTool, { BicmpTool, Bicomparator, Comparator, Comparatorkit } from '../cmp/CmpTool'
 import ArrayTool from '../collection/array/array_tool'
 import MinimaxTool, { AbsoluteOrder } from '../collection/array/minimax_tool'
 import { Pair } from '../native/native_tool'
@@ -512,6 +512,7 @@ export default class SpanTool {
   }
 
   static pair2cmp_default = SpanTool.comparator2comparator_span(CmpTool.pair2cmp_default);
+  static comparatorkit_default = <T>() => Comparatorkit.comparator2kit(SpanTool.pair2cmp_default<T>);
   // static pair2cmp_default = <T>(p1:Pair<T>, p2:Pair<T>) => SpanTool.comparator2comparator_span(CmpTool.pair2cmp_default<T>)(p1,p2);
   // static pair2cmp(span1: [number, number], span2: [number, number]): number {
   //   const d0 = span1[0] - span2[0];
@@ -613,4 +614,12 @@ export class SpansTool {
     );
     return [min, max];
   }
+
+  static comparator2f_eq_spans = lodash.flow(
+    // comparator,
+    SpanTool.comparator2comparator_span,
+    CmpTool.f_cmp2f_eq,
+    ArrayTool.f_bicmp2f_every,
+    // ArrayTool.f_bicmp2f_every(CmpTool.f_cmp2f_eq(SpanTool.comparator2comparator_span(comparator)))
+  )
 }

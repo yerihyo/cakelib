@@ -1136,9 +1136,16 @@ export default class HookTool{
   //   return [data,setData];
   // }
 
-  static useRefresh = () : (() => void) => {
-      const [refreshed_at, set_refreshed_at] = React.useState<Date>();
-      return () => set_refreshed_at(new Date());
+  static useRefreshedat = () : [number, () => void] => {
+      const timestamp_hook = React.useState<number>((new Date())?.getTime());
+
+      return [
+        timestamp_hook[0],
+        () => { 
+          const timestamp = (new Date())?.getTime();
+          timestamp_hook[1](timestamp);
+        },
+      ];
   }
 
   static useRefstate = <T>(props?:{
