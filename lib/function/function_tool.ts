@@ -141,7 +141,7 @@ export default class FunctionTool{
     //     return functions.reduce((x, f) => f(x), x_in) as O;
     // };
 
-    static f_equal2f_key_prepiped(f_equal, f_key,){
+    // static f_equal2f_key_prepiped(f_equal, f_key,){
     //     return (x1,x2) => {
     //         const [v1, v2] = [f_key(x1), f_key(x2)];
     //         // console.log({v1,v2});
