@@ -478,14 +478,17 @@ export default class Hookform<T>{
     f_validate: () => Promise<any>,
     hookform:Hookform<any>,
   ) => {
+    const callname = `Hookform.validator2handled @ ${DateTool.time2iso(new Date())}`;
+
     try{
       await f_validate();
       hookform.errorshook[1]([]);
     }
-    catch(e){
-      Hookform.errors2handled(ArrayTool.v2l_or_undef(e as Yup.ValidationError), hookform);
+    catch(error){
+      Hookform.errors2handled(ArrayTool.v2l_or_undef(error as Yup.ValidationError), hookform);
+      // console.log({callname, error})
       // window.scrollTo({top: 0, behavior: 'smooth'});
-      throw e;
+      throw error;
     }
   }
 }
