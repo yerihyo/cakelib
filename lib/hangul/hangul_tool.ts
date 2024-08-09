@@ -26,6 +26,14 @@ export default class HangulTool{
     return cls.text2is_vowelending(text) ? `${text}는` : `${text}은`
   }
 
+  static text2ga_added = (text:string):string => {
+    const cls = HangulTool;
+    if(text == null){ return undefined; }
+
+    return cls.text2is_vowelending(text) ? `${text}이` : `${text}가`
+  }
+
+
   static text2ro_added(text:string):string{
     if(text == null){ return undefined; }
     
