@@ -257,6 +257,12 @@ export default class UrlTool{
     return urlstring_out;
   }
 
+  static urlstring2list = (s: string) => {
+    if (!s) { return undefined; }
+    const s_list: string[] = s.split(",");
+    return s_list;
+  }
+
   // static params2appended = (
   //   url: string,
   //   params: Record<string, number|string | string[]>,
