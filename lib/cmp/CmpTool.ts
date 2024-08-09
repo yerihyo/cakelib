@@ -490,7 +490,7 @@ export class Comparatorkit<T>{
       lt: CmpTool.f_cmp2f_lt(comparator),
       lte: CmpTool.f_cmp2f_lte(comparator),
       eq: CmpTool.f_cmp2f_eq(comparator),
-      ne: CmpTool.f_cmp2f_eq(comparator),
+      ne: CmpTool.f_cmp2f_ne(comparator),
       // max: CmpTool.f_cmp2f_max(comparator),
       // min: CmpTool.f_cmp2f_min(comparator),
     };
