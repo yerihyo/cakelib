@@ -172,8 +172,8 @@ export default class DictTool{
     //     return false
     // }
 
-    static invalid_values2excluded<X=any>(obj:X, value2is_valid:(x:any) => boolean):X{
-        const self = DictTool;
+    static dict2pruned<X,V>(obj:X, kv2is_valid:(k:string, v:V) => boolean):X{
+        const cls = DictTool;
         const callname = `DictTool.invalid_values2excluded @ ${time2iso(new Date())}`;
         
         // console.log({callname, obj})
@@ -188,18 +188,21 @@ export default class DictTool{
         
         // https://stackoverflow.com/a/38340730
         return keys
-            .filter(k => value2is_valid(obj[k])) // Remove undef. and null.
+            .filter(k => kv2is_valid(k, obj[k])) // Remove undef. and null.
             .reduce(
                 (newObj, k) => {
                     const is_dict = DictTool.is_dict(obj[k]);
                     // console.log({callname, is_dict, k, obj, 'obj[k]':obj[k],})
                     return is_dict
-                        ? { ...newObj, [k]: self.invalid_values2excluded(obj[k], value2is_valid) } // Recurse.
+                        ? { ...newObj, [k]: cls.dict2pruned(obj[k], kv2is_valid) } // Recurse.
                         : { ...newObj, [k]: obj[k] };
                 }, // Copy value.
                 {} as X,
             );
     }
+
+    static invalid_values2excluded = <X=any>(obj:X, value2is_valid:(x:any) => boolean):X => DictTool.dict2pruned(obj, (k,v) => value2is_valid(v));
+
     static empty_values2excluded(obj){
         const self = DictTool;
         // const value2is_valid = (v) => !!v;
