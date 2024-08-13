@@ -3,26 +3,27 @@ import { nanoid } from "nanoid";
 import { CSSProperties } from "react";
 import ArrayTool from "../collection/array/array_tool";
 import StringTool from '../string/string_tool';
+import { Quad, Triple } from '@submodule/native/native_tool';
 // import assert from 'assert';
 // const assert = require('assert');
 
 export default class CssTool{
   static px2str = (px:number):string => px== null ? undefined : `${px}px`;
 
-  static rgba2cssvalue(rgba:number[]):string{
+  static rgba2cssvalue(rgba:Triple<number>|Quad<number>):string{
     return `rgba(${rgba.join(', ')})`;
   }
 
-  static rgb2hex(rgb:number[]):string {
+  static rgb2hex(rgb:Triple<number>):string {
     return '#' + rgb.map(c => {
       const hex = c.toString(16);
       return hex.length == 1 ? "0" + hex : hex;
     }).join('');
   }
 
-  static hex2rgb(hex:string):number[]{
+  static hex2rgb(hex:string):Triple<number>{
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? [result[1],result[2],result[3]].map(x => parseInt(x, 16)) : undefined;
+    return result ? [result[1],result[2],result[3]].map(x => parseInt(x, 16)) as Triple<number> : undefined;
   }
 
   static width2gridinfo(
