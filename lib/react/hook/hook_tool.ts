@@ -1,6 +1,5 @@
 import lodash from 'lodash';
 import React, { Dispatch, MutableRefObject, RefObject, SetStateAction } from 'react';
-import ResizeObserver from "resize-observer-polyfill";
 import CmpTool, { Bicomparator, Comparator, EqualTool } from '../../cmp/CmpTool';
 import ArrayTool from '../../collection/array/array_tool';
 import { AbsoluteOrder } from '../../collection/array/minimax_tool';
@@ -1236,24 +1235,6 @@ export default class HookTool{
   static updateState(setState, state_prev, state_next_partial){
     setState(Object.assign({}, state_prev, state_next_partial));
   }
-
-  static useResizeObserver = (ref: MutableRefObject<HTMLElement>) => {
-      //, dimension_init=undefined){
-    const [dimension, setDimension] = React.useState(undefined);
-    React.useEffect(() => {
-      const observeTarget = ref.current;
-      const resizeObserver = new ResizeObserver(entries => {
-        entries.forEach(entry => {
-          setDimension(entry.contentRect);
-        });
-      });
-      resizeObserver.observe(observeTarget);
-      return () => {
-        resizeObserver.unobserve(observeTarget);
-      };
-    }, [ref]);
-    return dimension;
-  };
   
   // static useTrigger() : () => void {
   //   const [v, setV] = React.useState(null);

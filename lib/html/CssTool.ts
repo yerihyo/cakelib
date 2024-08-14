@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 import { CSSProperties } from "react";
 import ArrayTool from "../collection/array/array_tool";
 import StringTool from '../string/string_tool';
-import { Quad, Triple } from '@submodule/native/native_tool';
+import { Quad, Triple } from '../native/native_tool';
 // import assert from 'assert';
 // const assert = require('assert');
 
