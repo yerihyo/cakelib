@@ -569,6 +569,32 @@ export default class SpanTool {
 
     return spans;
   }
+
+  static rotating2unrotated = <T>(
+    span:Pair<T>,
+    period:T,
+    option?:{
+      f_lte: (t1:T, t2:T) => boolean,
+      plus?:(t1:T, t2:T) => T,
+    },
+  ):Pair<T> => {
+    const f_lte = option?.f_lte ?? (
+      (t1:T, t2:T):boolean => {
+        if(t1 === undefined || t2 === undefined){ return undefined; }
+
+        if(t1 === null){ return true; }
+        if(t2 === null){ return true; }
+        return CmpTool.f_cmp2f_lte(CmpTool.pair2cmp_default<T>)(t1,t2);
+      }
+    );
+    const plus = option?.plus ?? ((t1:T, t2:T) => (+(t1) + +(t2)));
+
+    return f_lte(span?.[0], span?.[1])
+      ? span
+      : [span?.[0], plus(span?.[1], period)] as Pair<T>
+      ;
+
+  }
 }
 
 export class SpansTool {
