@@ -40,6 +40,24 @@ export default class ArrayTool {
 
     return i >= 0 ? i : undefined;
   };
+  
+  static f2f_map = <I,O>(
+    f:(i:I) => O,
+  ):((is:I[]) => O[]) => {
+    return (is:I[]):O[] => is?.map(i => f(i));
+  }
+
+  static reducer2reducer_immuting = <T>(
+    f:(l:T[]) => T[],
+    option?:{is_equal?:(l1:T[], l2:T[]) => boolean,}
+  ) => {
+
+    const is_equal = option?.is_equal ?? ArrayTool.areAllTriequal;
+    return (l:T[]):T[] => {
+      return is_equal(l, f(l)) ? l : f(l)
+    }
+  }
+
   static f_only2f_many = <I, O>(
     f_only: (x: I) => O,
     f_etc: (l: I[], o_only?: O) => O
