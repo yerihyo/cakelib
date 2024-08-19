@@ -334,6 +334,26 @@ export default class JsonTool {
         // return newObj;
     }
 
+    static jpath2excluded =  <P=any>(h: P, jpath: Jpath): P => {
+        const cls = JsonTool;
+
+        if(!ArrayTool.bool(jpath)){
+            return undefined;
+        }
+        const jedge = jpath?.[0]
+        const child_out = cls.jpath2excluded(h?.[jedge], jpath?.slice(1));
+        return {
+            ...DictTool.keys2excluded(h, [jedge]),
+            ...(DictTool.bool(child_out) ? {[jedge]: child_out} : {}),
+        }
+    }
+
+    static jpaths2excluded = <P=any>(h: P, jpaths: Jpath[]): P => {
+        return h == null
+            ? undefined
+            : jpaths?.reduce((h_, jpath, ) => JsonTool.jpath2excluded(h_, jpath,), h);
+    }
+
     static offspring2reduced = <P=any,C=any>(
         obj_in: P,
         jpath: Jpath,
