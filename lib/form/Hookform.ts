@@ -215,7 +215,7 @@ export default class Hookform<T>{
   static baseref_upserted2hookform = <E extends HTMLElement=HTMLElement,>(
     baseref:React.MutableRefObject<E>,
     hookform:Hookform<any>,
-    jpath_hookform?:Jpath,
+    // jpath_hookform?:Jpath,
   ):React.MutableRefObject<E> => {
     const cls = Hookform;
     const callname = `Hookform.baseref_upserted2hookform @ ${DateTool.time2iso(new Date())}`;
@@ -379,8 +379,8 @@ export default class Hookform<T>{
   static datahook2hookform = <T,>(
     datahook:Reacthook<T>,
   ):Hookform<T> => {
-    const fieldinfoshook = React.useState<Fieldinfo[]>();
-    const errorshook = React.useState<Yup.ValidationError[]>();
+    const fieldinfoshook = React.useState<Fieldinfo[]>([]);
+    const errorshook = React.useState<Yup.ValidationError[]>([]);
     return {
       datahook,
       errorshook,
