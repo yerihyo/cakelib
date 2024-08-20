@@ -35,15 +35,13 @@ export default class YupTool{
 
     const errors_inner = error?.inner?.map(YupTool.error2errors)?.flat()
     
-
     const errors_out = lodash.uniqBy(
       [
-        ...(errors_inner ?? []),
-        error,
+        ...(ArrayTool.bool(errors_inner) ? errors_inner : [error]),
       ],
       x => JsonTool.encode(DictTool.dict2filtered(DictTool.keys2filtered(x, ['path', 'message']), (_,v) => !!v)),
     );
-    // console.log({callname,error,errors_inner, errors_out});
+    console.log({callname,error,errors_inner, errors_out});
     return errors_out;
   }
 
