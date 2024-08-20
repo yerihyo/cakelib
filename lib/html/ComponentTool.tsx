@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import DateTool from '../date/date_tool';
 import { Reacthook } from '../react/hook/hook_tool';
 import DictTool from '../collection/dict/dict_tool';
+import MathTool from '../number/math/math_tool';
 
 export default class ComponentTool {
   static useBound = (props: { containerRef: MutableRefObject<HTMLElement> }): { height: number, width: number } => {
@@ -228,6 +229,20 @@ export default class ComponentTool {
 
 export class WindowTool{
   static window2top = (w:Window):number => { return w.scrollY || document.documentElement.scrollTop; };
+
+  static element2top_tight = (element:HTMLElement):number => {
+    if(!element){ return ; }
+
+    // const yOffset = -10;
+    const y = element.getBoundingClientRect().top + window.scrollY
+    return y;
+  }
+
+  static element2top_natural = (element:HTMLElement) => {
+    if(!element){ return ; }
+
+    return WindowTool.element2top_tight(element)-10;
+  }
 
   // static is_backnavigated = ():boolean => {
   //   const callname = `WindowTool.is_backnavigated @ ${DateTool.time2iso(new Date())}`;

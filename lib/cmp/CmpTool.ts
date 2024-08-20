@@ -18,7 +18,10 @@ export default class CmpTool {
   static pair2cmp_always_eq = CmpTool.f_always_equal;
 
   static isBiequal = <X=any>(x1: X, x2: X): boolean => (x1 == x2);
+  static isBinotequal = <X=any>(x1: X, x2: X): boolean => (x1 != x2);
+
   static isTriequal = <X=any>(x1: X, x2: X): boolean => (x1 === x2);
+  static isTrinotequal = <X=any>(x1: X, x2: X): boolean => (x1 !== x2);
   static f_alwaysNotEqual<X>(x1: X, x2: X) { return false; }
 
   // static f_eq2f_eq_array = <X>(f_eq:Bicomparator<X>):Bicomparator<X[]> => {
@@ -330,12 +333,21 @@ export default class CmpTool {
   static f_key2f_eq<X, K=any>(
     f_key: (x: X) => K,
     config?: {
-      keypair2eq?: ((k1: K, k2: K) => boolean),
+      f_eq?: Bicomparator<K>,
     }
   ): (x1: X, x2: X) => boolean {
-    const { keypair2eq: keypair2eq_in } = config || {};
-    const keypair2eq = keypair2eq_in ? keypair2eq_in : (k1: K, k2: K) => k1 === k2;
-    return (x1: X, x2: X) => keypair2eq(f_key(x1), f_key(x2));
+    const f_eq = config?.f_eq ?? CmpTool.isTriequal;
+    return (x1: X, x2: X) => f_eq(f_key(x1), f_key(x2));
+  }
+
+  static f_key2f_ne<X, K=any>(
+    f_key: (x: X) => K,
+    config?: {
+      f_ne?: Bicomparator<K>,
+    }
+  ): (x1: X, x2: X) => boolean {
+    const f_ne = config?.f_ne ?? CmpTool.isTrinotequal;
+    return (x1: X, x2: X) => f_ne(f_key(x1), f_key(x2));
   }
 
   static f_eq2f_changed = <A>(f_eq: Bicomparator<A>,): Bicomparator<A> => FunctionTool.func2negated3(f_eq);

@@ -30,21 +30,33 @@ export default class YupTool{
   }
   static error2is_rooterror = (error:Yup.ValidationError):boolean => !error.path;
 
+  static errors2dedup = (errors:Yup.ValidationError[]):Yup.ValidationError[] => {
+    return lodash.uniqBy(
+      errors,
+      x => JsonTool.encode(DictTool.dict2filtered(DictTool.keys2filtered(x, ['path', 'message']), (_,v) => !!v)),
+    );
+  }
   static error2errors(error:Yup.ValidationError):Yup.ValidationError[]{
     const callname = `YupTool.error2errors @ ${DateTool.time2iso(new Date())}`;
 
     const errors_inner = error?.inner?.map(YupTool.error2errors)?.flat()
     
-
-    const errors_out = lodash.uniqBy(
-      [
-        ...(errors_inner ?? []),
-        error,
-      ],
-      x => JsonTool.encode(DictTool.dict2filtered(DictTool.keys2filtered(x, ['path', 'message']), (_,v) => !!v)),
-    );
-    // console.log({callname,error,errors_inner, errors_out});
+    const errors_out = YupTool.errors2dedup([
+      ...(errors_inner ?? []),
+      error,
+    ]);
+    // if(ArrayTool.bool(errors_out)){
+    //   console.log({callname,error,errors_inner, errors_out});
+    // }
     return errors_out;
+  }
+
+  static errors2cleaned = (errors:Yup.ValidationError[]):Yup.ValidationError[] => {
+    const cls = YupTool;
+    const callname = `YupTool.errors2cleaned @ ${DateTool.time2iso(new Date())}`;
+
+    return errors?.map(e => (cls.error2errors(e) ?? []))?.flat()
+    // return YupTool.errors2dedup(errors?.map(e => (cls.error2errors(e) ?? []))?.flat())?.filter(e => e.path != null)
   }
 
   static path2concat(paths:string[]):string{

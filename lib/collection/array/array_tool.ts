@@ -40,6 +40,24 @@ export default class ArrayTool {
 
     return i >= 0 ? i : undefined;
   };
+  
+  static f2f_map = <I,O>(
+    f:(i:I) => O,
+  ):((is:I[]) => O[]) => {
+    return (is:I[]):O[] => is?.map(i => f(i));
+  }
+
+  static reducer2reducer_immuting = <T>(
+    f:(l:T[]) => T[],
+    option?:{is_equal?:(l1:T[], l2:T[]) => boolean,}
+  ) => {
+
+    const is_equal = option?.is_equal ?? ArrayTool.areAllTriequal;
+    return (l:T[]):T[] => {
+      return is_equal(l, f(l)) ? l : f(l)
+    }
+  }
+
   static f_only2f_many = <I, O>(
     f_only: (x: I) => O,
     f_etc: (l: I[], o_only?: O) => O
@@ -1013,7 +1031,7 @@ export default class ArrayTool {
 
       if (a === b) return true;
       if (a == null || b == null) return undefined;
-      if (a.length !== b.length) return undefined;
+      if (a.length !== b.length) return false;
 
       // If you don't care about the order of the elements inside
       // the array, you should sort both arrays here.
@@ -1035,14 +1053,16 @@ export default class ArrayTool {
 
       // if (a === b) return true;
       if (a == null || b == null) return undefined;
-      if (a.length !== b.length) return undefined;
+      // if (a.length !== b.length) return undefined;
+      if(a.length === 0 || a.length === 0) return false;
+      const n = Math.min(a.length, b.length);
 
       // If you don't care about the order of the elements inside
       // the array, you should sort both arrays here.
       // Please note that calling sort on an array will modify that array.
       // you might want to clone your array first.
 
-      for (var i = 0; i < a.length; ++i) {
+      for (var i = 0; i < n; ++i) {
         if (f_bicmp(a[i], b[i])) {
           return true;
         }
