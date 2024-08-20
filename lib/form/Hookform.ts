@@ -10,6 +10,7 @@ import YupTool from "./yup/yup_tool";
 import { ValidateOptions } from "yup/lib/types";
 import MathTool from "../number/math/math_tool";
 import { AbsoluteOrder } from "../collection/array/minimax_tool";
+import { WindowTool } from "../html/ComponentTool";
 
 // export class Xpathanchor{
 //   xpath:string;
@@ -420,20 +421,33 @@ export default class Hookform<T>{
   //   return false;
   // }
 
-  static element2scrollTo = (element:HTMLElement) => {
-    if(!element){ return ; }
+  // static element2scrollTo = (element:HTMLElement) => {
+  //   if(!element){ return ; }
     
-    const yOffset = -10;
-    const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+  //   // if (element_first) {
+  //     //   const yOffset = -MathTool.sum([
+  //     //     HermesFrame.h_topline(),
+  //     //     HermesFrame.pagelayout2h_topmenu(Pagelayout.DESKTOP),
+  //     //   ]);
+  //     //   const y = element_first.getBoundingClientRect().top + window.scrollY + yOffset
 
-    // console.log({callname, y});
-    // element_first.scrollIntoView();
-    window.scrollTo({top: y, behavior: 'smooth'});
-  }
+  //     //   window.scrollTo({top: y, behavior: 'smooth'});
+  //     // }
+
+  //   // console.log({callname, y});
+  //   // element_first.scrollIntoView();
+  //   window.scrollTo({
+  //     top: WindowTool.element2top_natural(element),
+  //     behavior: 'smooth',
+  //   });
+  // }
 
   static errors2handled = (
     errors:Yup.ValidationError[],
     hookform:Hookform<any>,
+    option?:{
+      element2yoffset: (element:HTMLElement) => number,
+    }
   ) => {
     const cls = Hookform;
     const callname = `Hookform.errors2handled @ ${DateTool.time2iso(new Date())}`;
@@ -441,9 +455,9 @@ export default class Hookform<T>{
     const {errorshook, fieldinfoshook} = hookform;
     const [fieldinfos] = fieldinfoshook;
 
-    // console.log({callname, errors});
+    const errors_all = YupTool.errors2cleaned(errors);
+    // console.log({callname, errors_all});
 
-    const errors_all = errors?.map(YupTool.error2errors)?.flat();
     const xpaths_error = errors_all?.map(e => e.path);
     const fieldinfo0 = ArrayTool.sorted(
       fieldinfos
@@ -457,7 +471,12 @@ export default class Hookform<T>{
       )
     )?.[0]
 
-    cls.element2scrollTo(fieldinfo0?.ref?.current);
+    // cls.element2scrollTo(fieldinfo0?.ref?.current);
+    const element2yoffset = option?.element2yoffset ?? WindowTool.element2top_natural;
+    window.scrollTo({
+      top: element2yoffset(fieldinfo0?.ref?.current),
+      behavior: 'smooth',
+    });
     // const element0 = fieldinfo0?.ref?.current;
     // if(element0){
     //   const yOffset = -10;
