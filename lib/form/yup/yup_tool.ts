@@ -41,7 +41,7 @@ export default class YupTool{
       ],
       x => JsonTool.encode(DictTool.dict2filtered(DictTool.keys2filtered(x, ['path', 'message']), (_,v) => !!v)),
     );
-    console.log({callname,error,errors_inner, errors_out});
+    // console.log({callname,error,errors_inner, errors_out});
     return errors_out;
   }
 
