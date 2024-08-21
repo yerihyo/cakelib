@@ -187,28 +187,62 @@ export default class UrlTool{
   }
 
   static urlstring2paramkeys_dropped = (
-    // urlstring:string,
-    urlstring:string,
-    // params_in?:Record<string,string|string[]>,
-    paramkeys?:string[],
-    // options?,
-  ):string => {
+    urlstring: string,
+    paramkeys?: string[],
+  ): string => {
     const cls = UrlTool;
     const callname = `UrlTool.urlstring2paramkeys_dropped @ ${DateTool.time2iso(new Date())}`;
 
-    if(urlstring==null){ return undefined; }
-    if(!ArrayTool.bool(paramkeys)){ return urlstring; }
+    if (urlstring == null) { return undefined; }
+    if (!ArrayTool.bool(paramkeys)) { return urlstring; }
 
-    const [baseurl, str_params] = urlstring.split('?', 1);
+    const [baseurl, str_params] = urlstring.split('?', 2);
     const params_url = new URLSearchParams(str_params || '');
     
     const paramkeyset = new Set(paramkeys);
 
-    const params_out = new URLSearchParams([...params_url.entries()].filter(([k, _]) => !paramkeyset.has(k)));
+    const params_out = new URLSearchParams(
+        [...params_url.entries()].filter(([k, _]) => !paramkeyset.has(k))
+    );
 
-    const urlstring_out = params_out.toString() ? [baseurl, params_out.toString()].join('?') : baseurl;
-    // console.log({callname,
-    //   urlstring, baseurl, str_params, params_in, params_out:params_out?.toString(), urlstring_out,});
+    const urlstring_out = params_out.toString() ? `${baseurl}?${params_out.toString()}` : baseurl;
+
+    // console.log({
+    //     callname,
+    //     urlstring, 
+    //     baseurl, 
+    //     paramkeys, 
+    //     params_url: Object.fromEntries(params_url.entries()), 
+    //     str_params, 
+    //     params_out: params_out.toString(), 
+    //     urlstring_out,
+    // });
+
+    return urlstring_out;
+  }
+
+  static urlstring2paramkeys_kept = (
+    urlstring: string,
+    paramkeys?: string[],
+  ): string => {
+    const cls = UrlTool;
+    const callname = `UrlTool.urlstring2paramkeys_kept @ ${DateTool.time2iso(new Date())}`;
+  
+    if (urlstring == null) { return undefined; }
+    if (!ArrayTool.bool(paramkeys)) { return urlstring; }
+  
+    const [baseurl, str_params] = urlstring.split('?', 2);
+    const params_url = new URLSearchParams(str_params || '');
+  
+    const paramkeyset = new Set(paramkeys);
+  
+    // Keep only the parameters that are in paramkeyset
+    const params_out = new URLSearchParams(
+      [...params_url.entries()].filter(([k, _]) => paramkeyset.has(k))
+    );
+  
+    const urlstring_out = params_out.toString() ? `${baseurl}?${params_out.toString()}` : baseurl;
+
     return urlstring_out;
   }
 
@@ -257,10 +291,25 @@ export default class UrlTool{
     return urlstring_out;
   }
 
+  // if value contains "," than error will occur
   static urlstring2list = (s: string) => {
     if (!s) { return undefined; }
     const s_list: string[] = s.split(",");
     return s_list;
+  }
+
+  // if value contains "," than throw error
+  static list2urlstring = <T>(list: T[]): string | undefined => {
+    if (!list || list.length === 0) { return undefined; }
+    
+    // Check if any item in the list contains a comma
+    for (const item of list) {
+      if (typeof item === 'string' && item.includes(',')) {
+        throw new Error("List items must not contain a comma.");
+      }
+    }
+    
+    return list.join(",");
   }
 
   // static params2appended = (
