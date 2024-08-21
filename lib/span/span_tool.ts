@@ -620,8 +620,29 @@ export class SpansTool {
     return spans_norm;
   }
 
-  static spans2minmax = <T>(
-    spans:Pair<T>[],
+  // static spans2minmax = <T>(
+  //   spans:Pair<T>[],
+  //   option?: {
+  //     comparator?: Comparator<T>,
+  //   },
+  // ):Pair<T> => {
+
+  //   const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
+
+  //   const min = MinimaxTool.min(
+  //     spans?.map(span => span?.[0]),
+  //     AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator),
+  //   );
+
+  //   const max = MinimaxTool.max(
+  //     spans?.map(span => span?.[1]),
+  //     AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator),
+  //   );
+  //   return [min, max];
+  // }
+
+  static firstlasts2minmax = <T>(
+    firstlasts:Pair<T>[],
     option?: {
       comparator?: Comparator<T>,
     },
@@ -630,12 +651,12 @@ export class SpansTool {
     const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
 
     const min = MinimaxTool.min(
-      spans?.map(span => span?.[0]),
+      firstlasts?.map(firstlast => firstlast?.[0]),
       AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator),
     );
 
     const max = MinimaxTool.max(
-      spans?.map(span => span?.[1]),
+      firstlasts?.map(firstlast => firstlast?.[1]),
       AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator),
     );
     return [min, max];
