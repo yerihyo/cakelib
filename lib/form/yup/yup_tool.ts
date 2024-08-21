@@ -42,8 +42,7 @@ export default class YupTool{
     const errors_inner = error?.inner?.map(YupTool.error2errors)?.flat()
     
     const errors_out = YupTool.errors2dedup([
-      ...(errors_inner ?? []),
-      error,
+      ...(ArrayTool.bool(errors_inner) ? errors_inner : [error]),
     ]);
     // if(ArrayTool.bool(errors_out)){
     //   console.log({callname,error,errors_inner, errors_out});
