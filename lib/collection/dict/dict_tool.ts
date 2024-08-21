@@ -154,9 +154,9 @@ export default class DictTool{
         return true
     }
 
-    static reversed(h) {
-        return Object.keys(h).reverse().reduce((hh,k) => { hh[k] = h[k]; return hh; }, {});
-    }
+    // static reversed(h) {
+    //     return Object.keys(h).reverse().reduce((hh,k) => { hh[k] = h[k]; return hh; }, {});
+    // }
 
     // static partial2has_change(dict_prev, dict_partial){
     //     for (const [k,v_partial] of Object.entries(dict_partial)){

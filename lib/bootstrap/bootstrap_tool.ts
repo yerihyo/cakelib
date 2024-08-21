@@ -6,45 +6,35 @@ import { AbsoluteOrder } from '../collection/array/minimax_tool';
 import DateTool from '../date/date_tool';
 import { WindowTool } from '../html/ComponentTool';
 
-export class Gridsizeinfo{
-  index:number;
-  name:string;
+export class Gridsize{
+  // index:number;
+  value:string;
   minwidth_screen?:number;
   width_container?:number;
 
-  static XS:Gridsizeinfo = { index:0, name:'XS', };
-  static SM:Gridsizeinfo = { index:1, name:'SM', minwidth_screen:576, width_container:540, };
-  static MD:Gridsizeinfo = { index:2, name:'MD', minwidth_screen:768, width_container:720, };
-  static LG:Gridsizeinfo = { index:3, name:'LG', minwidth_screen:992, width_container:960, };
-  static XL:Gridsizeinfo = { index:4, name:'XL', minwidth_screen:1200, width_container:1140, };
-  static XXL:Gridsizeinfo = { index:5, name:'XXL', minwidth_screen:1400, width_container:1320, };
+  static XS:Gridsize = { value:'XS', };
+  static SM:Gridsize = { value:'SM', minwidth_screen:576, width_container:540, };
+  static MD:Gridsize = { value:'MD', minwidth_screen:768, width_container:720, };
+  static LG:Gridsize = { value:'LG', minwidth_screen:992, width_container:960, };
+  static XL:Gridsize = { value:'XL', minwidth_screen:1200, width_container:1140, };
+  static XXL:Gridsize = { value:'XXL', minwidth_screen:1400, width_container:1320, };
 
-  static list():Gridsizeinfo[]{
-    const cls = Gridsizeinfo;
+  static list():Gridsize[]{
+    const cls = Gridsize;
     return [cls.XS, cls.SM, cls.MD, cls.LG, cls.XL, cls.XXL];
   }
 
-  static dict_name2info = CacheTool.memo_one(():Record<string,Gridsizeinfo> => {
-    const cls = Gridsizeinfo;
-    return ArrayTool.array2dict(cls.list(), x=> x.name);
-  });
-
-  static name2info(name:string):Gridsizeinfo{
-    const cls = Gridsizeinfo;
-    return cls.dict_name2info()?.[name];
-  }
-}
-export class Gridsize{
-  static XS = Gridsizeinfo.XS.name;
-  static SM = Gridsizeinfo.SM.name;
-  static MD = Gridsizeinfo.MD.name;
-  static LG = Gridsizeinfo.LG.name;
-  static XL = Gridsizeinfo.XL.name;
-  static XXL = Gridsizeinfo.XXL.name;
-
-  static pair2cmp = CmpTool.f_key2f_cmp(
-    (s:string) => Gridsizeinfo.name2info(s).index
+  static dict_value2obj = CacheTool.memo_one(
+    ():Record<string,Gridsize> => ArrayTool.array2dict(Gridsize.list(), x=> x.value)
   );
+  static value2info = (v:string):Gridsize => Gridsize.dict_value2obj()?.[v];
+
+  static dict_value2index = CacheTool.memo_one(
+    ():Record<string,number> => ArrayTool.array2dict_item2index(Gridsize.list().map(x => x.value))
+  );
+  static value2index = (v:string) => Gridsize.dict_value2index()?.[v];
+
+  static pair2cmp = CmpTool.f_key2f_cmp((v:string) => Gridsize.value2index(v));
 
   static gte = CmpTool.f_cmp2f_gte(AbsoluteOrder.f_cmp2f_cmp_nullable(Gridsize.pair2cmp));
   static gt = CmpTool.f_cmp2f_gt(AbsoluteOrder.f_cmp2f_cmp_nullable(Gridsize.pair2cmp));
@@ -80,54 +70,34 @@ export class Gridsize{
     return screenwidth_hook[0];
   }
 
-  // static window2gridsize(): string{
-  //   const cls = Gridsize;
-  //   const callname = `Gridsize.window2gridsize @ ${DateTool.time2iso(new Date())}`;
-
-  //   // console.log({
-  //   //   callname,
-  //   //   'window.innerWidth': window?.innerWidth,
-  //   //   'document.body.scrollWidth': document.body.scrollWidth,
-  //   //   'document.documentElement.scrollWidth': document.documentElement.scrollWidth,
-  //   //   'document.body.offsetWidth': document.body.offsetWidth,
-  //   //   'document.documentElement.offsetWidth': document.documentElement.offsetWidth,
-  //   //   'document.documentElement.clientWidth': document.documentElement.clientWidth,
-  //   // });
-
-  //   // const width = window.innerWidth;
-  //   const screenwidth = Math.min(...[
-  //     document.body.scrollWidth,
-  //     document.documentElement.scrollWidth,
-  //     document.body.offsetWidth,
-  //     document.documentElement.offsetWidth,
-  //     document.documentElement.clientWidth,
-  //   ].filter(x => x != null))
-
-  //   if(!screenwidth){ return undefined; }
-  //   if (screenwidth < Gridsizeinfo.SM.minwidth_screen) { return cls.XS; }
-  //   if (screenwidth < Gridsizeinfo.MD.minwidth_screen) { return cls.SM; }
-  //   if (screenwidth < Gridsizeinfo.LG.minwidth_screen) { return cls.MD; }
-  //   if (screenwidth < Gridsizeinfo.XL.minwidth_screen) { return cls.LG; }
-  //   if (screenwidth < Gridsizeinfo.XXL.minwidth_screen) { return cls.XL; }
-  //   if (screenwidth >= Gridsizeinfo.XXL.minwidth_screen) { return cls.XXL; }
-
-  //   throw new Error(`screenwidth: ${screenwidth}`);
-  // }
-
-  static screenwidth2gridsize(screenwidth:number): string{
+  static screenwidth2gridsize(width:number): string{
     const cls = Gridsize;
     const callname = `Gridsize.screenwidth2gridsize @ ${DateTool.time2iso(new Date())}`;
 
+    if(!width) return undefined;
+    if (width < Gridsize.SM.minwidth_screen) return cls.XS.value; 
+    if (width < Gridsize.MD.minwidth_screen) return cls.SM.value;
+    if (width < Gridsize.LG.minwidth_screen) return cls.MD.value;
+    if (width < Gridsize.XL.minwidth_screen) return cls.LG.value;
+    if (width < Gridsize.XXL.minwidth_screen) return cls.XL.value;
+    if (width >= Gridsize.XXL.minwidth_screen) return cls.XXL.value;
 
-    if(!screenwidth){ return undefined; }
-    if (screenwidth < Gridsizeinfo.SM.minwidth_screen) { return cls.XS; }
-    if (screenwidth < Gridsizeinfo.MD.minwidth_screen) { return cls.SM; }
-    if (screenwidth < Gridsizeinfo.LG.minwidth_screen) { return cls.MD; }
-    if (screenwidth < Gridsizeinfo.XL.minwidth_screen) { return cls.LG; }
-    if (screenwidth < Gridsizeinfo.XXL.minwidth_screen) { return cls.XL; }
-    if (screenwidth >= Gridsizeinfo.XXL.minwidth_screen) { return cls.XXL; }
+    throw new Error(`screenwidth: ${width}`);
+  }
 
-    throw new Error(`screenwidth: ${screenwidth}`);
+  static containerwidth2gridsize(width:number): string{
+    const cls = Gridsize;
+    const callname = `Gridsize.screenwidth2gridsize @ ${DateTool.time2iso(new Date())}`;
+
+    if(!width) return undefined;
+    if (width < Gridsize.SM.width_container) return cls.XS.value; 
+    if (width < Gridsize.MD.width_container) return cls.SM.value;
+    if (width < Gridsize.LG.width_container) return cls.MD.value;
+    if (width < Gridsize.XL.width_container) return cls.LG.value;
+    if (width < Gridsize.XXL.width_container) return cls.XL.value;
+    if (width >= Gridsize.XXL.width_container) return cls.XXL.value;
+
+    throw new Error(`width: ${width}`);
   }
 
   /**
@@ -155,7 +125,7 @@ export class Pagelayout{
   static DESKTOP = 'DESKTOP';
 
   static gridsize2layout(gridsize:string):string{
-    return Pagelayout.gridsize_pivot2layout(gridsize, Gridsize.MD);
+    return Pagelayout.gridsize_pivot2layout(gridsize, Gridsize.MD.value);
   }
 
   static gridsize_pivot2layout(gridsize:string, pivot:string):string{
@@ -198,7 +168,7 @@ export class Windowinfo{
   window:Window;
 
   static use_windowinfo = ():Windowinfo => {
-    const { pagelayout, } = Pagelayout.gridsize_pivot2layout_info(Gridsize.useGridsize(), Gridsize.MD);
+    const { pagelayout, } = Pagelayout.gridsize_pivot2layout_info(Gridsize.useGridsize(), Gridsize.MD.value);
     const window_hook = WindowTool.window_hook();
     return { pagelayout, window: window_hook[0] };
   }
