@@ -5,6 +5,7 @@ import MinimaxTool, { AbsoluteOrder } from '../collection/array/minimax_tool'
 import { Pair } from '../native/native_tool'
 import SignTool from '../number/sign_tool'
 import MathTool from '../number/math/math_tool'
+import FunctionTool from '../function/function_tool';
 
 export default class SpanTool {
   static zerospan = <T>() => ([] as unknown as Pair<T>);
@@ -595,6 +596,21 @@ export default class SpanTool {
       ;
 
   }
+
+  static f2nullskipped = FunctionTool.unary2nullskipped
+  static span2firstlast = <T>(
+    span:Pair<T>,
+    option?:{f_minusone?:(t:T) => T},
+  ):Pair<T> => {
+    if(span == null){ return undefined; }
+
+    const f_minusone = option?.f_minusone ?? ((t:T) => ((t as any) - 1) as T);
+    return [
+      span?.[0],
+      f_minusone(span?.[1]),
+    ];
+  }
+    
 }
 
 export class SpansTool {
