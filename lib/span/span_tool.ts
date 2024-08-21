@@ -2,9 +2,10 @@ import lodash from 'lodash';
 import CmpTool, { BicmpTool, Bicomparator, Comparator, Comparatorkit } from '../cmp/CmpTool'
 import ArrayTool from '../collection/array/array_tool'
 import MinimaxTool, { AbsoluteOrder } from '../collection/array/minimax_tool'
-import { Pair } from '../native/native_tool'
+import NativeTool, { Pair } from '../native/native_tool'
 import SignTool from '../number/sign_tool'
 import MathTool from '../number/math/math_tool'
+import FunctionTool from '../function/function_tool';
 
 export default class SpanTool {
   static zerospan = <T>() => ([] as unknown as Pair<T>);
@@ -388,6 +389,11 @@ export default class SpanTool {
       ...(comparator_ub(cup[1], span1[1])<0 ? [[cup[1], span1[1]] as Pair<T>] : []),
     ];
   }
+
+  static is_covered = lodash.flow(
+    SpanTool.subtract,
+    spans => NativeTool.negate3(SpanTool.bool(spans)),
+  )
 
   static subtractSpans = <T>(
     spans1: Pair<T>[],
