@@ -30,7 +30,7 @@ export default class HangulTool{
     const cls = HangulTool;
     if(text == null){ return undefined; }
 
-    return cls.text2is_vowelending(text) ? `${text}이` : `${text}가`
+    return cls.text2is_vowelending(text) ? `${text}가` : `${text}이`
   }
 
 
