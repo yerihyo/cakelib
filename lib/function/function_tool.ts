@@ -154,6 +154,10 @@ export default class FunctionTool{
      */
     static applyFn = <O,A extends any[]>(fn:FuncAO<O,A>, ...args:A):O => fn(...args);
 
+    static fs2f_every = <A extends any[]>(fs: FuncAB<A>[]):FuncAB<A> => {
+        return (...args:A) => fs?.every(f => f(...args));
+    };
+    
     // static func2wrapped(wrapper, f){
     //     return wrapper(f);
     // }
