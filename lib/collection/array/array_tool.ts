@@ -1021,6 +1021,10 @@ export default class ArrayTool {
     }
   };
 
+  static f_bool2f_every = <X, A extends any[]>(f_bool: (x:X, ...args:A) => boolean,): ((l:X[], ...args:A) => boolean) => {
+    return (l:X[], ...args:A) => l?.every(x => f_bool(x, ...args));
+  };
+
   static f_bool2f_some = <X, A extends any[]>(f_bool: (x:X, ...args:A) => boolean,): ((l:X[], ...args:A) => boolean) => {
     return (l:X[], ...args:A) => l?.some(x => f_bool(x, ...args));
   };

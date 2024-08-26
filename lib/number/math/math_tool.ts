@@ -96,12 +96,12 @@ export default class MathTool {
     if(v1 == null || v2 == null){ return undefined; }
     return v1 - v2;
   }
-  static gte = (...p:Pair<number>) => { const c = MathTool.pair2cmp(...p); return c != null ? c >= 0 : undefined; };
-  static gt = (...p:Pair<number>) => { const c = MathTool.pair2cmp(...p); return c != null ? c > 0 : undefined; };
-  static lte = (...p:Pair<number>) => { const c = MathTool.pair2cmp(...p); return c != null ? c <= 0 : undefined; };
-  static lt = (...p:Pair<number>) => { const c = MathTool.pair2cmp(...p); return c != null ? c < 0 : undefined; };
-  static eq = (...p:Pair<number>) => { const c = MathTool.pair2cmp(...p); return c != null ? c === 0 : undefined; };
-  static ne = (...p:Pair<number>) => { const c = MathTool.pair2cmp(...p); return c != null ? c != 0 : undefined; };
+  static gte = (...p:Pair<number>):boolean => { const c = MathTool.pair2cmp(...p); return c != null ? c >= 0 : undefined; };
+  static gt = (...p:Pair<number>):boolean => { const c = MathTool.pair2cmp(...p); return c != null ? c > 0 : undefined; };
+  static lte = (...p:Pair<number>):boolean => { const c = MathTool.pair2cmp(...p); return c != null ? c <= 0 : undefined; };
+  static lt = (...p:Pair<number>):boolean => { const c = MathTool.pair2cmp(...p); return c != null ? c < 0 : undefined; };
+  static eq = (...p:Pair<number>):boolean => { const c = MathTool.pair2cmp(...p); return c != null ? c === 0 : undefined; };
+  static ne = (...p:Pair<number>):boolean => { const c = MathTool.pair2cmp(...p); return c != null ? c != 0 : undefined; };
 
   
 
