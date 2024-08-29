@@ -3,10 +3,11 @@
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#options 
  **/
 
+import { DateTime } from 'luxon';
 import CmpTool from '../cmp/CmpTool';
 import ArrayTool from '../collection/array/array_tool';
 import FunctionTool from '../function/function_tool';
-import NativeTool, { Pair } from '../native/native_tool';
+import NativeTool, { Pair, Triple } from '../native/native_tool';
 import MathTool from '../number/math/math_tool';
 import NumberTool from '../number/number_tool';
 
@@ -396,6 +397,16 @@ export default class DateTool {
 
   static date2secoffset_utc(d: Date): number {
     return (d.getTime() - DateTool.date2midnight(d).getTime()) / 1000;
+  }
+
+  static day82ymd = (day8:number):Triple<number> => {
+    return day8 == null
+      ? undefined
+      : [
+        Math.floor(day8 / 10000),
+        Math.floor(day8 % 10000 / 100),
+        day8 % 100,
+      ];
   }
 }
 
