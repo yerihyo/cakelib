@@ -868,7 +868,7 @@ export default class ArrayTool {
     if(ArrayTool.in(n, [0,1])){ return l?.[0]; }
     
     if(option?.relaxed){ return undefined; }
-    assert(`l?.length=${l?.length}`);
+    throw new Error(`l?.length=${l?.length}`);
   }
   // static l2onlykid_relaxed = <T>(l: T[]): T => (ArrayTool.is_singleton(l) ? l[0] : undefined);
 
