@@ -60,8 +60,8 @@ export default class UrlTool{
     return urlA.origin === urlB.origin;
   }
 
-  static dict2entries = DictTool.entries;
-  static h2l = DictTool.entries;
+  static dict2entries = DictTool.entries<string,string>;
+  static h2l = DictTool.entries<string,string>;
 
   // static dict2pairlist = (x:Record<Dictkey,number|string>) => Object.entries(x).map(([k,v]) => [k,v.toString()]);
 

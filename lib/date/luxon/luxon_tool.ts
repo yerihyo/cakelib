@@ -197,4 +197,14 @@ export default class LuxonTool{
   static lt = CmpTool.lt_default;
   static lte = CmpTool.lte_default;
 
+  static day82days_added = (day8:number, days:number):number => {
+    if(days === -Infinity){ return -Infinity; }
+    if(days === Infinity){ return Infinity; }
+
+    if(day8 == null){ return undefined; }
+    const [y,m,d] = DateTool.day82ymd(day8);
+    return LuxonTool.dt2day8(DateTime.utc(y, m, d)?.plus({days}))
+  }
+  // static day8days2added = (day8: number, days: number): number => DateTool.date2day8(DateTool.days2added(DateTool.day82date(day8), days))
+  static day82unitimpulse = (day8:number):Pair<number> => [day8, LuxonTool.day82days_added(day8, 1),];
 }
