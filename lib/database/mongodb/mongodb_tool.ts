@@ -83,7 +83,7 @@ export default class MongodbTool {
     if (qexpr == null) { return undefined; }
     return DictTool.is_dict(qexpr)
       ? (qexpr as { '$in': T[] })?.['$in']
-      : ArrayTool.v2l_or_undef(qexpr as T);
+      : ArrayTool.one2l(qexpr as T);
   }
 
   static fvpairs_bicmp2query = (
@@ -152,7 +152,7 @@ export default class MongodbTool {
     // const bicmp_complement = MongodbTool.op2complement(bicmp);
     // const bicmp_opposite = MongodbTool.op2opposite(bicmp);
 
-    const ffbv2fullpath = (ffbv:FFBV) => [ffbv.field, ...(ArrayTool.v2l_or_undef(ffbv.nestedfield) ?? [])].join('.');
+    const ffbv2fullpath = (ffbv:FFBV) => [ffbv.field, ...(ArrayTool.one2l(ffbv.nestedfield) ?? [])].join('.');
     const ffbv2query_bicmp = (ffbv:FFBV) => {
       const bicmp_complement = MongodbTool.op2complement(ffbv.bicmp);
       return ffbv.nestedfield == null
@@ -195,7 +195,7 @@ export default class MongodbTool {
   static query2is_logical = (query:any):boolean => {
     const cls = MongodbTool;
     const keys = Object.keys(query);
-    return cls.ops_logical().some(x => lodash.isEqual(ArrayTool.v2l_or_undef(x), keys));
+    return cls.ops_logical().some(x => lodash.isEqual(ArrayTool.one2l(x), keys));
   }
 
   static query2prefixed = <I,O=I>(query_in:I, prefix:string,):O => {

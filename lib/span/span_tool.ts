@@ -363,7 +363,7 @@ export default class SpanTool {
 
     const cup = cls.intersect([span1, span2], {comparator});
     if(cup == null){ throw new Error(`Invalid: span1:${span1}, span2:${span2}`); };
-    if(!SpanTool.bool(cup)){ return ArrayTool.v2l_or_undef(span1); }
+    if(!SpanTool.bool(cup)){ return ArrayTool.one2l(span1); }
     // if(cup === null){ return [span1]; };
 
     const comparator_lb = AbsoluteOrder.f_cmp2f_cmp_nullable2min(comparator);
