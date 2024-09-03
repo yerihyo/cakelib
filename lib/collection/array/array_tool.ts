@@ -424,7 +424,7 @@ export default class ArrayTool {
    * ref: https://stackoverflow.com/a/55001358/1902064
    * @param arrays
    */
-  static cartesian<T = any>(arrays: T[][]): T[][] {
+  static cartesian_deprecated<T = any>(arrays: T[][]): T[][] {
     return arrays.reduce(
       (a, b) => {
         return a
@@ -439,6 +439,29 @@ export default class ArrayTool {
     );
 
     // return arrays.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+  }
+
+  static cartesian<T = any>(arrays: T[][]): T[][] {
+    return arrays.reduce(
+      (ll_prev, array) => {
+        return ll_prev.map(l_prev => {
+          return array.map(x => [...l_prev, x]); // l_posts
+        }) // l_posts_list
+        .reduce((ll_post, l_posts) => [...ll_post, ...l_posts], []);  // flatten
+      },
+      [[]] as T[][]
+    );
+
+    // return arrays.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+  }
+
+  static cartesian2 = <X,Y>(xs:X[], ys:Y[]): [X,Y][] => {
+    if(xs == null){ return undefined; }
+    if(ys == null){ return undefined; }
+
+    return xs.map(x => {
+      return ys.map(y => [x,y] as [X,Y]);
+    }).flat();
   }
 
   static filter<X>(f: (x: X) => boolean, l: X[]): X[] {
