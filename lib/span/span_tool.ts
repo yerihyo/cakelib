@@ -636,6 +636,21 @@ export default class SpanTool {
       ;
 
   }
+
+  static f2nullskipped = FunctionTool.unary2nullskipped
+  static span2firstlast = <T>(
+    span:Pair<T>,
+    option?:{f_minusone?:(t:T) => T},
+  ):Pair<T> => {
+    if(span == null){ return undefined; }
+
+    const f_minusone = option?.f_minusone ?? ((t:T) => ((t as any) - 1) as T);
+    return [
+      span?.[0],
+      f_minusone(span?.[1]),
+    ];
+  }
+    
 }
 
 export class SpansTool {

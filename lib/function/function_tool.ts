@@ -26,9 +26,12 @@ export default class FunctionTool{
     //     return (l:X[], ...args:A):R[] => l?.map(x => f_onetoone(x, ...args))?.filter(r => r!=null);
     // }
 
-    static f12fn = <X, A extends any[], R>(f1:(x:X, ...args:A) => R):((l:X[], ...args:A) => R[]) => {
-        return (l:X[], ...args:A):R[] => l?.map(x => f1(x, ...args));
-    }
+    static f12fn = <X, A extends any[], R>(f1:(x:X, ...args:A) => R):((l:X[], ...args:A) => R[]) => 
+        (l:X[], ...args:A):R[] => l?.map(x => f1(x, ...args));
+
+    static f12fn_flat = <X, A extends any[], R>(f1:(x:X, ...args:A) => R[]):((l:X[], ...args:A) => R[]) => 
+        lodash.flow(FunctionTool.f12fn(f1), ll => ll?.filter(Boolean)?.flat(),);
+        // (l:X[], ...args:A):R[] => l?.map(x => f1(x, ...args) ?? [])?.flat();
 
     // static f_onetomany2f_manytomany = <X, A extends any[], R>(f_single:(x:X, ...args:A) => R[]):((l:X[], ...args:A) => R[]) => {
     //     return (l:X[], ...args:A):R[] => l?.map(x => f_single(x, ...args))?.flat();

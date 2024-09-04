@@ -39,11 +39,12 @@ export default class ArrayTool {
     return i >= 0 ? i : undefined;
   };
   
-  static f2f_map = <I,O>(
-    f:(i:I) => O,
-  ):((is:I[]) => O[]) => {
-    return (is:I[]):O[] => is?.map(i => f(i));
-  }
+  static f2f_map = FunctionTool.f12fn;
+  // static f2f_map = <I,O>(
+  //   f:(i:I) => O,
+  // ):((is:I[]) => O[]) => {
+  //   return (is:I[]):O[] => is?.map(i => f(i));
+  // }
 
   static reducer2reducer_immuting = <T>(
     f:(l:T[]) => T[],
@@ -889,7 +890,7 @@ export default class ArrayTool {
     if(ArrayTool.in(n, [0,1])){ return l?.[0]; }
     
     if(option?.relaxed){ return undefined; }
-    assert(`l?.length=${l?.length}`);
+    throw new Error(`l?.length=${l?.length}`);
   }
   // static l2onlykid_relaxed = <T>(l: T[]): T => (ArrayTool.is_singleton(l) ? l[0] : undefined);
 
