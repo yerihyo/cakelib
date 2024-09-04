@@ -312,6 +312,25 @@ export default class UrlTool{
     return list.join(",");
   }
 
+  static getQueryParams(url: string): Record<string, string> {
+    const queryStart = url.indexOf("?");
+    if (queryStart === -1) {
+      return {};
+    }
+
+    const queryString = url.slice(queryStart + 1);
+    const queryParamsArray = queryString.split("&");
+    const queryParams: Record<string, string> = {};
+    for (const param of queryParamsArray) {
+      const [key, value] = param.split("=");
+      if (key) {
+        queryParams[decodeURIComponent(key)] = decodeURIComponent(value || "");
+      }
+    }
+
+    return queryParams;
+  }
+
   // static params2appended = (
   //   url: string,
   //   params: Record<string, number|string | string[]>,

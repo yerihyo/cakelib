@@ -504,7 +504,7 @@ export default class Hookform<T>{
       hookform.errorshook[1]([]);
     }
     catch(error){
-      Hookform.errors2handled(ArrayTool.v2l_or_undef(error as Yup.ValidationError), hookform);
+      Hookform.errors2handled(ArrayTool.one2l(error as Yup.ValidationError), hookform);
       // console.log({callname, error})
       // window.scrollTo({top: 0, behavior: 'smooth'});
       throw error;

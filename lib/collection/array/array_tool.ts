@@ -19,16 +19,14 @@ function date2str_time(d: Date) {
   return (d).toISOString().split("T")[1];
 }
 export default class ArrayTool {
-  static v2l_or_undef = <V>(v: V): V[] => (v == null ? undefined : [v]);
-  static only2list = <V>(v: V): V[] => (v == null ? undefined : [v]);
+  static one2l = <V>(v: V): V[] => (v == null ? undefined : [v]);
+  // static only2list = <V>(v: V): V[] => (v == null ? undefined : [v]);
 
-  static flat_notnull = <X>(ll: X[][]): X[] => {
-    return ll?.map((l) => l ?? [])?.flat();
-  };
+  // static flat_notnull = <X>(ll: X[][]): X[] => ll?.map((l) => l ?? [])?.flat();
 
-  static f_array2f_only = <T>(f_array: Typeinvariantfunc<T[]>) => {
-    return (t: T) => ArrayTool.l2one(f_array(ArrayTool.v2l_or_undef(t)));
-  };
+  // static f_array2f_only = <T>(f_array: Typeinvariantfunc<T[]>) => {
+  //   return (t: T) => ArrayTool.l2one(f_array(ArrayTool.one2l(t)));
+  // };
 
   static has_nullable = (l: any[]): boolean => l?.some((x) => x == null);
 
@@ -426,7 +424,7 @@ export default class ArrayTool {
    * ref: https://stackoverflow.com/a/55001358/1902064
    * @param arrays
    */
-  static cartesian<T = any>(arrays: T[][]): T[][] {
+  static cartesian_deprecated<T = any>(arrays: T[][]): T[][] {
     return arrays.reduce(
       (a, b) => {
         return a
@@ -441,6 +439,29 @@ export default class ArrayTool {
     );
 
     // return arrays.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+  }
+
+  static cartesian<T = any>(arrays: T[][]): T[][] {
+    return arrays.reduce(
+      (ll_prev, array) => {
+        return ll_prev.map(l_prev => {
+          return array.map(x => [...l_prev, x]); // l_posts
+        }) // l_posts_list
+        .reduce((ll_post, l_posts) => [...ll_post, ...l_posts], []);  // flatten
+      },
+      [[]] as T[][]
+    );
+
+    // return arrays.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+  }
+
+  static cartesian2 = <X,Y>(xs:X[], ys:Y[]): [X,Y][] => {
+    if(xs == null){ return undefined; }
+    if(ys == null){ return undefined; }
+
+    return xs.map(x => {
+      return ys.map(y => [x,y] as [X,Y]);
+    }).flat();
   }
 
   static filter<X>(f: (x: X) => boolean, l: X[]): X[] {
@@ -1350,13 +1371,13 @@ export default class ArrayTool {
   static f_manytomany2f_one2one = <X, A extends any[], R>(
     f_manytomany: (l: X[], ...args: A) => R[]
   ): ((x: X, ...args: A) => R) => {
-    return (x: X, ...args: A): R => ArrayTool.l2one(f_manytomany(ArrayTool.v2l_or_undef(x), ...args));
+    return (x: X, ...args: A): R => ArrayTool.l2one(f_manytomany(ArrayTool.one2l(x), ...args));
   };
   static fa_manytomany2fa_one2one = <X, A extends any[], R>(
     fa_manytomany: (l: X[], ...args: A) => Promise<R[]>
   ): ((x: X, ...args: A) => Promise<R>) => {
     return (x: X, ...args: A): Promise<R> =>
-      fa_manytomany(ArrayTool.v2l_or_undef(x), ...args).then((rr) => ArrayTool.l2one(rr));
+      fa_manytomany(ArrayTool.one2l(x), ...args).then((rr) => ArrayTool.l2one(rr));
   };
   
   static sortArrayBasedOnOriginal = (original: string[], newArray: string[]): string[] => {
