@@ -39,11 +39,12 @@ export default class ArrayTool {
     return i >= 0 ? i : undefined;
   };
   
-  static f2f_map = <I,O>(
-    f:(i:I) => O,
-  ):((is:I[]) => O[]) => {
-    return (is:I[]):O[] => is?.map(i => f(i));
-  }
+  static f2f_map = FunctionTool.f12fn;
+  // static f2f_map = <I,O>(
+  //   f:(i:I) => O,
+  // ):((is:I[]) => O[]) => {
+  //   return (is:I[]):O[] => is?.map(i => f(i));
+  // }
 
   static reducer2reducer_immuting = <T>(
     f:(l:T[]) => T[],
