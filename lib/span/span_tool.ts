@@ -120,6 +120,9 @@ export default class SpanTool {
   static comparator2comparator_lb = lodash.flow(AbsoluteOrder.f_cmp2f_cmp_infs2minmax, AbsoluteOrder.f_cmp2f_cmp_nullable2min);
   static comparator2comparator_ub = lodash.flow(AbsoluteOrder.f_cmp2f_cmp_infs2minmax, AbsoluteOrder.f_cmp2f_cmp_nullable2max);
 
+  static pair2cmplb_default = SpanTool.comparator2comparator_lb(CmpTool.pair2cmp_default);
+  static pair2cmpub_default = SpanTool.comparator2comparator_ub(CmpTool.pair2cmp_default);
+
   static is_between<T>(
     value: T,
     span: Pair<T>,
@@ -136,8 +139,8 @@ export default class SpanTool {
     if (span.length !== 2) { throw new Error(`span.length: ${span.length}`); }
 
     // const { pair2cmp: pair2cmp_in } = (options || {});
-    const comparator_lb = option?.comparator?.lb ?? SpanTool.comparator2comparator_lb(CmpTool.pair2cmp_default);
-    const comparator_ub = option?.comparator?.ub ?? SpanTool.comparator2comparator_ub(CmpTool.pair2cmp_default);
+    const comparator_lb = option?.comparator?.lb ?? SpanTool.pair2cmplb_default;
+    const comparator_ub = option?.comparator?.ub ?? SpanTool.pair2cmpub_default;
 
     const [s, e] = span;
     const cmp_lb = comparator_lb(s, value);
