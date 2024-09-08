@@ -1097,22 +1097,26 @@ export default class ArrayTool {
     };
   };
 
+
+  static isHomogeneous = <T,>(
+    items: T[],
+    f_eq:Bicomparator<T>,
+  ): boolean => {
+    return items == null
+      ? undefined
+      : !ArrayTool.bool(items)
+        ? true
+        : items.every((v) => f_eq(v, items[0]))
+        ;
+  };
+  static isBihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.isBiequal);
+  static isTrihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.isTriequal);
+  static isUniform = ArrayTool.isTrihomo;  // avoid using
+  static areAlike = ArrayTool.isTrihomo;  // avoid using
+  static areAllSame = ArrayTool.isTrihomo;  // avoid using
+
   static areAllBiequal = ArrayTool.f_bicmp2f_every(CmpTool.isBiequal);
   static areAllTriequal = ArrayTool.f_bicmp2f_every(CmpTool.isTriequal);
-  // static areItemsEqual<T>(
-  //   l1: T[],
-  //   l2: T[],
-  //   options?: {
-  //     isEqual?: (v1: T, v2: T) => boolean,
-  //   },
-  // ): boolean {
-
-  //   return ArrayTool.f_eq2f_eq_array(options?.isEqual ?? ((x1, x2) => x1 === x2))(l1,l2);
-  // }
-
-  static array2are_all_same = <T = any>(arrays: T[]): boolean => {
-    return !ArrayTool.bool(arrays) ? true : arrays.every((v) => v === arrays[0]);
-  };
 
   static reversed = <T = any>(array: T[]): T[] => (array == null ? undefined : [...array].reverse());
 
@@ -1218,7 +1222,7 @@ export default class ArrayTool {
 
     const colcounts = rows.map((row) => row.length);
     if (option?.strict) {
-      if (!ArrayTool.array2are_all_same(colcounts)) {
+      if (!ArrayTool.isTrihomo(colcounts)) {
         throw new Error(`${colcounts}`);
       }
     }
