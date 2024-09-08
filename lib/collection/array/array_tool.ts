@@ -1221,7 +1221,7 @@ export default class ArrayTool {
 
     const colcounts = rows.map((row) => row.length);
     if (option?.strict) {
-      if (!ArrayTool.areTriequal(colcounts)) {
+      if (!ArrayTool.isTrihomo(colcounts)) {
         throw new Error(`${colcounts}`);
       }
     }
