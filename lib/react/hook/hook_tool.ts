@@ -2011,6 +2011,8 @@ export default class HookTool{
 
     return index;
   }
+
+  static codec_ll2list = <T,>():Hookcodec<T[][], T[]> => ({ decode: ll => ll?.flat(), encode: (l: T[]) => ArrayTool.one2l(l), });
 }
 
 export type Asyncresult = {
