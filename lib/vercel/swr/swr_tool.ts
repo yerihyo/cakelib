@@ -89,6 +89,7 @@ export default class SwrTool {
 
   static codec_list2one = <T>() => ({ decode: (l:T[]) => ArrayTool.l2one(l), encode: (t:T) => ArrayTool.one2l(t) });
   static list_swr2one_swr = <T>(list_swr:SWRResponse<T[]>):SWRResponse<T> => SwrTool.swr2codeced(list_swr, SwrTool.codec_list2one<T>()); 
+  static list_swr2singleton_swr = SwrTool.list_swr2one_swr;
 
   static swr2codeced<P,C>(
     swr: SWRResponse<P>,
