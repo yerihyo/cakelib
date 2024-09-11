@@ -31,11 +31,13 @@ export default class FunctionTool{
 
     static f12fn = FunctionTool.f112fnn;
 
-    static f1n2fnn = <X, A extends any[], R>(f1:(x:X, ...args:A) => R[]):((l:X[], ...args:A) => R[]) => 
-        lodash.flow(FunctionTool.f112fnn(f1), ll => ll?.filter(Boolean)?.flat(),);
+    static f1n2fnn = <X, A extends any[], R>(f1n:(x:X, ...args:A) => R[]):((l:X[], ...args:A) => R[]) => 
+        lodash.flow(FunctionTool.f112fnn(f1n), ll => ll?.filter(Boolean)?.flat(),);
     static f12fn_flat = FunctionTool.f1n2fnn;
-        // (l:X[], ...args:A):R[] => l?.map(x => f1(x, ...args) ?? [])?.flat();
 
+    static fn12f11 = <X, A extends any[], R>(fn1:(l:X[], ...args:A) => R):((x:X, ...args:A) => R) =>
+        (x:X, ...args:A):R => fn1(x == null ? (x as X[]) : [x], ...args);
+    
     // static f_onetomany2f_manytomany = <X, A extends any[], R>(f_single:(x:X, ...args:A) => R[]):((l:X[], ...args:A) => R[]) => {
     //     return (l:X[], ...args:A):R[] => l?.map(x => f_single(x, ...args))?.flat();
     // }
