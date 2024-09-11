@@ -1054,7 +1054,7 @@ export default class HookTool{
 
 
 
-  static codec_list2singleton = <V=any>(predicate:(v:V) => boolean):Hookcodec<V[],V> => {
+  static codec_list2filter_one = <V=any>(predicate:(v:V) => boolean):Hookcodec<V[],V> => {
     const cls = HookTool;
     return cls.codecs2piped([
       HookTool.listcodec_filter_n_extend<V>(predicate),

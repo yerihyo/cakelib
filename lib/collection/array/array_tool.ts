@@ -39,7 +39,7 @@ export default class ArrayTool {
     return i >= 0 ? i : undefined;
   };
   
-  static f2f_map = FunctionTool.f12fn;
+  static f2f_map = FunctionTool.f112fnn;
   // static f2f_map = <I,O>(
   //   f:(i:I) => O,
   // ):((is:I[]) => O[]) => {
