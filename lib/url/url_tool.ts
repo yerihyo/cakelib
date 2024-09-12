@@ -386,7 +386,7 @@ export class MimetypeTool{
 
     return useSWR(
       url == null ? undefined : [`MimetypeTool.url2mimetype_swr`, url],
-      (_, url) => cls.url2mimetype(url),
+      ([_, url]) => cls.url2mimetype(url),
       {
         revalidateIfStale: false,
         revalidateOnFocus: false,
