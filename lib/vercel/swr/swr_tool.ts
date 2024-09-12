@@ -64,26 +64,26 @@ export default class SwrTool {
     return swr != null ? swr : creator();
   }
 
-  static data2swr<T>(
-    data:T,
-  ): SWRResponse<T>{
-    return {
-      isValidating:false,
-      data,
-      mutate:undefined,
-      // error:undefined,
-    };
-  }
+  // static data2swr<T>(
+  //   data:T,
+  // ): SWRResponse<T>{
+  //   return {
+  //     isLoading:true,
+  //     isValidating:false,
+  //     data,
+  //     mutate:undefined,
+  //     // error:undefined,
+  //   };
+  // }
 
   static swr2postprocessed<I,O>(
     swr:SWRResponse<I>,
     data2processed:(i:I) => O,
   ): SWRResponse<O>{
     return {
-      isValidating:swr.isValidating,
+      ...swr,
       data:data2processed(swr.data),
-      mutate: () => swr.mutate().then(data2processed), // works only with no parameters
-      error:swr.error,
+      mutate: () => swr?.mutate?.()?.then(data2processed), // works only with no parameters
     };
   }
 
@@ -119,9 +119,7 @@ export default class SwrTool {
       return c_out;
     }
     return {
-      isValidating:swr.isValidating,
-      error:swr.error,
-
+      ...swr,
       data:c_prev,
       mutate: mutate_out, // works only with no parameters
     };
