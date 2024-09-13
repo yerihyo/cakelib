@@ -4,6 +4,7 @@ import { Dictkey } from "../native/native_tool";
 import MathTool from "../number/math/math_tool";
 import NumberTool from "../number/number_tool";
 
+export type Appraiser<T> = ((t1: T) => number);
 export type Comparator<T> = ((t1: T, t2: T) => number);
 export type Bicomparator<T> = ((t1: T, t2: T) => boolean);
 export type Bestselector<T> = ((l:T[]) => T);
