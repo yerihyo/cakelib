@@ -19,7 +19,7 @@ function date2str_time(d: Date) {
   return (d).toISOString().split("T")[1];
 }
 export default class ArrayTool {
-  static one2l = <V>(v: V): V[] => (v == null ? undefined : [v]);
+  static one2l = <V>(v: V): V[] => (v == null ? (v as unknown as V[]) : [v]);
   // static only2list = <V>(v: V): V[] => (v == null ? undefined : [v]);
 
   // static flat_notnull = <X>(ll: X[][]): X[] => ll?.map((l) => l ?? [])?.flat();
