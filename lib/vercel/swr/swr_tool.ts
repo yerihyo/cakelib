@@ -235,6 +235,16 @@ export default class SwrTool {
     };
   }
 
+  static f_data2f_swr_blocking = <T>(
+    f_data2blocking:(t:T) => boolean,
+  ) => {
+    return (swr:SWRResponse<T>) => {
+      if(swr.isLoading){ return true; }
+      if(f_data2blocking(swr.data)){ return true; }
+      return false;
+    }
+  }
+
 }
 
 export class EndpointState {
