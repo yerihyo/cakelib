@@ -19,7 +19,7 @@ function date2str_time(d: Date) {
   return (d).toISOString().split("T")[1];
 }
 export default class ArrayTool {
-  static one2l = <V>(v: V): V[] => (v == null ? undefined : [v]);
+  static one2l = <V>(v: V): V[] => (v == null ? (v as unknown as V[]) : [v]);
   // static only2list = <V>(v: V): V[] => (v == null ? undefined : [v]);
 
   // static flat_notnull = <X>(ll: X[][]): X[] => ll?.map((l) => l ?? [])?.flat();
@@ -39,11 +39,12 @@ export default class ArrayTool {
     return i >= 0 ? i : undefined;
   };
   
-  static f2f_map = <I,O>(
-    f:(i:I) => O,
-  ):((is:I[]) => O[]) => {
-    return (is:I[]):O[] => is?.map(i => f(i));
-  }
+  static f2f_map = FunctionTool.f112fnn;
+  // static f2f_map = <I,O>(
+  //   f:(i:I) => O,
+  // ):((is:I[]) => O[]) => {
+  //   return (is:I[]):O[] => is?.map(i => f(i));
+  // }
 
   static reducer2reducer_immuting = <T>(
     f:(l:T[]) => T[],
@@ -889,7 +890,7 @@ export default class ArrayTool {
     if(ArrayTool.in(n, [0,1])){ return l?.[0]; }
     
     if(option?.relaxed){ return undefined; }
-    assert(`l?.length=${l?.length}`);
+    throw new Error(`l?.length=${l?.length}`);
   }
   // static l2onlykid_relaxed = <T>(l: T[]): T => (ArrayTool.is_singleton(l) ? l[0] : undefined);
 
@@ -1096,22 +1097,26 @@ export default class ArrayTool {
     };
   };
 
+
+  static isHomogeneous = <T,>(
+    items: T[],
+    f_eq:Bicomparator<T>,
+  ): boolean => {
+    return items == null
+      ? undefined
+      : !ArrayTool.bool(items)
+        ? true
+        : items.every((v) => f_eq(v, items[0]))
+        ;
+  };
+  static isBihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.isBiequal);
+  static isTrihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.isTriequal);
+  static isUniform = ArrayTool.isTrihomo;  // avoid using
+  static areAlike = ArrayTool.isTrihomo;  // avoid using
+  static areAllSame = ArrayTool.isTrihomo;  // avoid using
+
   static areAllBiequal = ArrayTool.f_bicmp2f_every(CmpTool.isBiequal);
   static areAllTriequal = ArrayTool.f_bicmp2f_every(CmpTool.isTriequal);
-  // static areItemsEqual<T>(
-  //   l1: T[],
-  //   l2: T[],
-  //   options?: {
-  //     isEqual?: (v1: T, v2: T) => boolean,
-  //   },
-  // ): boolean {
-
-  //   return ArrayTool.f_eq2f_eq_array(options?.isEqual ?? ((x1, x2) => x1 === x2))(l1,l2);
-  // }
-
-  static array2are_all_same = <T = any>(arrays: T[]): boolean => {
-    return !ArrayTool.bool(arrays) ? true : arrays.every((v) => v === arrays[0]);
-  };
 
   static reversed = <T = any>(array: T[]): T[] => (array == null ? undefined : [...array].reverse());
 
@@ -1217,7 +1222,7 @@ export default class ArrayTool {
 
     const colcounts = rows.map((row) => row.length);
     if (option?.strict) {
-      if (!ArrayTool.array2are_all_same(colcounts)) {
+      if (!ArrayTool.isTrihomo(colcounts)) {
         throw new Error(`${colcounts}`);
       }
     }
