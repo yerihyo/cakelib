@@ -94,7 +94,7 @@ export default class NativeTool {
   static bool3 = (x:any):boolean => x == null ? undefined : !!x;
   static negate3 = (b:boolean):boolean => (b == null ? b : !b);
 
-  static error2f_tee = <E>(f:(e:E) => any) => {
+  static func2f_rethrow = <E>(f:(e:E) => any) => {
     return (error:E):E => {
       f(error);
       throw error;
