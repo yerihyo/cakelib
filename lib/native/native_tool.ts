@@ -15,7 +15,7 @@ export type LastParameter<F extends (...args: any) => any> = Last<Parameters<F>>
 // https://stackoverflow.com/a/55344772
 export type Rest<T extends any[]> = T extends [infer A, ...infer R] ? R : never;
 
-
+const time2iso = (d:Date) => d?.toISOString()?.split("T")?.[1];
 export default class NativeTool {
   // static minus = (t1:number, t2:number):number => t1-t2;
 
@@ -93,6 +93,13 @@ export default class NativeTool {
 
   static bool3 = (x:any):boolean => x == null ? undefined : !!x;
   static negate3 = (b:boolean):boolean => (b == null ? b : !b);
+
+  static error2f_tee = <E>(f:(e:E) => any) => {
+    return (error:E):E => {
+      f(error);
+      throw error;
+    }
+  }
 }
 
 export class GriddisplayTool{
