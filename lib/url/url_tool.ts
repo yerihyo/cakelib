@@ -109,8 +109,6 @@ export default class UrlTool{
 
   static record2kvlist = (h:Object|Record<string,string|number>):Pair<string>[] => h ? Object.entries(h).map(([k,v]) => [k,v?.toString()]) : undefined;
 
-  static values2qvalue_commad = (l: (string|number)[]) => ArrayTool.bool(l) ? ArrayTool.sorted(l).join(',') : undefined;
-
   static listhash2qstring(h) {
     // special treat array
 
@@ -298,19 +296,31 @@ export default class UrlTool{
     return s_list;
   }
 
-  // if value contains "," than throw error
-  static list2urlstring = <T>(list: T[]): string | undefined => {
-    if (!list || list.length === 0) { return undefined; }
-    
-    // Check if any item in the list contains a comma
-    for (const item of list) {
-      if (typeof item === 'string' && item.includes(',')) {
-        throw new Error("List items must not contain a comma.");
-      }
+  static values2commad = (l: (string|number)[]) => {
+    if(!ArrayTool.bool(l)) return undefined;
+
+    const l_invalid = l?.filter(x => (typeof x === 'string' && x?.includes(',')));
+    if(ArrayTool.bool(l_invalid)){
+      throw new Error(`List items must not contain a comma. ${l_invalid?.map(x => `'${x}'`)?.join(', ')}`);
     }
-    
-    return list.join(",");
+
+    return ArrayTool.sorted(l).join(',');
   }
+  // if value contains "," than throw error
+  // static list2urlstring = <T>(list: T[]): string | undefined => {
+  //   if (!list || list.length === 0) { return undefined; }
+    
+  //   // Check if any item in the list contains a comma
+  //   for (const item of list) {
+  //     if (typeof item === 'string' && item.includes(',')) {
+  //       throw new Error("List items must not contain a comma.");
+  //     }
+  //   }
+    
+  //   return list.join(",");
+  // }
+  static list2urlstring = UrlTool.values2commad;
+
 
   static getQueryParams(url: string): Record<string, string> {
     const queryStart = url.indexOf("?");
