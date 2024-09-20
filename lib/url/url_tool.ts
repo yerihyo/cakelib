@@ -290,12 +290,14 @@ export default class UrlTool{
   }
 
   // if value contains "," than error will occur
-  static urlstring2list = (s: string) => {
-    if (!s) { return undefined; }
-    const s_list: string[] = s.split(",");
-    return s_list;
-  }
+  // static urlstring2list = (s: string) => {
+  //   if (!s) { return undefined; }
+  //   const s_list: string[] = s?.split(",");
+  //   return s_list;
+  // }
 
+  static commad2strings = (s: string):string[] => s?.split(',');
+  static urlstring2list = UrlTool.commad2strings;
   static values2commad = (l: (string|number)[]) => {
     if(!ArrayTool.bool(l)) return undefined;
 
