@@ -4,7 +4,6 @@ import NativeTool from '../native/native_tool';
 
 export type Unaryfunc<I,O> = (i:I) => O;
 export type Binaryfunc<O,I1,I2> = (i1:I1, i2:I2) => O;
-export type Typeinvariantfunc<X> = (i:X) => X;
 
 // function f<A extends Function>(a:A):A {
 //     var newFunc = (...x:any[]) => {
@@ -16,6 +15,9 @@ export type Typeinvariantfunc<X> = (i:X) => X;
 
 export type FuncAO<O,A extends any[]> = ((...args:A) => O);
 export type FuncAB<A extends any[]> = ((...args:A) => boolean);
+export type FuncAX<A extends any[]> = ((...args:A) => any);
+export type FuncIO<O,I> = ((i:I) => O);
+export type FuncXX<X> = (x:X) => X;
 export type Funcwrapper<O,A extends any[]> = (f:FuncAO<O,A>) => FuncAO<O,A>;
 
 export default class FunctionTool{
@@ -169,4 +171,20 @@ export default class FunctionTool{
     // static func2wrapped(wrapper, f){
     //     return wrapper(f);
     // }
+
+    static func2wrapper_tee = <O,A extends any[]>(fn:FuncAX<A>):Funcwrapper<O,A> => {
+        return (f:FuncAO<O,A>):FuncAO<O,A> => {
+            return (...args:A):O => {
+                fn(...args);
+                return f(...args);
+            }
+        }
+    }
+
+    static func2f_tee = <X>(fn:(x:X) => any):FuncXX<X> => {
+        return (x:X):X => {
+            fn(x);
+            return x;
+        }
+    }
 }

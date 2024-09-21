@@ -191,7 +191,7 @@ export class Hooktrack<X>{
   // ):Hooktrack<X> => {
   //   return Hooktrack.f_hook2f_hooktrack(hookwrapper)(hooktrack);
   // }
-  // static hookwrapper2hooktrackwrapper = <X,>(hookwrapper:Typeinvariantfunc<Reacthook<X>>):Typeinvariantfunc<Hooktrack<X>> => {
+  // static hookwrapper2hooktrackwrapper = <X,>(hookwrapper:FuncXX<Reacthook<X>>):FuncXX<Hooktrack<X>> => {
   //   return (ah:Hooktrack<X>) => Hooktrack.hooktrack2hookwrapped(ah, hookwrapper);
   // }
 }
