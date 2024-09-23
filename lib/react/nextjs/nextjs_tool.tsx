@@ -115,16 +115,13 @@ export default class NextjsTool{
     return (k in query) ? query[k] : undefined;
   }
 
-  static query_key2str(query: ParsedUrlQuery, k:string) : string{
-    return NextjsTool.query_key2string(query, k);
-  }
-
   static query_key2string(query: ParsedUrlQuery, k:string) : string{
     // if (!query) { return undefined; }
 
     const s:string = (k in query) ? (query[k] as string) : undefined;
     return s;
   }
+  static query_key2str = NextjsTool.query_key2string;
 
   static queryvalue2strings(v: (string|string[])):string[]{
     if(!v){ return undefined ;}
