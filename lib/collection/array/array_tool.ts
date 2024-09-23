@@ -1,7 +1,7 @@
 import CmpTool, { Bicomparator, Comparator, EqualTool } from '../../cmp/CmpTool';
 import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
 import lodash from 'lodash';
-import FunctionTool, { Typeinvariantfunc } from '../../function/function_tool';
+import FunctionTool from '../../function/function_tool';
 import MathTool from '../../number/math/math_tool';
 import DictTool from '../dict/dict_tool';
 
@@ -19,16 +19,14 @@ function date2str_time(d: Date) {
   return (d).toISOString().split("T")[1];
 }
 export default class ArrayTool {
-  static v2l_or_undef = <V>(v: V): V[] => (v == null ? undefined : [v]);
-  static only2list = <V>(v: V): V[] => (v == null ? undefined : [v]);
+  static one2l = <V>(v: V): V[] => (v == null ? (v as unknown as V[]) : [v]);
+  // static only2list = <V>(v: V): V[] => (v == null ? undefined : [v]);
 
-  static flat_notnull = <X>(ll: X[][]): X[] => {
-    return ll?.map((l) => l ?? [])?.flat();
-  };
+  // static flat_notnull = <X>(ll: X[][]): X[] => ll?.map((l) => l ?? [])?.flat();
 
-  static f_array2f_only = <T>(f_array: Typeinvariantfunc<T[]>) => {
-    return (t: T) => ArrayTool.l2one(f_array(ArrayTool.v2l_or_undef(t)));
-  };
+  // static f_array2f_only = <T>(f_array: FuncXX<T[]>) => {
+  //   return (t: T) => ArrayTool.l2one(f_array(ArrayTool.one2l(t)));
+  // };
 
   static has_nullable = (l: any[]): boolean => l?.some((x) => x == null);
 
@@ -41,11 +39,12 @@ export default class ArrayTool {
     return i >= 0 ? i : undefined;
   };
   
-  static f2f_map = <I,O>(
-    f:(i:I) => O,
-  ):((is:I[]) => O[]) => {
-    return (is:I[]):O[] => is?.map(i => f(i));
-  }
+  static f2f_map = FunctionTool.f112fnn;
+  // static f2f_map = <I,O>(
+  //   f:(i:I) => O,
+  // ):((is:I[]) => O[]) => {
+  //   return (is:I[]):O[] => is?.map(i => f(i));
+  // }
 
   static reducer2reducer_immuting = <T>(
     f:(l:T[]) => T[],
@@ -426,7 +425,7 @@ export default class ArrayTool {
    * ref: https://stackoverflow.com/a/55001358/1902064
    * @param arrays
    */
-  static cartesian<T = any>(arrays: T[][]): T[][] {
+  static cartesian_deprecated<T = any>(arrays: T[][]): T[][] {
     return arrays.reduce(
       (a, b) => {
         return a
@@ -441,6 +440,29 @@ export default class ArrayTool {
     );
 
     // return arrays.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+  }
+
+  static cartesian<T = any>(arrays: T[][]): T[][] {
+    return arrays.reduce(
+      (ll_prev, array) => {
+        return ll_prev.map(l_prev => {
+          return array.map(x => [...l_prev, x]); // l_posts
+        }) // l_posts_list
+        .reduce((ll_post, l_posts) => [...ll_post, ...l_posts], []);  // flatten
+      },
+      [[]] as T[][]
+    );
+
+    // return arrays.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+  }
+
+  static cartesian2 = <X,Y>(xs:X[], ys:Y[]): [X,Y][] => {
+    if(xs == null){ return undefined; }
+    if(ys == null){ return undefined; }
+
+    return xs.map(x => {
+      return ys.map(y => [x,y] as [X,Y]);
+    }).flat();
   }
 
   static filter<X>(f: (x: X) => boolean, l: X[]): X[] {
@@ -868,7 +890,7 @@ export default class ArrayTool {
     if(ArrayTool.in(n, [0,1])){ return l?.[0]; }
     
     if(option?.relaxed){ return undefined; }
-    assert(`l?.length=${l?.length}`);
+    throw new Error(`l?.length=${l?.length}`);
   }
   // static l2onlykid_relaxed = <T>(l: T[]): T => (ArrayTool.is_singleton(l) ? l[0] : undefined);
 
@@ -1075,22 +1097,26 @@ export default class ArrayTool {
     };
   };
 
+
+  static isHomogeneous = <T,>(
+    items: T[],
+    f_eq:Bicomparator<T>,
+  ): boolean => {
+    return items == null
+      ? undefined
+      : !ArrayTool.bool(items)
+        ? true
+        : items.every((v) => f_eq(v, items[0]))
+        ;
+  };
+  static isBihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.isBiequal);
+  static isTrihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.isTriequal);
+  static isUniform = ArrayTool.isTrihomo;  // avoid using
+  static areAlike = ArrayTool.isTrihomo;  // avoid using
+  static areAllSame = ArrayTool.isTrihomo;  // avoid using
+
   static areAllBiequal = ArrayTool.f_bicmp2f_every(CmpTool.isBiequal);
   static areAllTriequal = ArrayTool.f_bicmp2f_every(CmpTool.isTriequal);
-  // static areItemsEqual<T>(
-  //   l1: T[],
-  //   l2: T[],
-  //   options?: {
-  //     isEqual?: (v1: T, v2: T) => boolean,
-  //   },
-  // ): boolean {
-
-  //   return ArrayTool.f_eq2f_eq_array(options?.isEqual ?? ((x1, x2) => x1 === x2))(l1,l2);
-  // }
-
-  static array2are_all_same = <T = any>(arrays: T[]): boolean => {
-    return !ArrayTool.bool(arrays) ? true : arrays.every((v) => v === arrays[0]);
-  };
 
   static reversed = <T = any>(array: T[]): T[] => (array == null ? undefined : [...array].reverse());
 
@@ -1196,7 +1222,7 @@ export default class ArrayTool {
 
     const colcounts = rows.map((row) => row.length);
     if (option?.strict) {
-      if (!ArrayTool.array2are_all_same(colcounts)) {
+      if (!ArrayTool.isTrihomo(colcounts)) {
         throw new Error(`${colcounts}`);
       }
     }
@@ -1350,13 +1376,13 @@ export default class ArrayTool {
   static f_manytomany2f_one2one = <X, A extends any[], R>(
     f_manytomany: (l: X[], ...args: A) => R[]
   ): ((x: X, ...args: A) => R) => {
-    return (x: X, ...args: A): R => ArrayTool.l2one(f_manytomany(ArrayTool.v2l_or_undef(x), ...args));
+    return (x: X, ...args: A): R => ArrayTool.l2one(f_manytomany(ArrayTool.one2l(x), ...args));
   };
   static fa_manytomany2fa_one2one = <X, A extends any[], R>(
     fa_manytomany: (l: X[], ...args: A) => Promise<R[]>
   ): ((x: X, ...args: A) => Promise<R>) => {
     return (x: X, ...args: A): Promise<R> =>
-      fa_manytomany(ArrayTool.v2l_or_undef(x), ...args).then((rr) => ArrayTool.l2one(rr));
+      fa_manytomany(ArrayTool.one2l(x), ...args).then((rr) => ArrayTool.l2one(rr));
   };
   
   static sortArrayBasedOnOriginal = (original: string[], newArray: string[]): string[] => {

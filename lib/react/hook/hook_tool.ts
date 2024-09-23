@@ -191,7 +191,7 @@ export class Hooktrack<X>{
   // ):Hooktrack<X> => {
   //   return Hooktrack.f_hook2f_hooktrack(hookwrapper)(hooktrack);
   // }
-  // static hookwrapper2hooktrackwrapper = <X,>(hookwrapper:Typeinvariantfunc<Reacthook<X>>):Typeinvariantfunc<Hooktrack<X>> => {
+  // static hookwrapper2hooktrackwrapper = <X,>(hookwrapper:FuncXX<Reacthook<X>>):FuncXX<Hooktrack<X>> => {
   //   return (ah:Hooktrack<X>) => Hooktrack.hooktrack2hookwrapped(ah, hookwrapper);
   // }
 }
@@ -1054,7 +1054,7 @@ export default class HookTool{
 
 
 
-  static codec_list2singleton = <V=any>(predicate:(v:V) => boolean):Hookcodec<V[],V> => {
+  static codec_list2filter_one = <V=any>(predicate:(v:V) => boolean):Hookcodec<V[],V> => {
     const cls = HookTool;
     return cls.codecs2piped([
       HookTool.listcodec_filter_n_extend<V>(predicate),
@@ -2011,6 +2011,8 @@ export default class HookTool{
 
     return index;
   }
+
+  static codec_ll2list = <T,>():Hookcodec<T[][], T[]> => ({ decode: ll => ll?.flat(), encode: (l: T[]) => ArrayTool.one2l(l), });
 }
 
 export type Asyncresult = {

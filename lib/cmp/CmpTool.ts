@@ -4,6 +4,7 @@ import { Dictkey } from "../native/native_tool";
 import MathTool from "../number/math/math_tool";
 import NumberTool from "../number/number_tool";
 
+export type Appraiser<T> = ((t1: T) => number);
 export type Comparator<T> = ((t1: T, t2: T) => number);
 export type Bicomparator<T> = ((t1: T, t2: T) => boolean);
 export type Bestselector<T> = ((l:T[]) => T);
@@ -17,12 +18,12 @@ export default class CmpTool {
   static f_always_equal = <X>(x1: X, x2: X):number => 0;
   static pair2cmp_always_eq = CmpTool.f_always_equal;
 
-  static isBiequal = <X=any>(x1: X, x2: X): boolean => (x1 == x2);
-  static isBinotequal = <X=any>(x1: X, x2: X): boolean => (x1 != x2);
+  static isBiequal = <X>(x1: X, x2: X): boolean => (x1 == x2);
+  static isBinotequal = <X>(x1: X, x2: X): boolean => (x1 != x2);
 
-  static isTriequal = <X=any>(x1: X, x2: X): boolean => (x1 === x2);
-  static isTrinotequal = <X=any>(x1: X, x2: X): boolean => (x1 !== x2);
-  static f_alwaysNotEqual<X>(x1: X, x2: X) { return false; }
+  static isTriequal = <X>(x1: X, x2: X): boolean => (x1 === x2);
+  static isTrinotequal = <X>(x1: X, x2: X): boolean => (x1 !== x2);
+  static f_bicmp_alwaysfalse = <X>(x1: X, x2: X) => false;
 
   // static f_eq2f_eq_array = <X>(f_eq:Bicomparator<X>):Bicomparator<X[]> => {
   //   return (l1:X[], l2:X[]) => {
@@ -335,7 +336,7 @@ export default class CmpTool {
     config?: {
       f_eq?: Bicomparator<K>,
     }
-  ): (x1: X, x2: X) => boolean {
+  ): Bicomparator<X> {
     const f_eq = config?.f_eq ?? CmpTool.isTriequal;
     return (x1: X, x2: X) => f_eq(f_key(x1), f_key(x2));
   }

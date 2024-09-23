@@ -9,6 +9,13 @@ export type Quad<T> = [T, T, T, T];
 type Last<T extends any[]> = T extends [...infer I, infer L] ? L : T extends [...infer I, (infer L)?] ? L | undefined : never;
 export type LastParameter<F extends (...args: any) => any> = Last<Parameters<F>>;
 
+// https://stackoverflow.com/a/63024984
+// type Rest<T extends any[]> = ((...p: T) => void) extends ((p1: infer P1, ...rest: infer R) => void) ? R : never;
+
+// https://stackoverflow.com/a/55344772
+export type Rest<T extends any[]> = T extends [infer A, ...infer R] ? R : never;
+
+const time2iso = (d:Date) => d?.toISOString()?.split("T")?.[1];
 export default class NativeTool {
   // static minus = (t1:number, t2:number):number => t1-t2;
 
@@ -86,6 +93,13 @@ export default class NativeTool {
 
   static bool3 = (x:any):boolean => x == null ? undefined : !!x;
   static negate3 = (b:boolean):boolean => (b == null ? b : !b);
+
+  static func2f_rethrow = <E>(f:(e:E) => any) => {
+    return (error:E):E => {
+      f(error);
+      throw error;
+    }
+  }
 }
 
 export class GriddisplayTool{

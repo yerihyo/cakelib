@@ -64,31 +64,32 @@ export default class SwrTool {
     return swr != null ? swr : creator();
   }
 
-  static data2swr<T>(
-    data:T,
-  ): SWRResponse<T>{
-    return {
-      isValidating:false,
-      data,
-      mutate:undefined,
-      // error:undefined,
-    };
-  }
+  // static data2swr<T>(
+  //   data:T,
+  // ): SWRResponse<T>{
+  //   return {
+  //     isLoading:true,
+  //     isValidating:false,
+  //     data,
+  //     mutate:undefined,
+  //     // error:undefined,
+  //   };
+  // }
 
   static swr2postprocessed<I,O>(
     swr:SWRResponse<I>,
     data2processed:(i:I) => O,
   ): SWRResponse<O>{
     return {
-      isValidating:swr.isValidating,
+      ...swr,
       data:data2processed(swr.data),
-      mutate: () => swr.mutate().then(data2processed), // works only with no parameters
-      error:swr.error,
+      mutate: () => swr?.mutate?.()?.then(data2processed), // works only with no parameters
     };
   }
 
-  static codec_list2singleton = <T>() => ({ decode: (l:T[]) => ArrayTool.l2one(l), encode: (t:T) => ArrayTool.v2l_or_undef(t) });
-  static list_swr2singleton_swr = <T>(list_swr:SWRResponse<T[]>):SWRResponse<T> => SwrTool.swr2codeced(list_swr, SwrTool.codec_list2singleton<T>()); 
+  static codec_list2one = <T>() => ({ decode: (l:T[]) => ArrayTool.l2one(l), encode: (t:T) => ArrayTool.one2l(t) });
+  static list_swr2one_swr = <T>(list_swr:SWRResponse<T[]>):SWRResponse<T> => SwrTool.swr2codeced(list_swr, SwrTool.codec_list2one<T>()); 
+  static list_swr2singleton_swr = SwrTool.list_swr2one_swr;
 
   static swr2codeced<P,C>(
     swr: SWRResponse<P>,
@@ -118,9 +119,7 @@ export default class SwrTool {
       return c_out;
     }
     return {
-      isValidating:swr.isValidating,
-      error:swr.error,
-
+      ...swr,
       data:c_prev,
       mutate: mutate_out, // works only with no parameters
     };
@@ -234,6 +233,16 @@ export default class SwrTool {
       ...swr,
       data:ref.current,
     };
+  }
+
+  static f_data2f_swr_blocking = <T>(
+    f_data2blocking:(t:T) => boolean,
+  ) => {
+    return (swr:SWRResponse<T>) => {
+      if(swr.isLoading){ return true; }
+      if(f_data2blocking(swr.data)){ return true; }
+      return false;
+    }
   }
 
 }
