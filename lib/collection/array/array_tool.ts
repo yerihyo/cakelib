@@ -1,7 +1,7 @@
 import CmpTool, { Bicomparator, Comparator, EqualTool } from '../../cmp/CmpTool';
 import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
 import lodash from 'lodash';
-import FunctionTool, { Typeinvariantfunc } from '../../function/function_tool';
+import FunctionTool from '../../function/function_tool';
 import MathTool from '../../number/math/math_tool';
 import DictTool from '../dict/dict_tool';
 
@@ -24,7 +24,7 @@ export default class ArrayTool {
 
   // static flat_notnull = <X>(ll: X[][]): X[] => ll?.map((l) => l ?? [])?.flat();
 
-  // static f_array2f_only = <T>(f_array: Typeinvariantfunc<T[]>) => {
+  // static f_array2f_only = <T>(f_array: FuncXX<T[]>) => {
   //   return (t: T) => ArrayTool.l2one(f_array(ArrayTool.one2l(t)));
   // };
 

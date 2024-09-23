@@ -10,6 +10,7 @@ import { Url } from 'next/dist/shared/lib/router/router';
 import DateTool from '../../date/date_tool';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextRequest } from 'next/server';
+import UrlTool from '../../url/url_tool';
 
 export type SsrReq = IncomingMessage & { cookies: NextApiRequestCookies};
 
@@ -114,16 +115,13 @@ export default class NextjsTool{
     return (k in query) ? query[k] : undefined;
   }
 
-  static query_key2str(query: ParsedUrlQuery, k:string) : string{
-    return NextjsTool.query_key2string(query, k);
-  }
-
   static query_key2string(query: ParsedUrlQuery, k:string) : string{
     // if (!query) { return undefined; }
 
     const s:string = (k in query) ? (query[k] as string) : undefined;
     return s;
   }
+  static query_key2str = NextjsTool.query_key2string;
 
   static queryvalue2strings(v: (string|string[])):string[]{
     if(!v){ return undefined ;}
@@ -141,6 +139,9 @@ export default class NextjsTool{
 
     return NextjsTool.queryvalue2strings(v);
   }
+
+  static query_key2decommad = (query: ParsedUrlQuery, k:string) : string[] => 
+    UrlTool.commad2strings(query?.[k] as string);
 
   static query_key2int(query: ParsedUrlQuery, k:string) : number{
     const s = NextjsTool.query_key2str(query, k);
