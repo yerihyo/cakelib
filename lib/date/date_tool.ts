@@ -245,6 +245,7 @@ export default class DateTool {
   static mins2added = (d: Date, mins: number): Date  =>  DateTool.secs2added(d, MathTool.times(mins,60));
   static hours2added = (d: Date, hours: number): Date  =>  DateTool.mins2added(d, MathTool.times(hours,60));
   static days2added = (d: Date, days: number): Date  =>  DateTool.hours2added(d, MathTool.times(days,24));
+  static day8days2added = (d: number, days: number): number => DateTool.date2day8(DateTool.days2added(DateTool.day82date(d), days));
 
   static date2iso = function (d: Date): string {
     return d?.toISOString()
