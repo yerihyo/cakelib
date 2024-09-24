@@ -198,7 +198,8 @@ export default class ArrayTool {
   }
 
   static cap = <T>(arrays: T[][]): T[] => (arrays == null ? undefined : lodash.intersection(...arrays));
-  // static has_cap = <T>(arrays: T[][]): T[]  => arrays == null ? undefined : arrays?.[0]?.some(x => arrays?.split(1,)?.every(l => l?.some));
+  static has_cap = lodash.flow(ArrayTool.cap, ArrayTool.bool);
+  
   static cup = <T>(arrays: T[][]): T[] => (arrays == null ? undefined : lodash.union(...arrays));
 
   static subtract<T>(l1: T[], l2: T[]): T[] {
