@@ -374,6 +374,8 @@ export default class UrlTool{
 
   //   return querystring ? `${origin}${token}${querystring}${hash}` : `${origin}${hash}`
   // }
+
+  static aspath2pathname = (aspath:string):string => aspath?.split('?')?.[0];
 }
 
 export class MimetypeTool{
