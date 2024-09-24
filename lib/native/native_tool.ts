@@ -14,6 +14,7 @@ export type LastParameter<F extends (...args: any) => any> = Last<Parameters<F>>
 
 // https://stackoverflow.com/a/55344772
 export type Rest<T extends any[]> = T extends [infer A, ...infer R] ? R : never;
+// export type Firstfew<T extends any[]> = T extends [infer A, ...infer R] ? A : never;
 
 const time2iso = (d:Date) => d?.toISOString()?.split("T")?.[1];
 export default class NativeTool {
