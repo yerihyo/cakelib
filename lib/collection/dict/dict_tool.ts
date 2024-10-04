@@ -129,6 +129,8 @@ export default class DictTool{
         const dict_out = entries.reduce((h, [k, v]) => ({ ...h, [k]: kv2mapped(k, v), }), {}) as Record<K,V2>;
         return dict_out;
     }
+    static apply2values = DictTool.dict2values_mapped;
+    // static values2mapped = DictTool.dict2values_mapped;
 
     static transduce(
         obj:any,
@@ -141,12 +143,7 @@ export default class DictTool{
         return Object.entries(obj).reduce(reducer, {});
     }
 
-    static apply2values<K extends Dictkey, V1, V2>(
-        h: Record<K, V1>,
-        f: (k: K, v1: V1) => V2,
-    ) {
-        return DictTool.dict2values_mapped(h, f);
-    }
+    
 
     static bool(h){
         if(!h){ return false }
