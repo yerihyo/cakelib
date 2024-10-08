@@ -65,7 +65,7 @@ export default class NumberTool {
     // return 'six';
   };
 
-  static num2str(v: number): string { return '' + v; }
+  static num2str = (v: number): string  => v == null ? undefined : `${v}`;
 
   static number2delim_inserted(v: number, delim: string,): string {
 
