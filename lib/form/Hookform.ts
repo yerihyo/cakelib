@@ -473,7 +473,7 @@ export default class Hookform<T>{
     )?.[0]
 
     // cls.element2scrollTo(fieldinfo0?.ref?.current);
-    const element2yoffset = option?.element2yoffset ?? lodash.flow(WindowTool.element2top_tight, px => MathTool.plus(px,WindowTool.bufferpx_natural()));
+    const element2yoffset = option?.element2yoffset ?? lodash.flow(WindowTool.element2top_tight, px => MathTool.minus(px,WindowTool.bufferpx_natural()));
     window.scrollTo({
       top: element2yoffset(fieldinfo0?.ref?.current),
       behavior: 'smooth',
