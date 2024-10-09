@@ -914,9 +914,9 @@ export default class ArrayTool {
   static chain = <T>(...arrays: T[]) => [].concat(...arrays.filter((x) => !!x));
 
   static uniq<T = any>(items: T[], item2key?: (t: T) => string): T[] {
-    const x2key = item2key ?? ((item) => item as unknown as string);
+    if (items == null) return undefined;
 
-    if (!items) return undefined;
+    const x2key = item2key ?? ((item) => item as unknown as string);
 
     var h: Record<string, number> = {};
     var items_uniq: T[] = [];
