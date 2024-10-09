@@ -114,7 +114,7 @@ export default class JsonTool {
     static stringify = (x: any) => x ? JSON.stringify(x) : undefined;
     static parse = <X>(s:string) => s ? (JSON.parse(s) as X) : undefined;
     
-    static encode = <X>(x:X) => x ? JsonTool.json2sortedstring(x) : undefined;
+    static encode = <X>(x:X):string => x ? JsonTool.json2sortedstring(x) : undefined;
     static decode = JsonTool.parse;
     static codec = <X>():Codec<X,string> => [JsonTool.encode, JsonTool.decode];
 
