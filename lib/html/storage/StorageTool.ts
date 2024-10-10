@@ -17,7 +17,7 @@ export class WindoweventTool{
   }
 }
 export default class StorageTool {
-  static key2hdoc = <X=any>(
+  static key2hdoc = <X>(
     storage:Storage,
     storagekey: string,
   ): X => {

@@ -5,6 +5,8 @@ import JsonTool from '../../collection/dict/json/json_tool';
 import DateTool from '../../date/date_tool';
 import { Dictkey } from '../../native/native_tool';
 import HookTool, { Hookcodec } from "../../react/hook/hook_tool";
+import DictTool from '../../collection/dict/dict_tool';
+import { SWRInfiniteResponse } from 'swr/dist/infinite';
 
 const assert = require('assert');
 
@@ -51,6 +53,9 @@ export default class SwrTool {
   static swrdict2is_dataready = <T>(swrdict:T):boolean => {
     return Object.values(swrdict).every((swr:SWRResponse<any>) => SwrTool.swr2is_data_ready(swr));
   }
+
+  static swrdict2isdataready_dict = <T>(swrdict:T):Record<string,boolean> => 
+    DictTool.dict2values_mapped(swrdict, (_,swr) => SwrTool.swr2is_data_ready(swr))
 
   static swrdict2has_error = <T>(swrdict:T):boolean => {
     return Object.values(swrdict).some((swr:SWRResponse<any>) => !!swr.error);
@@ -176,10 +181,16 @@ export default class SwrTool {
     return !self.swr2is_loading(swr);
   }
 
+  static swr2is_swrinfinite = (swr:SWRResponse):boolean => swr == null ? undefined : Object.hasOwn(swr, 'size');
+
   static swr2is_data_ready(swr:SWRResponse) {
+    const cls = SwrTool;
+
     if (!swr) { return false; }
     if (swr.error) { return false; }
-    if (swr.isValidating && swr.data === undefined) { return false; }
+    if (swr.isValidating && swr.data === undefined) return false;
+    if(SwrTool.swr2is_swrinfinite(swr,) && swr.data == null) return false;
+    
     return true;
 
     // console.log({swr, 'swr.data':swr.data, 'swr.data':swr.data});

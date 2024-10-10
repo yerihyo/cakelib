@@ -6,6 +6,7 @@ import { Pair } from "../../native/native_tool";
 
 export default class MongodbTool {
 
+  static query_idnull = () => ({'_id':null});
   static obj2id_removed = <T>(t:T):Omit<T,'_id'> => DictTool.keys2excluded(t,['_id'],);
 
   static value2is_unspecified = (v:any):boolean => v === undefined;

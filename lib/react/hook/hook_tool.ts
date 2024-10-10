@@ -226,6 +226,16 @@ export default class HookTool{
       },
     }
   }
+
+  static hookcodec_obj2jstr = <X,>(
+  ): Hookcodec<X,string> => {
+    const decode = JsonTool.encode<X>;
+    return {
+      decode,
+      encode: (c_post:string, p_prev:X):X => 
+        c_post == decode(p_prev) ? p_prev : JsonTool.decode<X>(c_post),
+    }
+  }
   static string2useUrlSafe = (urlstring:string):URL => {
     const cls = HookTool;
 
@@ -1242,17 +1252,17 @@ export default class HookTool{
   //   return trigger;
   // }
 
-  static scrollIntoHash = (...args) => {
-    React.useEffect(() => {
-      const anchor = window.location.hash.slice(1);
-      if (!anchor) { return; }
+  // static scrollIntoHash = (...args) => {
+  //   React.useEffect(() => {
+  //     const anchor = window.location.hash.slice(1);
+  //     if (!anchor) { return; }
 
-      const anchorEl = document.getElementById(anchor);
-      if (!anchorEl) { return ;}
+  //     const anchorEl = document.getElementById(anchor);
+  //     if (!anchorEl) { return ;}
 
-      anchorEl.scrollIntoView(...args);
-    }, []);
-  }
+  //     anchorEl.scrollIntoView(...args);
+  //   }, []);
+  // }
 
   static ref2pair = <T>(ref: MutableRefObject<T>): [T, MutableRefObject<T>] => {
     // const ref = React.useRef(initialValue);
@@ -2012,7 +2022,8 @@ export default class HookTool{
     return index;
   }
 
-  static codec_ll2list = <T,>():Hookcodec<T[][], T[]> => ({ decode: ll => ll?.flat(), encode: (l: T[]) => ArrayTool.one2l(l), });
+  static decode2codec_ll2list = <T>(decode:(ll:T[][]) => T[]) => ({ decode, encode: ArrayTool.one2l<T[]>, });
+  static codec_ll2list = <T,>():Hookcodec<T[][], T[]> => ({ decode: ll => ll?.flat(), encode: ArrayTool.one2l<T[]>, });
 }
 
 export type Asyncresult = {

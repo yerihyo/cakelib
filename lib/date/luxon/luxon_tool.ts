@@ -35,7 +35,8 @@ export default class LuxonTool{
   static SUNDAY:WeekdayNumbers = 7;
   // static units = () => ['year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'second', 'millisecond']
 
-  static weekday2is_montofri = (weekday:WeekdayNumbers):boolean => ArrayTool.in(weekday, [1,2,3,4,5])
+  static dow2is_montofri = (weekday:WeekdayNumbers):boolean => ArrayTool.in(weekday, [1,2,3,4,5])
+  static dow2is_weekend = (dow:WeekdayNumbers):boolean => ArrayTool.in(dow, [6,7])
   // static dt2clone = (dt_in:DateTime): DateTime => dt_in == null ? dt_in : DateTime.fromMillis(dt_in.toMillis());
   static dt2clone = FunctionTool.deprecated((dt_in:DateTime): DateTime => dt_in);  // Luxon DateTime is immutable
   
@@ -205,6 +206,5 @@ export default class LuxonTool{
     const [y,m,d] = DateTool.day82ymd(day8);
     return LuxonTool.dt2day8(DateTime.utc(y, m, d)?.plus({days}))
   }
-  // static day8days2added = (day8: number, days: number): number => DateTool.date2day8(DateTool.days2added(DateTool.day82date(day8), days))
   static day82unitimpulse = (day8:number):Pair<number> => [day8, LuxonTool.day82days_added(day8, 1),];
 }

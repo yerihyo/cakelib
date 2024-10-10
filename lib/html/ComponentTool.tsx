@@ -238,11 +238,19 @@ export class WindowTool{
     return y;
   }
 
-  static element2top_natural = (element:HTMLElement) => {
-    if(!element){ return ; }
+  static bufferpx_natural = ():number => 10;
+  // static element2top_natural = (
+  //   element:HTMLElement,
+  //   option?:{
+  //     bufferpx?:number
+  //   }
+  // ) => {
+  //   const cls = WindowTool;
+  //   if(!element){ return ; }
 
-    return WindowTool.element2top_tight(element)-10;
-  }
+  //   const bufferpx = option?.bufferpx ?? cls.bufferpx_scroll_default();
+  //   return WindowTool.element2top_tight(element)-bufferpx;
+  // }
 
   // static is_backnavigated = ():boolean => {
   //   const callname = `WindowTool.is_backnavigated @ ${DateTool.time2iso(new Date())}`;
