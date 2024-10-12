@@ -43,9 +43,21 @@ export default class FunctionTool{
   static fn12f11 = <X, A extends any[], R>(fn1:(l:X[], ...args:A) => R):((x:X, ...args:A) => R) =>
     (x:X, ...args:A):R => fn1 == null ? undefined : fn1?.(x == null ? (x as X[]) : [x], ...args);
   
-  // static f_onetomany2f_manytomany = <X, A extends any[], R>(f_single:(x:X, ...args:A) => R[]):((l:X[], ...args:A) => R[]) => {
-  //     return (l:X[], ...args:A):R[] => l?.map(x => f_single(x, ...args))?.flat();
-  // }
+  static f_decider2fn1_every = <X>(f_decider:(x:X) => boolean,) => (l:X[]) => l?.every(f_decider);
+  static f11_decider2fn1_every =  <X, A extends any[], R>(
+    f11:(x:X, ...args:A) => R,
+    f_decider: (r:R) => boolean,
+  ):((l:X[], ...args:A) => boolean) => lodash.flow(
+    FunctionTool.f112fnn(f11),
+    FunctionTool.f_decider2fn1_every(f_decider),
+  )
+
+  static f1b2fn1_every = <X, A extends any[]>(
+    f11:(x:X, ...args:A) => boolean,
+  ):((l:X[], ...args:A) => boolean) => lodash.flow(
+    FunctionTool.f112fnn(f11),
+    FunctionTool.f_decider2fn1_every(Boolean),
+  )
 
   // static f_skip2wrapper = <O, A extends any[]>(
   //     f_skip:(...args:A) => boolean,
