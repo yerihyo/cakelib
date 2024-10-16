@@ -20,18 +20,25 @@ export class Pageinfo{
   //   pagesize
   // }
 }
+
+export type Chucker<X> = (l:X[]) => X[][]
 export default class ChunkTool {
-  static chunksize2chunks<X>(items: X[], chunksize: number,): X[][] {
+  static chunksize2chunker = <X>(chunksize:number):Chunker<X> => {
     assert(chunksize)
 
-    const n = ArrayTool.len(items);
-    let chunks: X[][] = [];
-    for (var i = 0; i < n; i += chunksize) {
-      const chunk = items.slice(i, i + chunksize);
-      chunks.push(chunk);
+    return (items:X[]):X[][] => {
+      const n = ArrayTool.len(items);
+      let chunks: X[][] = [];
+      for (var i = 0; i < n; i += chunksize) {
+        const chunk = items.slice(i, i + chunksize);
+        chunks.push(chunk);
+      }
+      return chunks;
     }
-    return chunks;
-  }
+  };
+
+  static chunksize2chunks = <X>(items: X[], chunksize: number,): X[][] =>
+    ChunkTool.chunksize2chunker<X>(chunksize)(items);
 
   static chunkcount2chunks<X>(items: X[], chunkcount: number,): X[][] {
     const self = ChunkTool;
