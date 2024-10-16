@@ -21,7 +21,7 @@ export class Pageinfo{
   // }
 }
 
-export type Chucker<X> = (l:X[]) => X[][]
+export type Chunker<X> = (l:X[]) => X[][]
 export default class ChunkTool {
   static chunksize2chunker = <X>(chunksize:number):Chunker<X> => {
     assert(chunksize)
