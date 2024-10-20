@@ -3,7 +3,7 @@ import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import { NextApiRequestCookies } from 'next/dist/server/api-utils';
 import Link from 'next/link';
 import { NextRouter, Router } from 'next/router';
-import { ParsedUrlQuery } from 'querystring';
+import { parse, ParsedUrlQuery } from 'querystring';
 import StringTool from '../../string/string_tool';
 import lodash from 'lodash';
 import { Url } from 'next/dist/shared/lib/router/router';
@@ -11,6 +11,7 @@ import DateTool from '../../date/date_tool';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextRequest } from 'next/server';
 import UrlTool from '../../url/url_tool';
+import { DocumentContext } from 'next/document';
 
 export type SsrReq = IncomingMessage & { cookies: NextApiRequestCookies};
 
@@ -185,6 +186,9 @@ export default class NextjsTool{
   // static headers2host(headers: any): string {
   //   return headers?.host;
   // }
+
+  static documentcontext2query = (ctx:DocumentContext):ParsedUrlQuery => 
+    parse(UrlTool.urlstring2querystring(ctx.asPath));
 }
 
 export class RouterTool{
