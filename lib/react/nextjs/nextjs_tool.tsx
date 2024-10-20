@@ -187,8 +187,8 @@ export default class NextjsTool{
   //   return headers?.host;
   // }
 
-  static documentcontext2query = (ctx:DocumentContext):ParsedUrlQuery => 
-    parse(UrlTool.urlstring2querystring(ctx.asPath));
+  // static documentcontext2query = (ctx:DocumentContext):ParsedUrlQuery => 
+  //   parse(UrlTool.urlstring2querystring(ctx.asPath));
 }
 
 export class RouterTool{
