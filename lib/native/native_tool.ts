@@ -20,6 +20,10 @@ const time2iso = (d:Date) => d?.toISOString()?.split("T")?.[1];
 export default class NativeTool {
   // static minus = (t1:number, t2:number):number => t1-t2;
 
+  static assert = (x:any, option?:{message?:string}) => {
+    if(!x){ throw new Error(option?.message ? option?.message : '')}
+  }
+
   static var2name = (variable: any): string => {
     return Object.keys(variable)[0]
   }

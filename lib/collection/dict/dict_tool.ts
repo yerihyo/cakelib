@@ -3,7 +3,7 @@ import lodash from 'lodash';
 import { EqualTool } from '../../cmp/CmpTool';
 import NativeTool, { Dictkey } from '../../native/native_tool';
 import ArrayTool from '../array/array_tool';
-import assert from "assert";
+// import assert from "assert";
 
 const time2iso = (d:Date) => d?.toISOString()?.split("T")?.[1];
 // const assert = require('assert');
@@ -217,7 +217,7 @@ export default class DictTool{
     static null_values2excluded = <X=any>(x:X):X => DictTool.invalid_values2excluded(x, v => v !== null);
 
     static ll2dict = function(ll, vwrite=null) {
-        assert(vwrite === null)  // assuming overwrite
+        NativeTool.assert(vwrite === null)  // assuming overwrite
         
         let h = {}
         ll.forEach(kv => h[kv[0]] = kv[1])
@@ -260,32 +260,32 @@ export default class DictTool{
 
     static WritePolicy = class {
         static overwrite(h1, h2, k){
-            assert(k in h2)
+            NativeTool.assert(k in h2)
             h1[k] = h2[k]
             return h1
         }
 
         // static overwrite_notnull(h1, h2, k){
-        //     assert(k in h2)
+        //     NativeTool.assert(k in h2)
         //     if(h2[k]!=null){ h1[k] = h2[k]; }
         //     return h1
         // }
 
         // static overwrite_notnonzerofalse(h1, h2, k){
-        //     assert(k in h2)
+        //     NativeTool.assert(k in h2)
         //     if(h2[k]===0 || !!h2[k]){ h1[k] = h2[k]; }
         //     return h1
         // }
 
         static skip_if_exists(h1, h2, k){
-            assert(k in h2)
+            NativeTool.assert(k in h2)
             if(! (k in h1)){
                 h1[k] = h2[k]
             }
             return h1
         }
         static skip_if_identical(h1, h2, k){
-            assert(k in h2)
+            NativeTool.assert(k in h2)
             const v2 = h2[k]
             if(!(k in h1)){ h1[k] = h2[k] }
             else{
@@ -297,7 +297,7 @@ export default class DictTool{
             return h1
         }
         static no_duplicate_key(h1, h2, k){
-            assert(k in h2)
+            NativeTool.assert(k in h2)
             if(k in h1){
                 throw new Error(`Duplicate key: '${k}'`)
             }
@@ -305,7 +305,7 @@ export default class DictTool{
             return h1
         }
         static add(h1, h2, k){
-            assert(k in h2)
+            NativeTool.assert(k in h2)
             const v1 = (k in h1) ? h1[k] : 0
             const v = v1 + h2[k]
             h1[k] = v
@@ -316,7 +316,7 @@ export default class DictTool{
         }
 
         static max(h1, h2, k){
-            assert(k in h2)
+            NativeTool.assert(k in h2)
             if(!(k in h1)){ return h2[k]; }
 
             const v1 = h1[k];
@@ -340,7 +340,7 @@ export default class DictTool{
 
         static policy2dict_policy = (policy_in) => {
             const policy_out = (h1, h2, k) => {
-                assert(k in h2)
+                NativeTool.assert(k in h2)
                 
                 if(!(k in h1)){
                     return policy_in(h1, h2, k)
@@ -393,7 +393,7 @@ export default class DictTool{
         if (dicts.length == 1){ return dicts[0] }
 
         // console.log({'dicts.length':dicts.length})
-        assert(dicts.length > 1)
+        NativeTool.assert(dicts.length > 1)
         let h_out = Object.assign({}, dicts[0]) as T;
         dicts.slice(1,).forEach((h) => { cls.merge2dict(h_out, h, write_policy) })
         return h_out
