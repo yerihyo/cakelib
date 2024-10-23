@@ -12,6 +12,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { NextRequest } from 'next/server';
 import UrlTool from '../../url/url_tool';
 import { DocumentContext } from 'next/document';
+import { NextURL } from 'next/dist/server/web/next-url';
+import DictTool from '../../collection/dict/dict_tool';
 
 export type SsrReq = IncomingMessage & { cookies: NextApiRequestCookies};
 
@@ -187,8 +189,14 @@ export default class NextjsTool{
   //   return headers?.host;
   // }
 
-  static documentcontext2query = (ctx:DocumentContext):ParsedUrlQuery => 
-    parse(UrlTool.urlstring2querystring(ctx.asPath));
+  // static documentcontext2query = (ctx:DocumentContext):ParsedUrlQuery => 
+  //   parse(UrlTool.urlstring2querystring(ctx.asPath));
+
+  static nexturl2pathname_updated = (nexturl_in:NextURL, pathname:string,):NextURL => {
+    const nexturl_out = nexturl_in?.clone();
+    nexturl_out.pathname = pathname;
+    return nexturl_out;
+  }
 }
 
 export class RouterTool{

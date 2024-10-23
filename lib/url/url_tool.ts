@@ -184,7 +184,7 @@ export default class UrlTool{
     return `${url.protocol}//${url.host}${url.pathname}`;
   }
 
-  static urlstring2querystring = (urlstring:string):string => urlstring.split('?', 2)?.[1];
+  static urlstring2pathname_querystring = (urlstring:string) => urlstring.split('?', 2) as Pair<string>;
 
   static urlstring2paramkeys_dropped = (
     urlstring: string,
