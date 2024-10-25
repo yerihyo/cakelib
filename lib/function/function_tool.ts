@@ -31,6 +31,16 @@ export default class FunctionTool{
   //     return (l:X[], ...args:A):R[] => l?.map(x => f_onetoone(x, ...args))?.filter(r => r!=null);
   // }
 
+  static fxn2fx1 = <A extends any[], R>(f1n:(...args:A) => R[]):((...args:A) => R) =>
+    lodash.flow(
+      f1n, 
+      (l:R[]):R => { // ArrayTool.l2one
+        if(l == null) return undefined; 
+        if([0,1].includes(l?.length)) return l?.[0];
+        throw new Error(`l?.length=${l?.length}`);
+      },
+    )
+
   static f112fnn = <X, A extends any[], R>(f1:(x:X, ...args:A) => R):((l:X[], ...args:A) => R[]) => 
     (l:X[], ...args:A):R[] => f1 == null ? undefined : l?.map(x => f1?.(x, ...args));
 
@@ -40,8 +50,8 @@ export default class FunctionTool{
     lodash.flow(FunctionTool.f112fnn(f1n), ll => ll?.filter(Boolean)?.flat(),);
   static f12fn_flat = FunctionTool.f1n2fnn;
 
-  static fn12f11 = <X, A extends any[], R>(fn1:(l:X[], ...args:A) => R):((x:X, ...args:A) => R) =>
-    (x:X, ...args:A):R => fn1 == null ? undefined : fn1?.(x == null ? (x as X[]) : [x], ...args);
+  static fny2f1y = <X, A extends any[], R>(fny:(l:X[], ...args:A) => R):((x:X, ...args:A) => R) =>
+    (x:X, ...args:A):R => fny == null ? undefined : fny?.(x == null ? (x as X[]) : [x], ...args);
   
   static f_decider2f_every = <X, A extends any[]>(f_decider:(x:X, ...args:A) => boolean,) =>
     (l:X[], ...args:A) => l?.every(x => f_decider(x, ...args));

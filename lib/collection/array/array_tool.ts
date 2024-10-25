@@ -324,7 +324,7 @@ export default class ArrayTool {
     const p = funcs.length;
     const rv = Array.from(Array(p + 1), () => []);
 
-    for (let i = 0; i < array?.length ?? 0; i++) {
+    for (let i = 0; i < array?.length; i++) {
       const x: X = array[i];
 
       const jj = ArrayTool.range(p).find((j) => funcs[j](x, i, array)) ?? p;
