@@ -103,6 +103,9 @@ export default class UrlTool{
     return Object.keys(h).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(h[k])).join('&')
   }
 
+  static kv2urlquery = (k:string, v:string):Record<string,string> => 
+    (k == null || v == null) ? undefined : !v ? {} : {[k]:v};
+  
   static key_values2param_str(k: string, values: string[]): string {
     return ArrayTool.join("&", values.map(v => `${k}=${v}`));
   }
