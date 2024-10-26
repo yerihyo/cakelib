@@ -13,6 +13,7 @@ import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
 import MathTool from '../../number/math/math_tool';
 import NumberTool from '../../number/number_tool';
 import ReactTool from '../react_tool';
+import SpanTool from '../../span/span_tool';
 
 
 // const assert = require('assert');
@@ -703,19 +704,41 @@ export default class HookTool{
 
 
   // static codec_singled = HookTool.codec_indexed;
-  static codec_indexed<V>(index:number): Hookcodec<V[],V>{
+  static codec_indexed = <V>(
+    index:number,
+    option?:{
+      default?:V[],
+      l2is_nullequiv?:(l:V[]) => boolean,
+    }): Hookcodec<V[],V> => {
+      const callname = `HookTool.codec_indexed @ ${DateTool.time2iso(new Date())}`;
+
     const decode = (p_prev: V[]):V => p_prev?.[index];
     return {
       decode,
       encode: (c_post: V, p_prev: V[]):V[] => {
+        const v_default = option?.default ?? [];
+        const l2is_nullequiv = option?.l2is_nullequiv ?? (l => l == null);
+        
         const c_prev = decode(p_prev);
         if (c_prev === c_post) { return p_prev; }
 
-        const p_post = ArrayTool.splice(p_prev ?? [], index, 1, c_post);
-        return p_post;
+        const p_post = ArrayTool.splice(p_prev ?? v_default, index, 1, c_post);
+        const is_nullequiv = l2is_nullequiv(p_post);
+        // console.log({callname, is_nullequiv, p_post,})
+        return is_nullequiv ? undefined : p_post;
       },
     }
   }
+
+  static codec_span2indexed = <V>(index:number): Hookcodec<Pair<V>,V> =>
+    HookTool.codec_indexed(
+      index,
+      {
+        default:[null,null],
+        l2is_nullequiv: (span:Pair<V>) => ArrayTool.areAllBiequal(SpanTool.span2norm(span), SpanTool.nullnull()),
+      }
+    ) as Hookcodec<Pair<V>,V>;
+
   static f_eq2codec<V>(f_eq:Bicomparator<V>): Hookcodec<V,V>{
     return {
       decode: (p_prev:V) => p_prev,
