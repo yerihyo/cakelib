@@ -39,9 +39,7 @@ export default class SpanTool {
 
   static span2norm = SpanTool.infinf2nullnull;
 
-  static span2is_nullnull = <T>(span:Pair<T>):boolean => {
-    return ArrayTool.areAllTriequal(SpanTool.span2norm(span), [null, null]);
-  }
+  static span2istriequal_nullnull = <T>(span:Pair<T>):boolean => ArrayTool.areAllTriequal(SpanTool.span2norm(span), SpanTool.nullnull());
 
   
   static span2len = <T,>(
