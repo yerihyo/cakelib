@@ -193,7 +193,3 @@ export default class NextjsTool{
     return nexturl_out;
   }
 }
-
-export class RouterTool{
-
-}
