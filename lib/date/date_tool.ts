@@ -11,6 +11,8 @@ import NativeTool, { Pair, Triple } from '../native/native_tool';
 import MathTool from '../number/math/math_tool';
 import NumberTool from '../number/number_tool';
 
+export type Stopwatch = (d:Date) => number;
+
 export default class DateTool {
   static SUNDAY = {value: 0};
   static MONDAY = {value: 1};
@@ -192,14 +194,12 @@ export default class DateTool {
     return new Date(Math.min.apply(null, dates_valid));
   }
 
-  static subtract2millisecs = function (d1: Date, d2: Date): number {
-    if (!d1) { return undefined; }
-    if (!d2) { return undefined; }
-
-    return d1.getTime() - d2.getTime()
-  }
-  static subtract2ms = function (d1: Date, d2: Date): number {
-    return this.subtract2millisecs(d1, d2)
+  static subtract2millisecs = (d1: Date, d2: Date): number => MathTool.minus(d1?.getTime(), d2?.getTime());
+  static subtract2ms = DateTool.subtract2millisecs;
+  
+  static pivot2stopwatch_millisec = (pivot: Date):Stopwatch => {
+    const time_pivot = pivot?.getTime();
+    return (d:Date) => MathTool.minus(d?.getTime(), time_pivot);
   }
 
   static x2is_date(x) {
