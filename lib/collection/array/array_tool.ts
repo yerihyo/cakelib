@@ -913,7 +913,10 @@ export default class ArrayTool {
 
   static chain = <T>(...arrays: T[]) => [].concat(...arrays.filter((x) => !!x));
 
-  static uniq<T = any>(items: T[], item2key?: (t: T) => string): T[] {
+  static uniq<T = any>(
+    items: T[],
+    item2key?: (t: T) => string,
+  ): T[] {
     if (items == null) return undefined;
 
     const x2key = item2key ?? ((item) => item as unknown as string);

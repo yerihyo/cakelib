@@ -103,6 +103,7 @@ export default class MathTool {
   static eq = (...p:Pair<number>):boolean => { const c = MathTool.pair2cmp(...p); return c != null ? c === 0 : undefined; };
   static ne = (...p:Pair<number>):boolean => { const c = MathTool.pair2cmp(...p); return c != null ? c != 0 : undefined; };
 
+  static gtzero = (x:number):boolean => MathTool.gt(x, 0);
   
 
   static divmod(v: number, d: number): { q: number, r: number } {
