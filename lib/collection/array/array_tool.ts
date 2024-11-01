@@ -1,9 +1,10 @@
 import CmpTool, { Bicomparator, Comparator, EqualTool } from '../../cmp/CmpTool';
 import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
 import lodash from 'lodash';
-import FunctionTool from '../../function/function_tool';
+import FunctionTool, { FuncAO, FuncIO, FuncXX } from '../../function/function_tool';
 import MathTool from '../../number/math/math_tool';
 import DictTool from '../dict/dict_tool';
+import ChunkTool from './chunk_tool';
 
 // const assert = require('assert');
 const assert = (v:any, msg?:string) => { if(!v){ throw new Error(msg ? `${msg} (${v})` : `${v}`)}}
@@ -1398,6 +1399,43 @@ export default class ArrayTool {
     });
 
     return newArray.sort((a, b) => (indexMap[a] ?? Infinity) - (indexMap[b] ?? Infinity));
+  }
+
+  static f_batch2f_batch_conditioned = <X>(f_batch:FuncXX<X[]>, filter:(x:X) => boolean):FuncXX<X[]> => {
+    return (l_in:X[]) => {
+      if(l_in == null) return undefined;
+
+      const n = l_in?.length;
+      const is_target = ArrayTool.range(n).filter(i => filter(l_in[i]));
+      const dict_i2j = ArrayTool.array2dict_item2index(is_target);
+      const m_out = f_batch(is_target.map(i => l_in?.[i]));
+      const l_out = ArrayTool.range(n).map(i => (i in dict_i2j) ? m_out[dict_i2j[i]] : l_in[i]);
+      return l_out;
+    }
+  }
+
+  static af_batch2af_batch_conditioned = <X>(f_batch:FuncIO<Promise<X[]>,X[]>, filter:(x:X) => boolean):FuncIO<Promise<X[]>,X[]> => {
+    return async (l_in:X[]):Promise<X[]> => {
+      if(l_in == null) return undefined;
+
+      const n = l_in?.length;
+      const is_target = ArrayTool.range(n).filter(i => filter(l_in[i]));
+      const dict_i2j = ArrayTool.array2dict_item2index(is_target);
+      const m_out = await f_batch(is_target.map(i => l_in?.[i]));
+      const l_out = ArrayTool.range(n).map(i => (i in dict_i2j) ? m_out[dict_i2j[i]] : l_in[i]);
+      return l_out;
+    }
+  }
+
+  static af_batch2paged = <O,X, A extends any[]>(
+    af_batch:(l:X[], ...args:A) => Promise<O[]>,
+    chunker:(l:X[]) => X[][],
+  ):((l:X[], ...args:A) => Promise<O[]>) => {
+    return async (l:X[], ...args:A):Promise<O[]> => {
+      const chunks = chunker(l);
+      const results = await Promise.all(chunks?.map(page => af_batch(page, ...args)));
+      return results?.flat()
+    }
   }
 }
 
