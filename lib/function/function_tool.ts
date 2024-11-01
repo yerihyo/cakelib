@@ -21,6 +21,7 @@ export type FuncAB<A extends any[]> = ((...args:A) => boolean);
 export type FuncAX<A extends any[]> = ((...args:A) => any);
 export type FuncIO<O,I> = ((i:I) => O);
 export type FuncXX<X> = (x:X) => X;
+export type AfuncXX<X> = (x:X) => X|Promise<X>;
 export type Funcwrapper<O,A extends any[]> = (f:FuncAO<O,A>) => FuncAO<O,A>;
 
 export default class FunctionTool{

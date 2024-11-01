@@ -3,6 +3,7 @@
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat#options 
  **/
 
+import lodash from 'lodash';
 import { DateTime } from 'luxon';
 import CmpTool from '../cmp/CmpTool';
 import ArrayTool from '../collection/array/array_tool';
@@ -11,7 +12,7 @@ import NativeTool, { Pair, Triple } from '../native/native_tool';
 import MathTool from '../number/math/math_tool';
 import NumberTool from '../number/number_tool';
 
-export type Stopwatch = (d:Date) => number;
+export type Ageometer = (d:Date) => number;
 
 export default class DateTool {
   static SUNDAY = {value: 0};
@@ -196,10 +197,10 @@ export default class DateTool {
 
   static subtract2millisecs = (d1: Date, d2: Date): number => MathTool.minus(d1?.getTime(), d2?.getTime());
   static subtract2ms = DateTool.subtract2millisecs;
+  static subtract2secs = lodash.flow(DateTool.subtract2millisecs, x => MathTool.div(x,1000))
   
-  static pivot2stopwatch_millisec = (pivot: Date):Stopwatch => {
-    const time_pivot = pivot?.getTime();
-    return (d:Date) => MathTool.minus(d?.getTime(), time_pivot);
+  static pivot2ageometer = (pivot: Date):Ageometer => {
+    return (d:Date) => DateTool.subtract2secs(d, pivot);
   }
 
   static x2is_date(x) {

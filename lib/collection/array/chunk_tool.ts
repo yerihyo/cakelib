@@ -1,7 +1,5 @@
-import { Pair } from "../../native/native_tool";
+import NativeTool, { Pair } from "../../native/native_tool";
 import ArrayTool from "./array_tool";
-
-const assert = require('assert');
 
 
 export class Pageinfo{
@@ -24,7 +22,7 @@ export class Pageinfo{
 export type Chunker<X> = (l:X[]) => X[][]
 export default class ChunkTool {
   static chunksize2chunker = <X>(chunksize:number):Chunker<X> => {
-    assert(chunksize)
+    NativeTool.assert(chunksize, {message:`chunksize: ${chunksize}`})
 
     return (items:X[]):X[][] => {
       const n = ArrayTool.len(items);
@@ -42,7 +40,7 @@ export default class ChunkTool {
 
   static chunkcount2chunks<X>(items: X[], chunkcount: number,): X[][] {
     const self = ChunkTool;
-    assert(chunkcount)
+    NativeTool.assert(chunkcount,  {message:`chunkcount: ${chunkcount}`})
 
     const n = ArrayTool.len(items);
     const chunksize = Math.ceil(n / chunkcount);
