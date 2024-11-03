@@ -1401,27 +1401,30 @@ export default class ArrayTool {
     return newArray.sort((a, b) => (indexMap[a] ?? Infinity) - (indexMap[b] ?? Infinity));
   }
 
-  static f_batch2f_batch_conditioned = <X>(f_batch:FuncXX<X[]>, filter:(x:X) => boolean):FuncXX<X[]> => {
-    return (l_in:X[]) => {
+  // static f_batch2f_batch_conditioned = <X>(f_batch:FuncXX<X[]>, filter:(x:X) => boolean):FuncXX<X[]> => {
+  //   return (l_in:X[]) => {
+  //     if(l_in == null) return undefined;
+
+  //     const n = l_in?.length;
+  //     const is_target = ArrayTool.range(n).filter(i => filter(l_in[i]));
+  //     const dict_i2j = ArrayTool.array2dict_item2index(is_target);
+  //     const m_out = f_batch(is_target.map(i => l_in?.[i]));
+  //     const l_out = ArrayTool.range(n).map(i => (i in dict_i2j) ? m_out[dict_i2j[i]] : l_in[i]);
+  //     return l_out;
+  //   }
+  // }
+
+  static af_batch2af_batch_conditioned = <X, A extends any[]>(
+    f_batch:(l:X[], ...args:A) => Promise<X[]>,
+    filter:(x:X) => boolean,
+  ):(l:X[], ...args:A) => Promise<X[]> => {
+    return async (l_in:X[], ...args:A):Promise<X[]> => {
       if(l_in == null) return undefined;
 
       const n = l_in?.length;
       const is_target = ArrayTool.range(n).filter(i => filter(l_in[i]));
       const dict_i2j = ArrayTool.array2dict_item2index(is_target);
-      const m_out = f_batch(is_target.map(i => l_in?.[i]));
-      const l_out = ArrayTool.range(n).map(i => (i in dict_i2j) ? m_out[dict_i2j[i]] : l_in[i]);
-      return l_out;
-    }
-  }
-
-  static af_batch2af_batch_conditioned = <X>(f_batch:FuncIO<Promise<X[]>,X[]>, filter:(x:X) => boolean):FuncIO<Promise<X[]>,X[]> => {
-    return async (l_in:X[]):Promise<X[]> => {
-      if(l_in == null) return undefined;
-
-      const n = l_in?.length;
-      const is_target = ArrayTool.range(n).filter(i => filter(l_in[i]));
-      const dict_i2j = ArrayTool.array2dict_item2index(is_target);
-      const m_out = await f_batch(is_target.map(i => l_in?.[i]));
+      const m_out = await f_batch(is_target.map(i => l_in?.[i]), ...args);
       const l_out = ArrayTool.range(n).map(i => (i in dict_i2j) ? m_out[dict_i2j[i]] : l_in[i]);
       return l_out;
     }
