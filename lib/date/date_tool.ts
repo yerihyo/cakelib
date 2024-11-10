@@ -198,6 +198,13 @@ export default class DateTool {
   static subtract2millisecs = (d1: Date, d2: Date): number => MathTool.minus(d1?.getTime(), d2?.getTime());
   static subtract2ms = DateTool.subtract2millisecs;
   static subtract2secs = lodash.flow(DateTool.subtract2millisecs, x => MathTool.div(x,1000))
+  // static subtract2secs = function (d1: Date, d2: Date): number {
+  //   const self = DateTool;
+  //   const ms_diff = self.subtract2millisecs(d1, d2);
+  //   if (NativeTool.is_null_or_undefined(ms_diff)) { return ms_diff; }
+
+  //   return ms_diff / 1000
+  // }
   
   static pivot2ageometer = (pivot: Date):Ageometer => {
     return (d:Date) => DateTool.subtract2secs(d, pivot);
@@ -223,13 +230,6 @@ export default class DateTool {
     const secs_passed = DateTool.subtract2secs(now, dt_pivot);
     const callstr = `+${secs_passed}s @ ${DateTool.time2iso(now)}`;
     return { callstr, now, secs_passed };
-  }
-  static subtract2secs = function (d1: Date, d2: Date): number {
-    const self = DateTool;
-    const ms_diff = self.subtract2millisecs(d1, d2);
-    if (NativeTool.is_null_or_undefined(ms_diff)) { return ms_diff; }
-
-    return ms_diff / 1000
   }
 
   static millisecs2added = function (d: Date, millisecs: number): Date {
