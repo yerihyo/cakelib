@@ -154,7 +154,7 @@ export default class ArrayTool {
   static all = <T>(array: T[], option?:{item2bool?:(t:T) => boolean},): boolean => array?.every(option?.item2bool ?? (x => !!x));
   static any = <T>(array: T[], option?:{item2bool?:(t:T) => boolean},): boolean => array?.some(option?.item2bool ?? (x => !!x));
   static map = <I, O>(array: I[], item2value: (i: I) => O) => (array ? array.map(item2value) : undefined);
-  static indexOf = <T>(array: T[], v: T) => (array ? array.indexOf(v) : undefined);
+  static indexOf = <T>(array: T[], v: T) => v == null ? undefined : array?.indexOf(v);
 
   static x2first<T>(x: T | T[]) {
     return ArrayTool.is_array(x) ? x?.[0] : x;
