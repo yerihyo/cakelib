@@ -21,6 +21,7 @@ export type FuncAB<A extends any[]> = ((...args:A) => boolean);
 export type FuncAX<A extends any[]> = ((...args:A) => any);
 export type FuncIO<O,I> = ((i:I) => O);
 export type FuncXX<X> = (x:X) => X;
+export type AfuncXX<X> = (x:X) => X|Promise<X>;
 export type Funcwrapper<O,A extends any[]> = (f:FuncAO<O,A>) => FuncAO<O,A>;
 
 export default class FunctionTool{
@@ -46,17 +47,26 @@ export default class FunctionTool{
 
   static f12fn = FunctionTool.f112fnn;
 
-  static f1n2fnn = <X, A extends any[], R>(f1n:(x:X, ...args:A) => R[]):((l:X[], ...args:A) => R[]) => 
-    lodash.flow(FunctionTool.f112fnn(f1n), ll => ll?.filter(Boolean)?.flat(),);
+  static f1n2fnn = <X, A extends any[], R>(
+    f1n:(x:X, ...args:A) => R[],
+    option?:{l2is_valid?: (l:R[]) => boolean}
+  ):((l:X[], ...args:A) => R[]) => {
+    const l2is_valid = option?.l2is_valid ?? ((l:R[]) => Boolean(l));
+
+    return lodash.flow(
+      FunctionTool.f112fnn(f1n),
+      ll => ll?.filter(l2is_valid)?.flat(),
+    );
+  }
   static f12fn_flat = FunctionTool.f1n2fnn;
 
   static fny2f1y = <X, A extends any[], R>(fny:(l:X[], ...args:A) => R):((x:X, ...args:A) => R) =>
     (x:X, ...args:A):R => fny == null ? undefined : fny?.(x == null ? (x as X[]) : [x], ...args);
   
-  static f_decider2f_every = <X, A extends any[]>(f_decider:(x:X, ...args:A) => boolean,) =>
+  static f1b2f_every = <X, A extends any[]>(f_decider:(x:X, ...args:A) => boolean,) =>
     (l:X[], ...args:A) => l?.every(x => f_decider(x, ...args));
 
-  static f_decider2f_some = <X, A extends any[]>(f_decider:(x:X, ...args:A) => boolean,) =>
+  static f1b2f_some = <X, A extends any[]>(f_decider:(x:X, ...args:A) => boolean,) =>
     (l:X[], ...args:A) => l?.some(x => f_decider(x, ...args));
   
   // static f11_decider2fn1_every =  <X, A extends any[], R>(

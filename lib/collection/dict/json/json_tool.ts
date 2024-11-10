@@ -1,3 +1,4 @@
+import FunctionTool from '../../../function/function_tool';
 import CmpTool, { BicmpTool } from '../../../cmp/CmpTool';
 import DateTool from '../../../date/date_tool';
 import NumberTool from '../../../number/number_tool';
@@ -6,6 +7,7 @@ import StringTool from '../../../string/string_tool';
 import TraversileTool from '../../../traversile/traversile_tool';
 import ArrayTool from '../../array/array_tool';
 import DictTool from '../dict_tool';
+import { Rest } from '../../../native/native_tool';
 // import stringify from 'json-stable-stringify';
 
 const assert = require('assert');
@@ -105,16 +107,26 @@ export type Codec<P,C> = [
 
 export default class JsonTool {
     
+    /**
+    * ref: https://stackoverflow.com/a/16168003/1902064
+    */
+    static json2sortedstring:((x:any) => string) = FunctionTool.func2undef_ifany_nullarg(stringify);
+    // static json2sortedstring<X>(x:X):string{
+    //     if (x == null) { return undefined; }
+    //     return stringify(x);
+    // }
+    
     // static codec_default<X>():[(x:X) => string, (s:string) => X]{
     //     return [
     //         x => JsonTool.json2sortedstring<X>(x),
     //         s => JSON.parse(s) as X,
     //     ]
     // }
-    static stringify = (x: any) => x ? JSON.stringify(x) : undefined;
-    static parse = <X>(s:string) => s ? (JSON.parse(s) as X) : undefined;
+    static stringify = FunctionTool.func2undef_ifany_nullarg(JSON.stringify)
+    // static parse = FunctionTool.func2skipped(JSON.parse, s => !s);
+    static parse = <X>(s:string, ...args:Rest<Parameters<typeof JSON.parse>>) => s ? (JSON.parse(s, ...args) as X) : undefined;
     
-    static encode = <X>(x:X):string => x ? JsonTool.json2sortedstring(x) : undefined;
+    static encode = <X>(x:X):string => JsonTool.json2sortedstring(x);
     static decode = JsonTool.parse;
     static codec = <X>():Codec<X,string> => [JsonTool.encode, JsonTool.decode];
 
@@ -219,15 +231,6 @@ export default class JsonTool {
             }
         }
         return true;
-    }
-
-    /**
-    * ref: https://stackoverflow.com/a/16168003/1902064
-    */
-    static json2sortedstring<X>(x:X):string{
-        if (x == null) { return undefined; }
-        return stringify(x);
-        // return JSON.stringify(obj, Object.keys(obj).sort());
     }
     
     static json2jitems(dict_in) {
