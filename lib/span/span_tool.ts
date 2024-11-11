@@ -664,6 +664,9 @@ export default class SpanTool {
       f_minusone(span?.[1]),
     ];
   }
+
+  static f_cmp2f_cmp_begin = AbsoluteOrder.f_cmp2f_cmp_nullable2min;
+  static f_cmp2f_cmp_end = AbsoluteOrder.f_cmp2f_cmp_nullable2max;
     
 }
 
