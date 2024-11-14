@@ -12,27 +12,20 @@ export default class NanoidTool{
     }
   }
 
-  static alphabet_human(){
-    return 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
-  }
+  static alnum_human = () => 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+  static alpha_human = () => 'ABCDEFGHJKLMNPQRSTUVWXYZ';
 
-  static rng2generator(
+  static rng2generator = (
     rng:() => number,
     options?:{
       alphabet?: string,
       size?: number,
     }
-  ): (() => string){
-    const cls = NanoidTool;
-
-    const alphabet = options?.alphabet ?? urlAlphabet;
-    const size = options?.size ?? cls.cipherspace_default().size;
-
-    const generator = customRandom(
-      alphabet,
-      size,
+  ): (() => string) => {
+    return customRandom(
+      options?.alphabet ?? urlAlphabet,
+      options?.size ?? NanoidTool.cipherspace_default().size,
       size => (new Uint8Array(size)).map(() => 256 * rng()),
     );
-    return generator;
   }
 }
