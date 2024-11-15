@@ -205,7 +205,7 @@ export default class ArrayTool {
 
   static subtract<T>(l1: T[], l2: T[]): T[] {
     const s2 = new Set(l2);
-    return l1.filter((x) => !s2.has(x));
+    return l1?.filter((x) => !s2?.has(x));
   }
   static xor<T>(l1: T[], l2: T[]): T[] {
     return lodash.xor(l1, l2);
