@@ -107,6 +107,7 @@ export default class CmpTool {
   static lt_default = CmpTool.f_cmp2f_lt(CmpTool.pair2cmp_default);
   static lte_default = CmpTool.f_cmp2f_lte(CmpTool.pair2cmp_default);
 
+  static eq_default = CmpTool.f_cmp2f_eq(CmpTool.pair2cmp_default);
   static ne_default = CmpTool.f_cmp2f_ne(CmpTool.pair2cmp_default);
 
   // static f_cmp2f_gt = <T>(f_cmp: (t1: T, t2: T) => number): ((t1: T, t2: T) => boolean) => CmpTool.f_cmp2funcs_richcmp(f_cmp).gt;
