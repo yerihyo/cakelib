@@ -1,13 +1,13 @@
-import FunctionTool from '../../../function/function_tool';
-import CmpTool, { BicmpTool } from '../../../cmp/CmpTool';
+import CmpTool from '../../../cmp/CmpTool';
 import DateTool from '../../../date/date_tool';
+import FunctionTool from '../../../function/function_tool';
+import { ParamsWithoutfirst } from '../../../native/native_tool';
 import NumberTool from '../../../number/number_tool';
 import ReactTool from '../../../react/react_tool';
 import StringTool from '../../../string/string_tool';
 import TraversileTool from '../../../traversile/traversile_tool';
 import ArrayTool from '../../array/array_tool';
 import DictTool from '../dict_tool';
-import { Rest } from '../../../native/native_tool';
 // import stringify from 'json-stable-stringify';
 
 const assert = require('assert');
@@ -124,7 +124,7 @@ export default class JsonTool {
     // }
     static stringify = FunctionTool.func2undef_ifany_nullarg(JSON.stringify)
     // static parse = FunctionTool.func2skipped(JSON.parse, s => !s);
-    static parse = <X>(s:string, ...args:Rest<Parameters<typeof JSON.parse>>) => s ? (JSON.parse(s, ...args) as X) : undefined;
+    static parse = <X>(s:string, ...args:ParamsWithoutfirst<typeof JSON.parse>) => s ? (JSON.parse(s, ...args) as X) : undefined;
     
     static encode = <X>(x:X):string => JsonTool.json2sortedstring(x);
     static decode = JsonTool.parse;

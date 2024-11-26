@@ -6,14 +6,19 @@ export type Pair<T> = [T, T];
 export type Triple<T> = [T, T, T];
 export type Quad<T> = [T, T, T, T];
 
-type Last<T extends any[]> = T extends [...infer I, infer L] ? L : T extends [...infer I, (infer L)?] ? L | undefined : never;
-export type LastParameter<F extends (...args: any) => any> = Last<Parameters<F>>;
+type Last<T extends any[]> = T extends [...infer A, infer LAST] ? LAST : T extends [...infer A, (infer LAST)?] ? LAST | undefined : never;
+export type Lastparam<F extends (...args: any) => any> = Last<Parameters<F>>;
 
 // https://stackoverflow.com/a/63024984
 // type Rest<T extends any[]> = ((...p: T) => void) extends ((p1: infer P1, ...rest: infer R) => void) ? R : never;
 
 // https://stackoverflow.com/a/55344772
-export type Rest<T extends any[]> = T extends [infer A, ...infer R] ? R : never;
+type Omitfirst<T extends any[]> = T extends [infer FIRST, ...infer A] ? A : never;
+type Omitlast<T extends any[]> = T extends [...infer A, infer LAST] ? A : never;
+
+export type ParamsWithoutfirst<F extends (...args: any) => any> = Omitfirst<Parameters<F>>;
+export type ParamsWithoutlast<F extends (...args: any) => any> = Omitlast<Parameters<F>>;
+
 // export type Firstfew<T extends any[]> = T extends [infer A, ...infer R] ? A : never;
 
 const time2iso = (d:Date) => d?.toISOString()?.split("T")?.[1];
