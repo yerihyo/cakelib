@@ -4,11 +4,11 @@ import DateTool from "../../date/date_tool";
 import ArrayTool from "./array_tool";
 
 export default class MinimaxTool{
-  static maxIndex<X>(array: X[], pair2cmp?: Comparator<X>): number {
+  static maxIndex = <X>(array: X[], pair2cmp?: Comparator<X>): number => {
     // https://stackoverflow.com/a/30850912
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce
 
-    if (!ArrayTool.bool(array)) { return undefined; }
+    if (!ArrayTool.bool(array)) return undefined;
 
     const f_cmp: Comparator<X> = pair2cmp ? pair2cmp : CmpTool.pair2cmp_default; // CmpTool.funcs2f_cmp(options);
     return array.reduce((iMax, x, i, l) => (f_cmp(x, l[iMax]) > 0 ? i : iMax), 0);
