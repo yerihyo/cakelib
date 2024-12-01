@@ -301,8 +301,8 @@ export default class UrlTool{
   //   return s_list;
   // }
 
-  static commad2strings = (s: string):string[] => s?.split(',');
-  static urlstring2list = UrlTool.commad2strings;
+  static str2decommad = (s: string):string[] => s?.split(',');
+  static urlstring2list = UrlTool.str2decommad;
   static values2commad = (l: (string|number)[]) => {
     if(!ArrayTool.bool(l)) return undefined;
 

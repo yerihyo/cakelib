@@ -139,7 +139,7 @@ export default class NextjsTool{
   }
 
   static query_key2decommad = (query: ParsedUrlQuery, k:string) : string[] => 
-    UrlTool.commad2strings(query?.[k] as string);
+    UrlTool.str2decommad(query?.[k] as string);
 
   static query_key2int(query: ParsedUrlQuery, k:string) : number{
     const s = NextjsTool.query_key2str(query, k);
