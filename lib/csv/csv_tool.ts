@@ -1,4 +1,3 @@
-// const stringify = require('csv-stringify/sync')
 import {stringify} from 'csv-stringify/sync';
 
 export default class CsvTool{
