@@ -1,6 +1,7 @@
-import * as Hangul from 'hangul-js';
+import {disassemble, isVowel} from 'hangul-js';
 
 import ArrayTool from '../collection/array/array_tool';
+
 export default class HangulTool{
   static choseungs2wisp(choseungs:string):string{
     const operations = [
@@ -15,8 +16,8 @@ export default class HangulTool{
   }
 
   static text2is_vowelending = (text:string):boolean => {
-    const jamo_last = ArrayTool.last(Hangul.disassemble(text));
-    return Hangul.isVowel(jamo_last);
+    const jamo_last = ArrayTool.last(disassemble(text));
+    return isVowel(jamo_last);
   }
 
   static text2eun_added = (text:string):string => {
@@ -37,8 +38,8 @@ export default class HangulTool{
   static text2ro_added(text:string):string{
     if(text == null){ return undefined; }
     
-    const jamo_last = ArrayTool.last(Hangul.disassemble(text));
-    const is_ro = Hangul.isVowel(jamo_last) || jamo_last == 'ㄹ';
+    const jamo_last = ArrayTool.last(disassemble(text));
+    const is_ro = isVowel(jamo_last) || jamo_last == 'ㄹ';
     return is_ro ? `${text}로` : `${text}으로`;
   }
 }
