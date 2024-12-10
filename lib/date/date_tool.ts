@@ -61,7 +61,7 @@ export default class DateTool {
     const mm = NumberTool.pad(time4 % 100, 2);
 
     // const p = time4 < 1200 ? '오전' : '오후';
-    return `${hh}:${mm}`
+    return `${NumberTool.pad(hh,2)}:${mm}`
   }
 
   static time42hhmmp(time4: number) {
