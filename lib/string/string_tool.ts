@@ -22,6 +22,14 @@ export default class StringTool {
     throw new Error(`Unknown value x: ${x}`);
   }
 
+  // https://stackoverflow.com/a/196991
+  static toTitlecase = (str:string) => {
+    return str?.replace(
+      /\w\S*/g,
+      x => x.charAt(0).toUpperCase() + x.substring(1).toLowerCase()
+    );
+  }
+
   // references:
   //  https://stackoverflow.com/a/2878746
   //  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/search
