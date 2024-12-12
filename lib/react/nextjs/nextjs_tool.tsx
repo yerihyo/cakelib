@@ -1,3 +1,4 @@
+import lodash from 'lodash';
 import { IncomingMessage } from 'http';
 import { NextApiRequest } from 'next';
 import { PHASE_PRODUCTION_BUILD } from 'next/constants';
@@ -5,10 +6,10 @@ import { NextApiRequestCookies } from 'next/dist/server/api-utils';
 import { NextURL } from 'next/dist/server/web/next-url';
 import Link from 'next/link';
 import { NextRouter, Router } from 'next/router';
-import { ParsedUrlQuery } from 'querystring';
+import { decode, encode, ParsedUrlQuery } from 'querystring';
 import DateTool from '../../date/date_tool';
 import StringTool from '../../string/string_tool';
-import UrlTool from '../../url/url_tool';
+import UrlTool, { UrlsearchparamsTool } from '../../url/url_tool';
 
 export type SsrReq = IncomingMessage & { cookies: NextApiRequestCookies};
 
@@ -139,7 +140,7 @@ export default class NextjsTool{
   }
 
   static query_key2decommad = (query: ParsedUrlQuery, k:string) : string[] => 
-    UrlTool.str2decommad(query?.[k] as string);
+    UrlsearchparamsTool.str2decommad(query?.[k] as string);
 
   static query_key2int(query: ParsedUrlQuery, k:string) : number{
     const s = NextjsTool.query_key2str(query, k);
@@ -192,4 +193,13 @@ export default class NextjsTool{
     nexturl_out.pathname = pathname;
     return nexturl_out;
   }
+}
+
+
+export class ParsedUrlQueryTool{
+  static query2string = encode;
+  static string2query = decode;
+
+  static searchparams2parsedquery = lodash.flow((params:URLSearchParams) => params?.toString(), ParsedUrlQueryTool.string2query);
+  static parsedquery2searchparams = lodash.flow(ParsedUrlQueryTool.query2string, (s) => new URLSearchParams(s));
 }

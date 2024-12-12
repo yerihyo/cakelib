@@ -1,3 +1,4 @@
+import lodash from 'lodash';
 import useSWR, { SWRResponse } from 'swr';
 import CacheTool from '../cache/cache_tool';
 import ArrayTool from '../collection/array/array_tool';
@@ -5,14 +6,33 @@ import CsvTool from '../csv/csv_tool';
 import DateTool from '../date/date_tool';
 import { Pair } from '../native/native_tool';
 import DictTool from '../collection/dict/dict_tool';
-import StringTool from '../string/string_tool';
-const assert = require('assert');
+// const assert = require('assert');
 
-export class SearchparamsTool{
-  static searchparams2obj(searchparams: URLSearchParams) {
-    return Object.fromEntries(searchparams);
+export class UrlsearchparamsTool{
+  static str2decommad = (s: string):string[] => s?.split(',');
+  static values2commad = (l: (string|number)[]) => {
+    if(!ArrayTool.bool(l)) return undefined;
+
+    const l_invalid = l?.filter(x => (typeof x === 'string' && x?.includes(',')));
+    if(ArrayTool.bool(l_invalid)){
+      throw new Error(`List items must not contain a comma. ${l_invalid?.map(x => `'${x}'`)?.join(', ')}`);
+    }
+
+    return ArrayTool.sorted(l).join(',');
   }
+  
+  static params2string = (params:URLSearchParams):string => params?.toString();
+  static string2params = (x:string) => (new URLSearchParams(x));
+
+  static params2obj = (params: URLSearchParams) => Object.fromEntries(params);
+  static params_key2string = (params: URLSearchParams, k:string) => params?.get(k);
+  static params_key2decommad = lodash.flow(
+    UrlsearchparamsTool.params_key2string,
+    UrlsearchparamsTool.str2decommad,
+  );
 }
+
+
 export default class UrlTool{
   /**
    * reference: https://stackoverflow.com/a/47397016/1902064
@@ -147,7 +167,7 @@ export default class UrlTool{
         const kv_list = values.map(v => [k, v])
         return kv_list
       } else {
-        assert(false, `Invalid collection : ${collection}`)
+        throw new Error(`Invalid collection : ${collection}`)
       }
     }
     
@@ -187,7 +207,7 @@ export default class UrlTool{
     return `${url.protocol}//${url.host}${url.pathname}`;
   }
 
-  static urlstring2pathname_querystring = (urlstring:string) => urlstring.split('?', 2) as Pair<string>;
+  // static urlstring2pathname_querystring = (urlstring:string) => urlstring.split('?', 2) as Pair<string>;
 
   static urlstring2paramkeys_dropped = (
     urlstring: string,
@@ -301,18 +321,17 @@ export default class UrlTool{
   //   return s_list;
   // }
 
-  static str2decommad = (s: string):string[] => s?.split(',');
-  static urlstring2list = UrlTool.str2decommad;
-  static values2commad = (l: (string|number)[]) => {
-    if(!ArrayTool.bool(l)) return undefined;
+  // static str2decommad = (s: string):string[] => s?.split(',');
+  // static values2commad = (l: (string|number)[]) => {
+  //   if(!ArrayTool.bool(l)) return undefined;
 
-    const l_invalid = l?.filter(x => (typeof x === 'string' && x?.includes(',')));
-    if(ArrayTool.bool(l_invalid)){
-      throw new Error(`List items must not contain a comma. ${l_invalid?.map(x => `'${x}'`)?.join(', ')}`);
-    }
+  //   const l_invalid = l?.filter(x => (typeof x === 'string' && x?.includes(',')));
+  //   if(ArrayTool.bool(l_invalid)){
+  //     throw new Error(`List items must not contain a comma. ${l_invalid?.map(x => `'${x}'`)?.join(', ')}`);
+  //   }
 
-    return ArrayTool.sorted(l).join(',');
-  }
+  //   return ArrayTool.sorted(l).join(',');
+  // }
   // if value contains "," than throw error
   // static list2urlstring = <T>(list: T[]): string | undefined => {
   //   if (!list || list.length === 0) { return undefined; }
@@ -326,7 +345,7 @@ export default class UrlTool{
     
   //   return list.join(",");
   // }
-  static list2urlstring = UrlTool.values2commad;
+  // static list2urlstring = UrlsearchparamsTool.values2commad;
 
 
   static getQueryParams(url: string): Record<string, string> {
@@ -414,3 +433,4 @@ export class MimetypeTool{
     );
   }
 }
+
