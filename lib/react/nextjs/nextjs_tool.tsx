@@ -201,5 +201,5 @@ export class ParsedUrlQueryTool{
   static string2query = decode;
 
   static searchparams2parsedquery = lodash.flow((params:URLSearchParams) => params?.toString(), ParsedUrlQueryTool.string2query);
-  static parsedquery2searchparams = lodash.flow(ParsedUrlQueryTool.query2string, (s) => new URLSearchParams(s));
+  static parsedquery2searchparams = lodash.flow(ParsedUrlQueryTool.query2string, UrlsearchparamsTool.parse);
 }

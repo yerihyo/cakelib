@@ -22,7 +22,7 @@ export class UrlsearchparamsTool{
   }
   
   static params2string = (params:URLSearchParams):string => params?.toString();
-  static string2params = (x:string) => (new URLSearchParams(x));
+  static parse = (x:string) => (new URLSearchParams(x));
 
   static params2obj = (params: URLSearchParams) => Object.fromEntries(params);
   static params_key2string = (params: URLSearchParams, k:string) => params?.get(k);
@@ -34,6 +34,7 @@ export class UrlsearchparamsTool{
 
 
 export default class UrlTool{
+  static parse = (s:string):URL => { return new URL(s); }
   /**
    * reference: https://stackoverflow.com/a/47397016/1902064
    * @param url 
@@ -220,7 +221,7 @@ export default class UrlTool{
     if (!ArrayTool.bool(paramkeys)) { return urlstring; }
 
     const [baseurl, str_params] = urlstring.split('?', 2);
-    const params_url = new URLSearchParams(str_params || '');
+    const params_url = UrlsearchparamsTool.parse(str_params || '');
     
     const paramkeyset = new Set(paramkeys);
 
@@ -255,7 +256,7 @@ export default class UrlTool{
     if (!ArrayTool.bool(paramkeys)) { return urlstring; }
   
     const [baseurl, str_params] = urlstring.split('?', 2);
-    const params_url = new URLSearchParams(str_params || '');
+    const params_url = UrlsearchparamsTool.parse(str_params || '');
   
     const paramkeyset = new Set(paramkeys);
   
@@ -285,7 +286,7 @@ export default class UrlTool{
     if(!ArrayTool.bool(params_in)){ return urlstring; }
 
     const [baseurl, str_params_prev] = urlstring?.split('?', 2);
-    const params_prev = new URLSearchParams(str_params_prev || '');
+    const params_prev = UrlsearchparamsTool.parse(str_params_prev || '');
     
     const keys_in = new Set(params_in.map(([k,_]) => k));
 
