@@ -25,6 +25,7 @@ const time2iso = (d:Date) => d?.toISOString()?.split("T")?.[1];
 export default class NativeTool {
   // static minus = (t1:number, t2:number):number => t1-t2;
 
+  
   static assert = (x:any, option?:{message?:string}) => {
     if(!x){ throw new Error(option?.message ? option?.message : '')}
   }
@@ -109,6 +110,16 @@ export default class NativeTool {
       f(error);
       throw error;
     }
+  }
+
+  // https://stackoverflow.com/a/24929146
+  static delayed = <O,A extends any[]>(
+    f:(...args:A) => O|Promise<O>,
+    millisec:number,
+  ) => {
+    return (...args:A) => new Promise<O>((resolve, _) => {
+      setTimeout(() => { resolve(f(...args)); }, millisec);
+    });
   }
 }
 
