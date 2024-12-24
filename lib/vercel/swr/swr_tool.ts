@@ -39,6 +39,16 @@ export class Swrinfo<TT>{
 export default class SwrTool {
 
   static x2fallback_data = <X>(x:X):{fallbackData?:X} => (x!=null ? { fallbackData: x } : undefined);
+  static fallback2conf_staystale = <X>(
+    fallbackData:X
+  ):Pick<SWRConfiguration, 'fallbackData'|'revalidateIfStale'> => {
+    return fallbackData == null
+      ? undefined
+      : {
+        fallbackData,
+        revalidateIfStale:false,
+      };
+  }
   
   // static useSWR_if_nullable<T>(
   //   swr: SWRResponse<T>,
