@@ -17,13 +17,8 @@ export type SsrReq = IncomingMessage & { cookies: NextApiRequestCookies};
  * Reference: https://github.com/vercel/next.js/discussions/22036
  */
 export class NextjsPhase{
-  static phase(){
-    return process.env.NEXT_PHASE;
-  }
-
-  static phase2is_prodbuild(phase:string){
-    return phase === PHASE_PRODUCTION_BUILD;
-  }
+  static phase = () => { return process.env.NEXT_PHASE; }
+  static phase2is_prodbuild = (phase:string) => { return phase === PHASE_PRODUCTION_BUILD; }
 }
 
 /**
