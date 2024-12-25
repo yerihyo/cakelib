@@ -41,12 +41,16 @@ export default class SwrTool {
   static x2fallback_data = <X>(x:X):{fallbackData?:X} => (x!=null ? { fallbackData: x } : undefined);
   static fallback2conf_staystale = <X>(
     fallbackData:X
-  ):Pick<SWRConfiguration, 'fallbackData'|'revalidateIfStale'> => {
+  ):Pick<SWRConfiguration, 'fallbackData'|'revalidateIfStale'|'revalidateOnFocus'|'revalidateOnReconnect'|'keepPreviousData'> => {
     return fallbackData == null
       ? undefined
       : {
         fallbackData,
-        revalidateIfStale:false,
+       
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        keepPreviousData: true,
       };
   }
   
