@@ -1,5 +1,4 @@
 import { IncomingHttpHeaders } from "http";
-import { IncomingMessage } from "http"
 
 export default class HttpheaderTool{
   // https://stackoverflow.com/a/74624652
@@ -47,4 +46,6 @@ export default class HttpheaderTool{
       hostname.endsWith('.local')
     )
   }
+
+  static headers2host = (headers:Headers):string => headers?.get("Host");
 }
