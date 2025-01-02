@@ -648,7 +648,27 @@ export default class SpanTool {
       ? span
       : [span?.[0], plus(span?.[1], period)] as Pair<T>
       ;
+  }
 
+  static span2spans_unrotated = <T>(
+    span:Pair<T>,
+    period:T,
+  ):Pair<T>[] => {
+    const f_lte = (
+      (t1:T, t2:T):boolean => {
+        if(t1 === undefined || t2 === undefined){ return undefined; }
+
+        if(t1 === null){ return true; }
+        if(t2 === null){ return true; }
+        return CmpTool.f_cmp2f_lte(CmpTool.pair2cmp_default<T>)(t1,t2);
+      }
+    );
+    return f_lte(span?.[0], span?.[1])
+      ? ArrayTool.one2l(span)
+      : [
+        [0 as T, span?.[1]],
+        [span?.[0], period],
+      ];
   }
 
   static f2nullskipped = FunctionTool.unary2nullskipped
