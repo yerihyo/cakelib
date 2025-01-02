@@ -43,11 +43,15 @@ export default class SwrTool {
     fallbackData:X
   ):Pick<SWRConfiguration, 'fallbackData'|'revalidateIfStale'|'revalidateOnFocus'|'revalidateOnReconnect'|'keepPreviousData'> => {
     return {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      ...fallbackData == null ? {} : {fallbackData},
+      ...fallbackData == null
+        ? {}
+        : {
+          // keepPreviousData: true,  // very controversial.... key change rare anyway...
+          revalidateOnFocus: false,
+          revalidateOnReconnect: false,
+          fallbackData,
+          revalidateIfStale: false,
+        },
     };
   }
   
