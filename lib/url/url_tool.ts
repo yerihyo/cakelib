@@ -81,6 +81,7 @@ export default class UrlTool{
     return urlA.origin === urlB.origin;
   }
 
+  static origin_urlpath2url = (origin:string, urlpath:string):string => [origin,urlpath]?.filter(Boolean)?.join('');
   static dict2entries = DictTool.entries<string,string>;
   static h2l = DictTool.entries<string,string>;
 

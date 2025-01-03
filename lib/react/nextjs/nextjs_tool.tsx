@@ -1,5 +1,5 @@
-import lodash from 'lodash';
 import { IncomingMessage } from 'http';
+import lodash from 'lodash';
 import { NextApiRequest } from 'next';
 import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import { NextApiRequestCookies } from 'next/dist/server/api-utils';
@@ -9,7 +9,7 @@ import { NextRouter, Router } from 'next/router';
 import { decode, encode, ParsedUrlQuery } from 'querystring';
 import DateTool from '../../date/date_tool';
 import StringTool from '../../string/string_tool';
-import UrlTool, { UrlsearchparamsTool } from '../../url/url_tool';
+import { UrlsearchparamsTool } from '../../url/url_tool';
 
 export type SsrReq = IncomingMessage & { cookies: NextApiRequestCookies};
 
@@ -142,9 +142,9 @@ export default class NextjsTool{
     return s ? parseInt(s) : undefined;
   }
 
-  static context2host(context:any):string{
-      return context?.req?.headers?.host;
-  }
+  // static context2host(context:any):string{
+  //     return context?.req?.headers?.host;
+  // }
 
   static ComponentLinkLegacy = (props: {
     href:string,
@@ -188,6 +188,43 @@ export default class NextjsTool{
     nexturl_out.pathname = pathname;
     return nexturl_out;
   }
+
+  // static headers2is_headers = (headers:Headers|IncomingMessage['headers']): headers is Headers => { return headers instanceof Headers; }
+
+  // https://github.com/vercel/next.js/discussions/38596#discussioncomment-3138275
+  // static req_key2header = (req:Request|IncomingMessage, key:string) => {
+  //   const cls = NextjsTool;
+  //   const callname = `NextjsTool.req_key2header @ ${DateTool.time2iso(new Date())}`;
+
+  //   console.log({callname, req, key})
+  //   if(req instanceof Request) return req?.headers?.get(key);
+  //   if(req instanceof IncomingMessage) return req?.rawHeaders?.[key];
+  //   return undefined;
+  // }
+  static req2host = (req:Request|IncomingMessage):string => {
+    const cls = NextjsTool;
+    const callname = `NextjsTool.req2host @ ${DateTool.time2iso(new Date())}`;
+        
+    // NextRequest
+    if(req instanceof Request) return req?.headers?.get('host'); // 'host works too
+    
+    // NextApiRequest
+    if(req instanceof IncomingMessage) return req?.headers?.['host'];
+    return undefined;
+  }
+
+  // export const hasMappedHeaders = (headers: Headers | IncomingMessage['headers']): headers is Headers => {
+  //     return headers instanceof Headers;
+  // };
+
+  // // in another file...
+  // export async function getIdentityToken(req: Request | IncomingMessage): Promise<JwtPayload> {
+  //     const jwt = hasMappedHeaders(req.headers)
+  //         ? req.headers.get('x-forwarded-jwt')
+  //         : req.headers['x-forwarded-jwt'];
+
+  //     return jwtDecode(String(jwt ?? '').replace('Bearer ', ''));
+  // }
 }
 
 
