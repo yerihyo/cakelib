@@ -1,6 +1,8 @@
 import { IncomingHttpHeaders } from "http";
 
 export default class HttpheaderTool{
+  // static window2hostname = (window:Window):string => { return window.location.hostname; }
+  
   // https://stackoverflow.com/a/74624652
   // https://github.com/jakeburden/next-absolute-url/blob/master/index.ts
   static headerz2info = (
@@ -36,6 +38,8 @@ export default class HttpheaderTool{
 
     return {protocol, host, origin};
   }
+
+  static host2hostname = (host:string):string => host?.split(':',1)?.[0];
   
   static hostname2isLocalNetwork = (hostname:string) => {
     return (
@@ -48,4 +52,5 @@ export default class HttpheaderTool{
   }
 
   static headers2host = (headers:Headers):string => headers?.get("Host");
+  // static headers2host = (headers:IncomingHttpHeaders):string => headers?.get("Host");
 }
