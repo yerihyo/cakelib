@@ -687,7 +687,14 @@ export default class SpanTool {
 
   static f_cmp2f_cmp_begin = AbsoluteOrder.f_cmp2f_cmp_nullable2min;
   static f_cmp2f_cmp_end = AbsoluteOrder.f_cmp2f_cmp_nullable2max;
+  
+  static remainder_period_pivot2value_coming = (remainder:number, period:number, pivot:number, ) => {
+    const q = Math.floor(pivot / period);
+    const r = pivot % period;
     
+    return (remainder >= r ? period : period+1)*q + remainder;
+  }
+  static span_period2length = (span:Pair<number>, period:number) => (span?.[1]-span?.[0] + period) % period;
 }
 
 export class SpansTool {
