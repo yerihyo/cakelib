@@ -564,7 +564,7 @@ export default class ArrayTool {
 
   static flatten<V>(arrays: V[][]): V[] {
     // https://stackoverflow.com/a/10865042/1902064
-    return [].concat(...arrays);
+    return arrays == null ? undefined : [].concat(...arrays);
   }
   static array2dict_item2count<X extends Dictkey = Dictkey>(l: X[]): Record<X, number> {
     return l?.reduce((h, x) => {
