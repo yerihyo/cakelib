@@ -882,6 +882,21 @@ export default class HookTool{
     }
   }
 
+  static codecpair2piped<P, C, M>( // for typing
+    codecs: [
+      {
+        encode: (m: M, p0?: P) => P,
+        decode: (p: P) => M,
+      },
+      {
+        encode: (c: C, m0?: M) => M,
+        decode: (m: M) => C,
+      },
+    ],
+  ): Hookcodec<P,C> {
+    return HookTool.codecs2piped<P,C>(codecs)
+  }
+
   static decoder2codec<X>(
     decoder:Hookdecoder<X,X>,
   ): Hookcodec<X,X>{
