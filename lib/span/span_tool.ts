@@ -548,7 +548,7 @@ export default class SpanTool {
       if(MathTool.lte(cmp_minus, 0)){ return Math.min(cmp_minus, -Number.EPSILON); }
 
       const cmp_plus = f_cmppivot(p1[0], p2[1]);
-      if(MathTool.gte(cmp_plus, 0)){ return Math.min(cmp_plus, Number.EPSILON); }
+      if(MathTool.gte(cmp_plus, 0)){ return Math.max(cmp_plus, Number.EPSILON); }
       return 0;
     }
   }
