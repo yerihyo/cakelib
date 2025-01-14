@@ -290,6 +290,7 @@ export default class SpanTool {
     option?: { comparator?: Comparator<T> }
   ): Pair<T>[] => {
     const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
+    const f_lt = CmpTool.f_cmp2f_lt(comparator);
   
     const events: Array<[T | null | undefined, 'start' | 'end', number]> = [];
   
@@ -325,7 +326,9 @@ export default class SpanTool {
         activeSpans.add(index);
       } else {
         if (activeSpans.size === 2) {
+          if(f_lt(intersectionStart, value)){
           intersections.push([intersectionStart, value]);
+          }
         }
         activeSpans.delete(index);
         if (activeSpans.size === 1 && value !== null && value !== undefined) {
