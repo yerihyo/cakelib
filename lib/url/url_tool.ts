@@ -282,7 +282,7 @@ export default class UrlTool{
 
   static urlstring2params_upserted = (
     // urlstring:string,
-    urlstring:string,
+    urlstring_in:string,
     // params_in?:Record<string,string|string[]>,
     params_in?:Pair<string>[],
     // options?,
@@ -292,10 +292,12 @@ export default class UrlTool{
 
     // console.log({callname, params_in});
     
-    if(urlstring==null){ return undefined; }
-    if(!ArrayTool.bool(params_in)){ return urlstring; }
+    if(urlstring_in==null){ return undefined; }
+    if(!ArrayTool.bool(params_in)){ return urlstring_in; }
 
-    const [baseurl, str_params_prev] = urlstring?.split('?', 2);
+    const [str_nohash, str_hash] = urlstring_in?.split('#', 1) ?? [];
+    const [baseurl, str_params_prev] = str_nohash?.split('?', 1) ?? [];
+    
     const params_prev = UrlsearchparamsTool.parse(str_params_prev || '');
     
     const keys_in = new Set(params_in.map(([k,_]) => k));
@@ -306,24 +308,48 @@ export default class UrlTool{
     ])?.toString();
 
     const urlstring_out = [
-      baseurl,
-      ...(str_params_out ? [str_params_out] : []),
-    ].join('?');
+      [
+        baseurl,
+        ...(str_params_out ? [str_params_out] : []),
+      ].join('?'),
+      ...str_hash ? [str_hash] : [],
+    ]?.join('#');
 
-    // console.log({
-    //   callname,
-    //   tokens,
-    //   urlstring,
-    //   baseurl,
-    //   str_params_prev,
-    //   params_prev,
-    //   params_in,
-    //   str_params_out,
-    //   urlstring_out,
-    // });
+    // console.log({callname, urlstring_out, urlstring_in, str_hash, baseurl, str_nohash})
 
     return urlstring_out;
   }
+
+  // static urlstring2params_upserted_NOTWORKING_FOR_PATHNAME = (
+  //   // urlstring:string,
+  //   urlstring_prev:string,
+  //   // params_in?:Record<string,string|string[]>,
+  //   params_in?:Pair<string>[],
+  //   // options?,
+  // ):string => {
+  //   const cls = UrlTool;
+  //   const callname = `UrlTool.urlstring2params_upserted @ ${DateTool.time2iso(new Date())}`;
+
+  //   // console.log({callname, params_in});
+    
+  //   if(urlstring_prev==null){ return undefined; }
+  //   if(!ArrayTool.bool(params_in)){ return urlstring_prev; }
+
+  //   console.log({callname, urlstring_prev})
+
+  //   // const url_prev = new URL(urlstring_prev) //(location.href);
+  //   const url_out = params_in?.reduce<URL>(
+  //     (url:URL, kv:Pair<string>) => {
+  //       const [k,v] = kv;
+  //       if(v == null){ url.searchParams?.delete(k); }
+  //       else{ url.searchParams?.set(k,v); }
+  //       return url;
+  //     },
+  //     new URL(urlstring_prev),
+  //   );
+  //   return url_out?.toString();
+  // }
+
 
   // if value contains "," than error will occur
   // static urlstring2list = (s: string) => {
