@@ -1,5 +1,5 @@
 import AmazonS3URI from 'amazon-s3-uri'
-export default class S3Tool{
+export default class S3Tool_DEPRECATED{
   static uri2imploded(uri:string): AmazonS3URI{
     return AmazonS3URI(uri);
   }
