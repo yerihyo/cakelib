@@ -295,8 +295,8 @@ export default class UrlTool{
     if(urlstring_in==null){ return undefined; }
     if(!ArrayTool.bool(params_in)){ return urlstring_in; }
 
-    const [str_nohash, str_hash] = urlstring_in?.split('#', 1) ?? [];
-    const [baseurl, str_params_prev] = str_nohash?.split('?', 1) ?? [];
+    const [str_nohash, str_hash] = urlstring_in?.split('#', 2) ?? [];
+    const [baseurl, str_params_prev] = str_nohash?.split('?', 2) ?? [];
     
     const params_prev = UrlsearchparamsTool.parse(str_params_prev || '');
     
@@ -411,15 +411,15 @@ export default class UrlTool{
   // ) => {
   //   const cls = UrlTool;
 
-  //   const [origin, rest] = url.split("?", 1);
-  //   const [qstr_prev, hash_] = rest.split("#", 1);
+  //   const [origin, rest] = url.split("?", 2);
+  //   const [qstr_prev, hash_] = rest.split("#", 2);
 
   //   const params_pref = (() => {
   //     if(!qstr_prev){ return undefined; }
 
   //     DictTool.merge_dicts(
   //       qstr_prev.split('&').map(x => {
-  //       const [k,v] = x.split("=",1);
+  //       const [k,v] = x.split("=",2);
   //       return {[k]:v};
   //     }),
 
