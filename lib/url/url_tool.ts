@@ -296,7 +296,7 @@ export default class UrlTool{
     if(!ArrayTool.bool(params_in)){ return urlstring_in; }
 
     const [str_nohash, str_hash] = urlstring_in?.split('#', 1) ?? [];
-    const [baseurl, str_params_prev] = str_nohash?.split('?', 1) ?? [];
+    const [baseurl, str_params_prev] = str_nohash?.split('?', 2) ?? [];
     
     const params_prev = UrlsearchparamsTool.parse(str_params_prev || '');
     
