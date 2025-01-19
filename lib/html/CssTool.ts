@@ -8,6 +8,10 @@ import { Quad, Triple } from '../native/native_tool';
 // const assert = require('assert');
 
 export default class CssTool{
+  static cssprop_wordkeepall = () => ({wordBreak: 'keep-all', } as CSSProperties);
+  static cssprop_linesbalanced = () => ({textWrap:'balance',} as CSSProperties);
+  // static cssprop_wordkeepall_linesbalanced = () => ({wordBreak: 'keep-all', textWrap:'balance',});
+
   static px2str = (px:number):string => px== null ? undefined : `${px}px`;
 
   static rgba2cssvalue(rgba:Triple<number>|Quad<number>):string{
