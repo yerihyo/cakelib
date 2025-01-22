@@ -267,7 +267,9 @@ export default class ArrayTool {
     array: T[],
     options?: Parameters<typeof ArrayTool.minindexeds<T>>[1],
   ): Indexeditem<T>[] => {
-    return ArrayTool.minindexeds<T>(
+    return array == null
+      ? undefined
+      : ArrayTool.minindexeds<T>(
       array,
       {
         ...options,
