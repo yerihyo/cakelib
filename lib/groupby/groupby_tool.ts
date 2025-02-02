@@ -356,36 +356,48 @@ export default class GroupbyTool {
       ?.flat();
   }
 
-  static mapreduce = <X, Y, A extends any[]=any[]>(
+  static async_mapreduce = <X, Y, A extends any[]=any[]>(
     cfs: {
       f_cond: (x: X, i?:number) => boolean,
-      f_batch: (l: X[], ...args: A) => Y[],
+      f_batch: (l: X[], ...args: A) => Y[]|Promise<Y[]>,
     }[],
-  ): (l: X[], ...args: A) => Y[] => {
+  ): (l: X[], ...args: A) => Promise<Y[]> => {
     const cls = GroupbyTool;
 
-    return (l_in: X[], ...args: A): Y[] => {
+    return async (l_in: X[], ...args: A): Promise<Y[]> => {
       if (l_in == null) return undefined;
 
       const n = l_in?.length;
       const p = cfs?.length;
-      const js = ArrayTool.range(n)
-        .map(i => ArrayTool.l2one(ArrayTool.range(p)?.filter(j => cfs[j].f_cond(l_in[i]))));
 
-      const dict_j2is = cls.dict_groupby_1step(ArrayTool.range(n), i => js[i]);
+      const dict_j2is = cls.dict_groupby_1step(
+        ArrayTool.range(n),
+        i => ArrayTool.filter2one(
+          j => cfs[j].f_cond(l_in[i]),
+          ArrayTool.range(p),
+          {emptyresult_forbidden:true},
+        ),
+      );
 
-      const dicts_i2yp = cfs?.flatMap((cf,j) => {
-        const is = dict_j2is[j];
-        if(!ArrayTool.bool(is)) return [];
+      const ys_list = await Promise.all(
+        cfs?.map(async (cf,j) => {
+          const is = dict_j2is[j];
+          return !ArrayTool.bool(is)
+            ? []
+            : cf.f_batch(is?.map(i => l_in[i]), ...args);
+        })
+      )
 
-        const ys = cf.f_batch(is?.map(i => l_in[i]), ...args);
-        return is?.map((i,ii) => ({[i]:ys[ii]} as Record<number,Y>)) ?? [];
-      });
-      const dict_i2yp = DictTool.merge_dicts<Record<number,Y>>(dicts_i2yp, DictTool.WritePolicy.no_duplicate_key);
+      const dict_i2y = DictTool.merge_dicts<Record<number,Y>>(
+        ArrayTool.range(p).flatMap(j => {
+          const is = dict_j2is[j];
+          const ys = ys_list[j];
+          return is?.map((i,ii) => ({[i]:ys[ii]} as Record<number,Y>)) ?? [];
+        }),
+        DictTool.WritePolicy.no_duplicate_key
+      );
 
-      return ArrayTool.range(n).map(i => dict_i2yp[i]);
-      // const ys = await Promise.all(ypromises);
-      // return ys;
+      return ArrayTool.range(n).map(i => dict_i2y[i]);
     }
   }
 }
