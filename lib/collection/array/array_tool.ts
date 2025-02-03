@@ -267,7 +267,9 @@ export default class ArrayTool {
     array: T[],
     options?: Parameters<typeof ArrayTool.minindexeds<T>>[1],
   ): Indexeditem<T>[] => {
-    return ArrayTool.minindexeds<T>(
+    return array == null
+      ? undefined
+      : ArrayTool.minindexeds<T>(
       array,
       {
         ...options,
@@ -462,9 +464,21 @@ export default class ArrayTool {
     if(xs == null){ return undefined; }
     if(ys == null){ return undefined; }
 
-    return xs.map(x => {
+    return xs.flatMap(x => {
       return ys.map(y => [x,y] as [X,Y]);
-    }).flat();
+    });
+  }
+
+  static cartesian3 = <X,Y,Z>(xs:X[], ys:Y[], zs:Z[]): [X,Y,Z][] => {
+    if(xs == null){ return undefined; }
+    if(ys == null){ return undefined; }
+    if(zs == null){ return undefined; }
+
+    return xs.flatMap(x => {
+      return ys.flatMap(y => {
+        return zs.map(z => [x,y,z] as [X,Y,Z]);
+      })
+    });
   }
 
   static filter<X>(f: (x: X) => boolean, l: X[]): X[] {
@@ -898,16 +912,28 @@ export default class ArrayTool {
 
   static uniqone = lodash.flow(ArrayTool.uniq, ArrayTool.l2one);
 
-  static filter2one = <T>(f_filter: (t: T) => boolean, items_in: T[]): T => {
+  static filter2one = <T>(
+    f_filter: (t: T) => boolean,
+    items_in: T[],
+    option?:{
+      emptyresult_forbidden?:boolean,
+    }
+  ): T => {
     const callname = `ArrayTool.filter2one @ ${date2str_time(new Date())}`;
 
-    if (!ArrayTool.bool(items_in)) return undefined!;
+    if (!ArrayTool.bool(items_in)){
+      if(option?.emptyresult_forbidden) throw new Error(`items_in: ${items_in}`)
+      return undefined!;
+    }
 
     const items_out = items_in.filter(f_filter);
     if (items_out && items_out?.length > 1) {
       console.log({ callname, "items_out?.length": items_out?.length, items_out });
     }
 
+    if(option?.emptyresult_forbidden){
+      if(items_out?.length != 1) throw new Error(`items_out?.length: ${items_out?.length}`);
+    }
     const item: T = ArrayTool.l2one(items_out);
     return item;
   };

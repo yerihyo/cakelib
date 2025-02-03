@@ -90,7 +90,13 @@ export default class CmpTool {
 
   static f_cmp2f_max = <X,>(f_cmp: Comparator<X>): Aggregator<X> => (l: X[]) => {
     return l?.reduce(
-      (x0, x1, i) => i === 0 ? x1 : (f_cmp(x0,x1)>=0 ? x0 : x1),
+      (x0, x1, i) => {
+        if(i === 0) return x1;
+        const cmp = f_cmp(x0,x1);
+
+        if(cmp == null) return undefined;
+        return MathTool.gtezero(cmp) ? x0 : x1;
+      },
       undefined,
     );
   };
