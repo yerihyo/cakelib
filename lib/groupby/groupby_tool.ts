@@ -363,6 +363,7 @@ export default class GroupbyTool {
     }[],
   ): (l: X[], ...args: A) => Promise<Y[]> => {
     const cls = GroupbyTool;
+    const callname = `GropubyTool.async_mapreduce @ ${DateTool.time2iso(new Date())}`;
 
     return async (l_in: X[], ...args: A): Promise<Y[]> => {
       if (l_in == null) return undefined;
@@ -373,15 +374,16 @@ export default class GroupbyTool {
       const dict_j2is = cls.dict_groupby_1step(
         ArrayTool.range(n),
         i => ArrayTool.filter2one(
-          j => cfs[j].f_cond(l_in[i]),
+          j => cfs[j].f_cond(l_in[i], i),
           ArrayTool.range(p),
           {emptyresult_forbidden:true},
-        ),
+        )?.toString(),
       );
 
       const ys_list = await Promise.all(
         cfs?.map(async (cf,j) => {
-          const is = dict_j2is[j];
+          const is = dict_j2is[j?.toString()];
+          // console.log({callname, 'ArrayTool.bool(is)':ArrayTool.bool(is), is, dict_j2is, j});
           return !ArrayTool.bool(is)
             ? []
             : cf.f_batch(is?.map(i => l_in[i]), ...args);
@@ -390,7 +392,7 @@ export default class GroupbyTool {
 
       const dict_i2y = DictTool.merge_dicts<Record<number,Y>>(
         ArrayTool.range(p).flatMap(j => {
-          const is = dict_j2is[j];
+          const is = dict_j2is[j?.toString()];
           const ys = ys_list[j];
           return is?.map((i,ii) => ({[i]:ys[ii]} as Record<number,Y>)) ?? [];
         }),

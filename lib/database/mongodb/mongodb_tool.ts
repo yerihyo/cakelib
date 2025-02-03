@@ -68,7 +68,7 @@ export default class MongodbTool {
     return (value != null ? { '$set': { [key]:value, } } : { '$unset': { [key]: 1, } });
   }
 
-  static queries2booled(op:string, queries:Record<string,any>[],){
+  static queries2booled = <T>(op:string, queries:T[],):(T|Record<string,T[]>) => {
     return queries == null
       ? undefined
       : queries.length == 1
@@ -77,9 +77,18 @@ export default class MongodbTool {
       ;
   }
 
-  static queries2or = lodash.partial(MongodbTool.queries2booled, '$or');
-  static queries2and = lodash.partial(MongodbTool.queries2booled, '$and');
+  static queries2or = lodash.partial(MongodbTool.queries2booled<Record<string,any>>, '$or');
+  static queries2and = lodash.partial(MongodbTool.queries2booled<Record<string,any>>, '$and');
 
+  static qvalues2qexpr_in = lodash.partial(MongodbTool.queries2booled, '$in');
+  // static qvalues2qexpr_in = <T>(values:T[]):(T|{$in:T[]}) => {
+  //   return values == null
+  //     ? undefined
+  //     : values?.length == 1
+  //       ? values?.[0]
+  //       : {$in: values};
+  // }
+  
   static qexpr2qvalues = <T>(qexpr: (T | { '$in': T[] })): T[] => {
     if (qexpr == null) { return undefined; }
     return DictTool.is_dict(qexpr)
