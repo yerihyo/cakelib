@@ -173,7 +173,7 @@ export default class NextjsTool{
 
     return is_href_real
       ? <Link href={href} {...rest}>{children}</Link>
-      : <>{children}</>;
+      : <div {...rest}>{children}</div>;
   };
 
   // static headers2host(headers: any): string {
