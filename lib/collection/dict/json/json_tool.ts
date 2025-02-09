@@ -122,7 +122,7 @@ export default class JsonTool {
     //         s => JSON.parse(s) as X,
     //     ]
     // }
-    static stringify = FunctionTool.func2undef_ifany_nullarg(JSON.stringify)
+    static stringify = (x:any) => x == null ? undefined : JSON.stringify(x)
     // static parse = FunctionTool.func2skipped(JSON.parse, s => !s);
     static parse = <X>(s:string, ...args:ParamsWithoutfirst<typeof JSON.parse>) => s ? (JSON.parse(s, ...args) as X) : undefined;
     
