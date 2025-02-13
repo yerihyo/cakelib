@@ -341,14 +341,13 @@ export default class HookTool{
   static codec2up<PO,PI,C>(hookcodec:Hookcodec<PI,C>, jpath:Jpath,):Hookcodec<PO,C>{
     if(!ArrayTool.bool(jpath)){ return hookcodec as unknown as Hookcodec<PO,C>; }
 
-    const edge2reduced = JsonTool.edge2reduced_create;
     const po2pi = (po:PO) => JsonTool.down(po, jpath) as PI;
 
     return {
       decode: (po: PO) => hookcodec.decode(po2pi(po)),
       encode: (c: C, po_prev?:PO):PO => {
         const pi_post = hookcodec.encode(c, po2pi(po_prev));
-        const po_post = JsonTool.reduceUp(po_prev ?? {}, jpath, pi_post, edge2reduced) as PO;
+        const po_post = JsonTool.reduceUp(po_prev ?? {}, jpath, pi_post, JsonTool.edge2reduced_create) as PO;
         return po_post;
       },
       
