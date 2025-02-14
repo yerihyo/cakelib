@@ -30,6 +30,14 @@ export default class MinimaxTool{
     return iMin == null ? undefined : array[iMin]
   }
 
+  static min_icmp = <X>(l:X[], indexpair2cmp?:Comparator<number>):X => {
+    const index_best = MinimaxTool.min(
+      ArrayTool.range(l?.length),
+      indexpair2cmp,
+    );
+    return l[index_best];
+  }
+
   static max<X>(array: X[], pair2cmp?: Comparator<X>): X {
     if(!ArrayTool.bool(array)){ return undefined }
 
