@@ -9,6 +9,8 @@ export type Appraiser<T> = ((t: T) => number);
 export type Comparator<T> = ((t1: T, t2: T) => number);
 export type Bicomparator<T> = ((t1: T, t2: T) => boolean);
 export type Aggregator<T> = ((l:T[]) => T);
+export type Realigner<T> = ((l:T[]) => T[]);
+export type Indexcomparator<X> = (xi1:[X,number], xi2:[X,number]) => number;
 // export type Aggregator<T> = ((...args:T[]) => T);
 
 class DateToolLocal {
@@ -115,6 +117,8 @@ export default class CmpTool {
 
   static eq_default = CmpTool.f_cmp2f_eq(CmpTool.pair2cmp_default);
   static ne_default = CmpTool.f_cmp2f_ne(CmpTool.pair2cmp_default);
+
+  static realiger_dummy = <X>(l:X[]) => l;
 
   // static f_cmp2f_gt = <T>(f_cmp: (t1: T, t2: T) => number): ((t1: T, t2: T) => boolean) => CmpTool.f_cmp2funcs_richcmp(f_cmp).gt;
   // static f_cmp2f_gte = <T>(f_cmp: (t1: T, t2: T) => number): ((t1: T, t2: T) => boolean) => CmpTool.f_cmp2funcs_richcmp(f_cmp).gte;
@@ -326,6 +330,14 @@ export default class CmpTool {
       item2key,
     );
   }
+  static f_cmp2f_icmp = <X>(l:X[], f_cmp:Comparator<X>):Comparator<number> => CmpTool.f_key2f_cmp(i => l[i], f_cmp)
+  // static f_cmp2f_icmp = <X>(l:X[], f_cmp:Comparator<X>):Comparator<number> => {
+  //   if(l == null) return undefined;
+
+  //   return (i1:number, i2:number):number => {
+  //     return f_cmp(l[i1], l[i2]);
+  //   }
+  // }
 
   // static f_cmp2f_eq = <X,>(f_cmp: Comparator<X>): Bicomparator<X> => {
   //   return (x1, x2) => {

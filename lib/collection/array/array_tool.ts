@@ -1,4 +1,4 @@
-import CmpTool, { Bicomparator, Comparator, EqualTool } from '../../cmp/CmpTool';
+import CmpTool, { Aggregator, Bicomparator, Comparator, EqualTool, Indexcomparator, Realigner } from '../../cmp/CmpTool';
 import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
 import lodash from 'lodash';
 import FunctionTool, { FuncAO, FuncIO, FuncXX } from '../../function/function_tool';
@@ -1157,23 +1157,59 @@ export default class ArrayTool {
   //     return ArrayTool.sorted(items, (k1, k2) => lookup(valuedict, k2) - lookup(valuedict, k1),);
   // }
 
-  static sorted<V>(array: V[], comparator?: Comparator<V>): V[] {
+
+  // static indexsorted = <X>(l: X[], indexcomparator: Indexcomparator<X>): X[] => {
+  //   const cls = ArrayTool;
+  //   const callname = `ArrayTool.indexsorted @ ${date2str_time(new Date())}`;
+
+  //   if (l == null) return undefined;
+  //   if (!cls.bool(l)) return l;
+
+  //   return cls.range(l?.length)
+  //     .sort((i1,i2) => indexcomparator([l[i1],i1], [l[i2],i2]))
+  //     .map(i => l[i]);
+  // }
+
+  // static comparator2indexcomparator = <X>(comparator:Comparator<X>):Indexcomparator<X> => {
+  //   return (xi1:[X,number], xi2:[X,number]) => comparator(xi1[0], xi2[0]);
+  // }
+  
+  // static sorted = <X>(l: X[], comparator?: Comparator<X>): X[] => {
+  //   const cls = ArrayTool;
+  //   const callname = `ArrayTool.sorted @ ${date2str_time(new Date())}`;
+
+  //   const indexcomparator = cls.comparator2indexcomparator(comparator ?? CmpTool.subtract_typeignore<X>);
+  //   return cls.indexsorted(l, indexcomparator);
+  // }
+
+  static sorted<V>(l: V[], comparator?: Comparator<V>): V[] {
+    const cls = ArrayTool;
     const callname = `ArrayTool.sorted @ ${date2str_time(new Date())}`;
 
-    if (array == null) {
-      return undefined;
-    }
-    if (!ArrayTool.bool(array)) {
-      return array;
-    }
+    if (l == null) return undefined;
+    if (!cls.bool(l)) return l;
 
-    // console.log({callname, array});
+    return [...l].sort(comparator ?? CmpTool.subtract_typeignore);
+  }
 
-    const array_out = [...array].sort(comparator ?? CmpTool.subtract_typeignore);
-    // if(array?.length===11){
-    //     console.log({callname, array, 'ArrayTool.bool(array)':ArrayTool.bool(array), array_out, comparator});
-    // }
-    return array_out;
+
+  static irealigner2realigner = <X>(irealigner: Realigner<number>,):Realigner<X> => {
+    return (l:X[]) => {
+      const indexes_realigned = irealigner(ArrayTool.range(l?.length));
+      return indexes_realigned?.map(i => l[i]);
+    }
+  }
+
+  // static iaggregator2aggregator = <X>(iaggregator: Aggregator<number>):Aggregator<X> => {
+  //   return (l:X[]) => {
+  //     const index_best = iaggregator(ArrayTool.range(l?.length));
+  //     return index_best == null ? undefined : l[index_best];
+  //   }
+  // }
+
+  static sorted_icmp = <X>(l:X[], f_icmp:Comparator<number>):X[] => {
+    return ArrayTool.sorted(ArrayTool.range(l?.length), f_icmp,)
+      ?.map(i => l[i]);
   }
 
   static indexes2inverted(indexes: number[]) {
