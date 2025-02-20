@@ -80,8 +80,8 @@ export default class MongodbTool {
   static queries2or = lodash.partial(MongodbTool.queries2booled<Record<string,any>>, '$or');
   static queries2and = lodash.partial(MongodbTool.queries2booled<Record<string,any>>, '$and');
 
-  static qvalues2qexpr_in = lodash.partial(MongodbTool.queries2booled, '$in');
-  // static qvalues2qexpr_in = <T>(values:T[]):(T|{$in:T[]}) => {
+  static vs2qexpr_in = lodash.partial(MongodbTool.queries2booled, '$in');
+  // static vs2qexpr_in = <T>(values:T[]):(T|{$in:T[]}) => {
   //   return values == null
   //     ? undefined
   //     : values?.length == 1

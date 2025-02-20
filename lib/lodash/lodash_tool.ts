@@ -1,6 +1,6 @@
-import lodash, { List } from "lodash";
+import lodash from "lodash";
 import CmpTool, { BicmpTool } from "../cmp/CmpTool";
-import JsonTool, { Jpath, Jstep } from "../collection/dict/json/json_tool";
+import JsonTool, { Jpath } from "../collection/dict/json/json_tool";
 
 export default class LodashTool{
   static omit_deep<V=any>(v:V, jpaths:Jpath[]):V{
@@ -9,7 +9,7 @@ export default class LodashTool{
     return jpaths.reduce((x, jpath) => omit_one(x, jpath), v)
   }
 
-  static union = <T>(arrays: Array<List<T> | null | undefined>) => {
+  static union = <T>(arrays: Array<T[] | null | undefined>) => {
     return arrays == null ? undefined : lodash.union<T>(...arrays);
   }
 
