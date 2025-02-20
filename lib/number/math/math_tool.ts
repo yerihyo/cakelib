@@ -1,4 +1,3 @@
-import { infinite } from "swr/infinite";
 import FunctionTool from "../../function/function_tool";
 import { Pair } from "../../native/native_tool";
 import SignTool from "../sign_tool";
