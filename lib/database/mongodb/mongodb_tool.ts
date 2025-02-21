@@ -81,6 +81,14 @@ export default class MongodbTool {
   static queries2and = lodash.partial(MongodbTool.queries2booled<Record<string,any>>, '$and');
 
   static vs2qexpr_in = lodash.partial(MongodbTool.queries2booled, '$in');
+  static query_in2norm = <X>(query:{$in:X[]}):(X|{$in:X[]}) => {
+    const values = query?.$in;
+    return query == null
+      ? undefined
+      : values?.length == 1 
+        ? ArrayTool.l2one(values)
+        : query;
+  }
   // static vs2qexpr_in = <T>(values:T[]):(T|{$in:T[]}) => {
   //   return values == null
   //     ? undefined
