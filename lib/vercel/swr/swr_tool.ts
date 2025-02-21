@@ -65,6 +65,7 @@ export default class SwrTool {
   //   return is_null ? swr_new : swr;
   // }
 
+  static swrs2are_dataready = (swrs:SWRResponse<any>[]):boolean => swrs?.every(SwrTool.swr2is_data_ready);
   static swrdict2is_dataready = <T>(swrdict:T):boolean => {
     return Object.values(swrdict).every((swr:SWRResponse<any>) => SwrTool.swr2is_data_ready(swr));
   }
