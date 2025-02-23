@@ -241,4 +241,11 @@ export default class FunctionTool{
       }
     }
   }
+
+  static fax2fbx = <A extends any[],B extends any[],X>(
+    f_ax:FuncAO<X,A>,
+    encode: (b:B) => A,
+  ):FuncAO<X,B> => {
+    return (...b:B) => f_ax(...encode(b));
+  }
 }
