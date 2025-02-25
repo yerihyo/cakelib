@@ -1,7 +1,7 @@
-import MathTool from "../number/math/math_tool";
 import ArrayTool from "../collection/array/array_tool";
 import DictTool from "../collection/dict/dict_tool";
 import DateTool from "../date/date_tool";
+import MathTool from "../number/math/math_tool";
 import LruCache from "./lru_cache/lru_cache";
 
 type Cachelike<X, A extends any[]> = {
