@@ -100,22 +100,12 @@ export default class NextjsTool{
     setTimeout(onLeave, ms_wait);
   }
 
-  static get(query: ParsedUrlQuery, k: string): any {
-    return NextjsTool.query_key2value(query,k);
-  }
-  static query_key2value(query: ParsedUrlQuery, k:string) : any{
-    // if (!query) { return undefined; }
-
-    return (k in query) ? query[k] : undefined;
-  }
-
   static query_key2string(query: ParsedUrlQuery, k:string) : string{
     // if (!query) { return undefined; }
 
     const s:string = (k in query) ? (query[k] as string) : undefined;
     return s;
   }
-  static query_key2str = NextjsTool.query_key2string;
 
   static queryvalue2strings(v: (string|string[])):string[]{
     if(!v){ return undefined ;}
@@ -138,7 +128,7 @@ export default class NextjsTool{
     UrlsearchparamsTool.str2decommad(query?.[k] as string);
 
   static query_key2int(query: ParsedUrlQuery, k:string) : number{
-    const s = NextjsTool.query_key2str(query, k);
+    const s = NextjsTool.query_key2string(query, k);
     return s ? parseInt(s) : undefined;
   }
 
@@ -227,6 +217,13 @@ export default class NextjsTool{
   // }
 }
 
+export class CakeaholicNextapi{
+  static queryinfo_apitoken = () => ({key:'NEXTAPITOKEN', value: 'ELep347fgh838Y8LRdULa'});
+  static query2isequal_apitoken = (query: ParsedUrlQuery,) => {
+    const cls = CakeaholicNextapi;
+    return NextjsTool.query_key2string(query, cls.queryinfo_apitoken().key) == cls.queryinfo_apitoken().value;
+  }
+}
 
 export class ParsedUrlQueryTool{
   static query2string = encode;

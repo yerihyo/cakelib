@@ -1,7 +1,7 @@
-import MathTool from "../number/math/math_tool";
 import ArrayTool from "../collection/array/array_tool";
 import DictTool from "../collection/dict/dict_tool";
 import DateTool from "../date/date_tool";
+import MathTool from "../number/math/math_tool";
 import LruCache from "./lru_cache/lru_cache";
 
 type Cachelike<X, A extends any[]> = {
@@ -60,17 +60,6 @@ export default class CacheTool {
     return (...args) => {
       const prev_args = prev ? prev[0] : undefined;
 
-      // if (logname) {
-      //   console.log({
-      //     fn,
-      //     logname,
-      //     args,
-      //     prev_args,
-      //     'isEqual(args, prev_args)': isEqual(args, prev_args),
-      //   });
-      // }
-
-      // throw new Error();
       const is_equal = prev_args!==undefined && f_eq(args, prev_args);
       if (is_equal) {
         return prev[1];
@@ -151,9 +140,11 @@ export default class CacheTool {
     cache: Cachelike<X,A>,
   ): ((...args: A) => X) => {
     const cls = CacheTool;
+    const callname = `CacheTool.func2cached @ ${DateTool.time2iso(new Date())}`;
     
     return (...args) => {
       const x_cache = cache.get(args);
+      // console.log({callname, x_cache, args})
       if (x_cache !== undefined) return x_cache;
 
       const x_calced = fn(...args);
@@ -224,10 +215,17 @@ export default class CacheTool {
     ttl:number,
   ):Cachelike<O,A> => {
     const cls = CacheTool;
+    const callname = `CacheoTool.timedcache2cache @ ${DateTool.time2iso(new Date())}`;
+
     return {
       get: (args:A) => {
         const tx = timedcache.get(args);
-        return tx !== undefined && MathTool.lt(tx.time, (new Date()).getTime() - ttl)
+        // console.log({callname, tx, args});
+
+        if(tx === undefined) return undefined;
+
+        const pivot = (new Date()).getTime() - ttl;
+        return MathTool.gt(tx.time, pivot)
             ? tx.obj
             : undefined;
       },
