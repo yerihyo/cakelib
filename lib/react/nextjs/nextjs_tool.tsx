@@ -217,15 +217,6 @@ export default class NextjsTool{
   // }
 }
 
-export class CakeaholicNextapi{
-  static queryinfo_apitoken = () => ({key:'NEXTAPITOKEN', value: 'ELep347fgh838Y8LRdULa'});
-  
-  static query2isequal_apitoken = (query: ParsedUrlQuery,) => {
-    const cls = CakeaholicNextapi;
-    return NextjsTool.query_key2string(query, cls.queryinfo_apitoken().key) == cls.queryinfo_apitoken().value;
-  }
-}
-
 export class ParsedUrlQueryTool{
   static query2string = encode;
   static string2query = decode;
