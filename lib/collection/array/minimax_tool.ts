@@ -13,14 +13,21 @@ export default class MinimaxTool{
     const f_cmp: Comparator<X> = pair2cmp ? pair2cmp : CmpTool.pair2cmp_default; // CmpTool.funcs2f_cmp(options);
     return array.reduce((iMax, x, i, l) => (f_cmp(x, l[iMax]) > 0 ? i : iMax), 0);
   }
-  static minIndex<X>(array: X[], pair2cmp: Comparator<X> = undefined): number {
+  static minIndex = <X>(array: X[], pair2cmp: Comparator<X> = undefined): number => {
+    const callname = `MinimaxTool.minIndex @ ${DateTool.time2iso(new Date())}`;
+
     if (!ArrayTool.bool(array)) { return undefined; }
 
-    // console.log({array})
+    // console.log({callname, array})
 
     // const pair2cmp = CmpTool.funcs2f_cmp(options);
     const f_cmp: Comparator<X> = pair2cmp ? pair2cmp : CmpTool.pair2cmp_default; // CmpTool.funcs2f_cmp(options);
-    return array.reduce((iMin, x, i, l) => (f_cmp(x, l[iMin]) < 0 ? i : iMin), 0);
+    const f_lt = CmpTool.f_cmp2f_lt(f_cmp);
+
+    return array.reduce(
+      (iMin:number, x, i, l) => iMin == null ? i : (f_lt(x, l[iMin]) ? i : iMin),
+      undefined,
+    );
   }
 
   static min<X>(array: X[], pair2cmp?: Comparator<X>): X {
