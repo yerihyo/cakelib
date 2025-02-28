@@ -170,9 +170,10 @@ export default class CacheTool {
       const secs_pivot = (new Date()).getTime() - ttl;
 
       const timedobj_cache = timedcache.get(args);
+      const hasbeen_cached = timedobj_cache !== undefined;
       // console.log({callname, x_cache, args})
       if(ArrayTool.all([
-        timedobj_cache !== undefined,
+        hasbeen_cached,
         MathTool.gt(timedobj_cache?.time, secs_pivot),
       ])) return timedobj_cache.obj;
 
@@ -180,7 +181,10 @@ export default class CacheTool {
       const obj_promise = fn(...args)
         .then(FunctionTool.func2f_tee(x => timedcache.set({obj:x, time:(new Date()).getTime()}, args)));
 
-      return fallback_mode == 'NONBLOCKING'
+      return ArrayTool.all([
+        hasbeen_cached,
+        fallback_mode == 'NONBLOCKING',
+      ])
         ? timedobj_cache?.obj
         : (await obj_promise);
     }
