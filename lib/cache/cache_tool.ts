@@ -1,3 +1,4 @@
+import FunctionTool from "../function/function_tool";
 import ArrayTool from "../collection/array/array_tool";
 import DictTool from "../collection/dict/dict_tool";
 import DateTool from "../date/date_tool";
@@ -150,6 +151,42 @@ export default class CacheTool {
       const x_calced = fn(...args);
       cache.set(x_calced, args);
       return x_calced
+    }
+  }
+
+  static afunc2timedcached = <X, A extends any[]>(
+    fn: ((...args: A) => Promise<X>),
+    timedcache: Cachelike<Timedobj<X>,A>,
+    ttl:number,
+    fallback_mode: 'BLOCKING'|'NONBLOCKING',
+    // option?:{
+    //   fallback_mode?: 'BLOCKING'|'NONBLOCKING',
+    // }
+  ): ((...args: A) => Promise<X>) => {
+    const cls = CacheTool;
+    const callname = `CacheTool.func2tcached @ ${DateTool.time2iso(new Date())}`;
+    
+    return async (...args) => {
+      const secs_pivot = (new Date()).getTime() - ttl;
+
+      const timedobj_cache = timedcache.get(args);
+      const hasbeen_cached = timedobj_cache !== undefined;
+      // console.log({callname, x_cache, args})
+      if(ArrayTool.all([
+        hasbeen_cached,
+        MathTool.gt(timedobj_cache?.time, secs_pivot),
+      ])) return timedobj_cache.obj;
+
+      // const fallback_mode = option?.fallback_mode ?? 'NONBLOCKING';
+      const obj_promise = fn(...args)
+        .then(FunctionTool.func2f_tee(x => timedcache.set({obj:x, time:(new Date()).getTime()}, args)));
+
+      return ArrayTool.all([
+        hasbeen_cached,
+        fallback_mode == 'NONBLOCKING',
+      ])
+        ? timedobj_cache?.obj
+        : (await obj_promise);
     }
   }
 
