@@ -544,53 +544,62 @@ export default class HookTool{
     return [hook_out, ref.current,];
   }
 
-  static hook2teed = <X, O>(
-    hook_in: Reacthook<X>,
-    tee: (x?: X) => O,
-    option?: {
-      pair2is_teeupdate_req?: (x1: X, x2: X, o_prev?: O) => boolean,
-    }
-  ): {
-    hook: Reacthook<X>,
-    // teed_hook: Reacthook<O>,
-    teed:O,
-    force_tee:() => O,
-  } => {
-    const cls = HookTool;
-    const callname = `HookTool.hook2teed @ ${DateTool.time2iso(new Date())}`;
+  // static hook2teed = <X, O>(
+  //   hook_in: Reacthook<X>,
+  //   tee: (x?: X) => O,
+  //   option?: {
+  //     pair2is_teeupdate_req?: (x1: X, x2: X, o_prev?: O) => boolean,
+  //   }
+  // ): {
+  //   hook: Reacthook<X>,
+  //   // teed_hook: Reacthook<O>,
+  //   teed:O,
+  //   force_tee:() => O,
+  // } => {
+  //   const cls = HookTool;
+  //   const callname = `HookTool.hook2teed @ ${DateTool.time2iso(new Date())}`;
 
-    const [teed, set_teed] = React.useState<O>();
-    const pair2is_teeupdate_req_default = FunctionTool.func2negated3(EqualTool.isStrictlyEqual); // (x1: X, x2: X,) => x1 !== x2;
+  //   const [teed, set_teed] = React.useState<O>();
+  //   const pair2is_teeupdate_req_default = FunctionTool.func2negated3(EqualTool.isStrictlyEqual); // (x1: X, x2: X,) => x1 !== x2;
 
-    const hook_out = HookTool.hook2codeced<X, X>(hook_in,
-      {
-        decode: x => x,
-        encode: (c_post, p_prev) => {
-          const pair2is_teeupdate_req = option?.pair2is_teeupdate_req ?? pair2is_teeupdate_req_default;
-          const is_teeupdate_req = pair2is_teeupdate_req(c_post, p_prev, teed);
-          // console.log({callname, is_teeupdate_req, c_post, p_prev, 'ref.current':ref.current,});
+  //   const hook_out = HookTool.hook2codeced<X, X>(hook_in,
+  //     {
+  //       decode: x => x,
+  //       encode: (c_post, p_prev) => {
+  //         const pair2is_teeupdate_req = option?.pair2is_teeupdate_req ?? pair2is_teeupdate_req_default;
+  //         const is_teeupdate_req = pair2is_teeupdate_req(c_post, p_prev, teed);
+  //         // console.log({callname, is_teeupdate_req, c_post, p_prev, 'ref.current':ref.current,});
 
-          if (is_teeupdate_req) {
-            set_teed(tee(c_post));
-          }
-          return c_post;
-        },
-      }
-    );
+  //         if (is_teeupdate_req) {
+  //           set_teed(tee(c_post));
+  //         }
+  //         return c_post;
+  //       },
+  //     }
+  //   );
 
-    return {
-      hook: hook_out,
-      teed,
-      force_tee:() => {
-        const o = tee(hook_out[0]);
-        set_teed(o);
-        return o
-      },
-    };
-  }
+  //   return {
+  //     hook: hook_out,
+  //     teed,
+  //     force_tee:() => {
+  //       const o = tee(hook_out[0]);
+  //       set_teed(o);
+  //       return o
+  //     },
+  //   };
+  // }
 
-  static f_out2hookcodec = <X,O=X>(
-    f_out: (x?:X) => O,
+  // static hookencoder_tee = <X>(
+  //   tee: (x?: X) => any,
+  // ): Hookencoder<X,X> => {
+  //   return (c) => {
+  //     tee(c)
+  //     return c;
+  //   }
+  // }
+
+  static f_out2hookcodec = <X>(
+    f_out: (x?:X) => any,
   ):Hookcodec<X,X> => {
     const callname = `HookTool.f_out2hookcodec @ ${DateTool.time2iso(new Date())}`;
 
@@ -1882,13 +1891,13 @@ export default class HookTool{
 
   // https://stackoverflow.com/a/71941802
 
-  static storage2itemhandlers(storage:Storage){
-    return {
-      get_item: storage.getItem,
-      set_item: storage.setItem,
-      remove_item: storage.removeItem,
-    };
-  }
+  // static storage2itemhandlers(storage:Storage){
+  //   return {
+  //     get_item: storage.getItem,
+  //     set_item: storage.setItem,
+  //     remove_item: storage.removeItem,
+  //   };
+  // }
 
   static synced2value = <V>(
     hook: Reacthook<V>,
@@ -2017,7 +2026,7 @@ export default class HookTool{
     storage_key:string,
   ):Hookcodec<X,X> => {
     const f_listen = (x:X) => StorageTool.updateItem(webstorage, storage_key, JsonTool.hdoc2jstr(x))
-    return HookTool.f_out2hookcodec<X,void>(f_listen);
+    return HookTool.f_out2hookcodec<X>(f_listen);
   }
 
   static versionhook2synced = <T>(

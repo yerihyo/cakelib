@@ -39,19 +39,24 @@ export class Swrinfo<TT>{
 export default class SwrTool {
 
   static x2fallback_data = <X>(x:X):{fallbackData?:X} => (x!=null ? { fallbackData: x } : undefined);
+  static conf_staystale = ():Pick<SWRConfiguration, 'revalidateIfStale'|'revalidateOnFocus'|'revalidateOnReconnect'> => ({
+    // keepPreviousData: true,  // very controversial.... key change rare anyway...
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    revalidateIfStale: false,
+  })
   static fallback2conf_staystale = <X>(
     fallbackData:X
   ):Pick<SWRConfiguration, 'fallbackData'|'revalidateIfStale'|'revalidateOnFocus'|'revalidateOnReconnect'> => {
   // ):Pick<SWRConfiguration, 'fallbackData'|'revalidateIfStale'|'revalidateOnFocus'|'revalidateOnReconnect'|'keepPreviousData'> => {
+    const cls = SwrTool;
     return {
       ...fallbackData == null
         ? {}
         : {
           // keepPreviousData: true,  // very controversial.... key change rare anyway...
-          revalidateOnFocus: false,
-          revalidateOnReconnect: false,
           fallbackData,
-          revalidateIfStale: false,
+          ...cls.conf_staystale(),
         },
     };
   }
