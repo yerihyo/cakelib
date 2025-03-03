@@ -233,8 +233,10 @@ export default class DictTool{
         k: K,
         v_default?: V,
     ): V {
+        // const callname = `DictTool.get @ ${time2iso(new Date())}`;
         if (!h) { return v_default!; }
 
+        // console.log({callname, h:stringify(h),})
         return (k in h)?h[k]:(v_default!)
     }
 
