@@ -82,12 +82,12 @@ export default class MongodbTool {
 
   static vs2qexpr_in = lodash.partial(MongodbTool.queries2booled, '$in');
   static query_in2norm = <X>(query:{$in:X[]}):(X|{$in:X[]}) => {
-    const values = query?.$in;
+    const values = ArrayTool.sorted(query?.$in);
     return query == null
       ? undefined
       : values?.length == 1 
         ? ArrayTool.l2one(values)
-        : query;
+        : {$in: values};
   }
   // static vs2qexpr_in = <T>(values:T[]):(T|{$in:T[]}) => {
   //   return values == null
