@@ -82,12 +82,27 @@ export default class MongodbTool {
 
   static vs2qexpr_in = lodash.partial(MongodbTool.queries2booled, '$in');
   static query_in2norm = <X>(query:{$in:X[]}):(X|{$in:X[]}) => {
-    const values = ArrayTool.sorted(query?.$in);
-    return query == null
+    const callname = `MongodbTool.query_in2norm @ ${DateTool.time2iso(new Date())}`;
+
+    const values_in = query?.$in;
+    // if(!ArrayTool.is_array(values_in)) throw new Error(`values_in: ${values_in}`);
+    // if((values_in as unknown) == 'nIizUPQSY7ShRHcXPJlZZ'){
+    //   console.log({callname, 'values_in?.length':values_in?.length, values_in, query})
+    //   throw new Error(`values_in: ${values_in}, query:${query}`);
+    // }
+
+    const values_norm = ArrayTool.sorted(values_in);
+    // if(!ArrayTool.is_array(values_norm)) throw new Error(`values_norm: ${values_norm}`);
+    // if((values_norm as unknown) == 'nIizUPQSY7ShRHcXPJlZZ') throw new Error(`values_norm: ${values_norm}`)
+
+    const query_out = query == null
       ? undefined
-      : values?.length == 1 
-        ? ArrayTool.l2one(values)
-        : {$in: values};
+      : values_norm?.length == 1 
+        ? ArrayTool.l2one(values_norm)
+        : {$in: values_norm};
+
+    console.log({callname, query_out})
+    return query_out;
   }
   // static vs2qexpr_in = <T>(values:T[]):(T|{$in:T[]}) => {
   //   return values == null
@@ -97,7 +112,7 @@ export default class MongodbTool {
   //       : {$in: values};
   // }
   
-  static qexpr2qvalues = <T>(qexpr: (T | { '$in': T[] })): T[] => {
+  static qexpr_in2values = <T>(qexpr: (T | { '$in': T[] })): T[] => {
     if (qexpr == null) { return undefined; }
     return DictTool.is_dict(qexpr)
       ? (qexpr as { '$in': T[] })?.['$in']
