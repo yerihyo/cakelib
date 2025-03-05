@@ -1,6 +1,6 @@
 import { IncomingMessage } from 'http';
 import lodash from 'lodash';
-import { NextApiRequest } from 'next';
+import { GetStaticPathsResult, NextApiRequest } from 'next';
 import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import { NextApiRequestCookies } from 'next/dist/server/api-utils';
 import { NextURL } from 'next/dist/server/web/next-url';
@@ -27,6 +27,10 @@ export class NextjsPhase{
  * Next.js knows it's a different component
  */
 export default class NextjsTool{
+  static staticpaths_emptyfallback = <
+    Params extends ParsedUrlQuery = ParsedUrlQuery
+  >():GetStaticPathsResult<Params> => ({paths: [], fallback:true,});
+
   static Linka = (props:{
     children:React.ReactNode,
     href:string,
