@@ -1,7 +1,6 @@
 import { IncomingMessage } from 'http';
 import lodash from 'lodash';
 import { GetStaticPathsResult, NextApiRequest } from 'next';
-import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import { NextApiRequestCookies } from 'next/dist/server/api-utils';
 import { NextURL } from 'next/dist/server/web/next-url';
 import Link from 'next/link';
@@ -12,14 +11,6 @@ import StringTool from '../../string/string_tool';
 import { UrlsearchparamsTool } from '../../url/url_tool';
 
 export type SsrReq = IncomingMessage & { cookies: NextApiRequestCookies};
-
-/**
- * Reference: https://github.com/vercel/next.js/discussions/22036
- */
-export class NextjsPhase{
-  static phase = () => { return process.env.NEXT_PHASE; }
-  static phase2is_prodbuild = (phase:string) => { return phase === PHASE_PRODUCTION_BUILD; }
-}
 
 /**
  * if page doesn't reload when using Link,
