@@ -13,8 +13,8 @@ export type Lastparam<F extends (...args: any) => any> = Last<Parameters<F>>;
 // type Rest<T extends any[]> = ((...p: T) => void) extends ((p1: infer P1, ...rest: infer R) => void) ? R : never;
 
 // https://stackoverflow.com/a/55344772
-type Omitfirst<T extends any[]> = T extends [infer FIRST, ...infer A] ? A : never;
-type Omitlast<T extends any[]> = T extends [...infer A, infer LAST] ? A : never;
+export type Omitfirst<T extends any[]> = T extends [infer FIRST, ...infer A] ? A : never;
+export type Omitlast<T extends any[]> = T extends [...infer A, infer LAST] ? A : never;
 
 export type ParamsWithoutfirst<F extends (...args: any) => any> = Omitfirst<Parameters<F>>;
 export type ParamsWithoutlast<F extends (...args: any) => any> = Omitlast<Parameters<F>>;
