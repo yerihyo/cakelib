@@ -101,7 +101,7 @@ export default class MongodbTool {
         ? ArrayTool.l2one(values_norm)
         : {$in: values_norm};
 
-    console.log({callname, query_out})
+    // console.log({callname, query_out})
     return query_out;
   }
   // static vs2qexpr_in = <T>(values:T[]):(T|{$in:T[]}) => {
