@@ -1,4 +1,5 @@
-import { PHASE_PRODUCTION_BUILD } from "next/constants.js";
+import { PHASE_PRODUCTION_BUILD } from "next/dist/shared/lib/constants";
+
 
 /**
  * Reference: https://github.com/vercel/next.js/discussions/22036
