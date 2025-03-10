@@ -174,7 +174,7 @@ export default class CacheTool {
       // console.log({callname, x_cache, args})
       if(ArrayTool.all([
         hasbeen_cached,
-        MathTool.gt(timedobj_cache?.time, secs_pivot),
+        MathTool.gt(timedobj_cache?.time, secs_pivot*1000),
       ])) return timedobj_cache.obj;
 
       // const fallback_mode = option?.fallback_mode ?? 'NONBLOCKING';
@@ -247,33 +247,33 @@ export default class CacheTool {
   //   return cls.func2cached(func, cache);
   // }
 
-  static timedcache2cache = <O, A extends any[]>(
-    timedcache:Cachelike<Timedobj<O>,A>,
-    ttl:number,
-  ):Cachelike<O,A> => {
-    const cls = CacheTool;
-    const callname = `CacheoTool.timedcache2cache @ ${DateTool.time2iso(new Date())}`;
+  // static timedcache2cache = <O, A extends any[]>(
+  //   timedcache:Cachelike<Timedobj<O>,A>,
+  //   ttl:number,
+  // ):Cachelike<O,A> => {
+  //   const cls = CacheTool;
+  //   const callname = `CacheoTool.timedcache2cache @ ${DateTool.time2iso(new Date())}`;
 
-    return {
-      get: (args:A) => {
-        const tx = timedcache.get(args);
-        // console.log({callname, tx, args});
+  //   return {
+  //     get: (args:A) => {
+  //       const tx = timedcache.get(args);
+  //       // console.log({callname, tx, args});
 
-        if(tx === undefined) return undefined;
+  //       if(tx === undefined) return undefined;
 
-        const pivot = (new Date()).getTime() - ttl;
-        return MathTool.gt(tx.time, pivot)
-            ? tx.obj
-            : undefined;
-      },
-      set: (o:O, args:A) => { timedcache.set({obj:o, time:(new Date()).getTime()}, args); },
-      ...!timedcache.remove
-        ? {}
-        : {
-          remove: (args:A) => { timedcache.remove(args); }
-        }
-    };
-  }
+  //       const pivot = (new Date()).getTime() - ttl*1000;
+  //       return MathTool.gt(tx.time, pivot)
+  //           ? tx.obj
+  //           : undefined;
+  //     },
+  //     set: (o:O, args:A) => { timedcache.set({obj:o, time:(new Date()).getTime()}, args); },
+  //     ...!timedcache.remove
+  //       ? {}
+  //       : {
+  //         remove: (args:A) => { timedcache.remove(args); }
+  //       }
+  //   };
+  // }
   
 
   // static ttlmemo1<X, K = any>(
