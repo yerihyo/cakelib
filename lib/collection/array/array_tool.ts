@@ -1,10 +1,9 @@
-import CmpTool, { Aggregator, Bicomparator, Comparator, EqualTool, Indexcomparator, Realigner } from '../../cmp/CmpTool';
-import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
 import lodash from 'lodash';
-import FunctionTool, { FuncAO, FuncIO, FuncXX } from '../../function/function_tool';
+import CmpTool, { Bicomparator, Comparator, EqualTool, Realigner } from '../../cmp/CmpTool';
+import FunctionTool from '../../function/function_tool';
+import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
 import MathTool from '../../number/math/math_tool';
 import DictTool from '../dict/dict_tool';
-import ChunkTool from './chunk_tool';
 
 // const assert = require('assert');
 const assert = (v:any, msg?:string) => { if(!v){ throw new Error(msg ? `${msg} (${v})` : `${v}`)}}

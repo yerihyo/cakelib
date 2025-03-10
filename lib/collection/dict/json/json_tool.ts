@@ -1,18 +1,19 @@
 import CmpTool from '../../../cmp/CmpTool';
 import DateTool from '../../../date/date_tool';
 import FunctionTool from '../../../function/function_tool';
-import { ParamsWithoutfirst } from '../../../native/native_tool';
+import NativeTool, { ParamsWithoutfirst } from '../../../native/native_tool';
 import NumberTool from '../../../number/number_tool';
 import ReactTool from '../../../react/react_tool';
 import StringTool from '../../../string/string_tool';
 import TraversileTool from '../../../traversile/traversile_tool';
 import ArrayTool from '../../array/array_tool';
 import DictTool from '../dict_tool';
-// import stringify from 'json-stable-stringify';
+import stringify from 'json-stable-stringify';
+import lodash from 'lodash'
 
-const assert = require('assert');
-const lodash = require('lodash');
-const stringify = require('json-stable-stringify');
+// const assert = require('assert');
+// const lodash = require('lodash');
+// const stringify = require('json-stable-stringify');
 
 export type Jstep = (string|number)
 export type Jpath = Jstep[]
@@ -22,8 +23,8 @@ export class JpathTool{
 
     static jpath2prefix_stemmed(jpath:Jpath, prefix:Jpath){
         if(!jpath){ return undefined; }
-        assert(!!prefix);
-        prefix.forEach((x,i) => assert(x == jpath[i]))
+        NativeTool.assert(!!prefix);
+        prefix.forEach((x,i) => NativeTool.assert(x == jpath[i]))
         return jpath.slice(prefix.length);
     }
 
@@ -100,10 +101,14 @@ export class XpathTool {
     }
 }
 
-export type Codec<P,C> = [
+export type Codecpair<P,C> = [
     (p:P) => C,
     (c:C) => P,
 ]
+export type Codecobj<P,C> = {
+    encode:(p:P) => C
+    decode:(c:C) => P
+}
 
 export default class JsonTool {
     
@@ -128,7 +133,8 @@ export default class JsonTool {
     
     static encode = <X>(x:X):string => JsonTool.json2sortedstring(x);
     static decode = JsonTool.parse;
-    static codec = <X>():Codec<X,string> => [JsonTool.encode, JsonTool.decode];
+    static codecpair = <X>():Codecpair<X,string> => [JsonTool.encode, JsonTool.decode];
+    static codecobj = <X>():Codecobj<X,string> => ({encode:JsonTool.encode, decode:JsonTool.decode});
 
     /**
      * // https://stackoverflow.com/a/60333849
@@ -139,7 +145,11 @@ export default class JsonTool {
         return cls.parse(cls.stringify(x));
     }
     static down_one = (obj:any, jstep: Jstep) => {
-        return NumberTool.is_number(jstep) ? ArrayTool.lookup(obj, jstep as number) : DictTool.get(obj, jstep as string);
+        return obj == null
+            ? undefined
+            : NumberTool.is_number(jstep)
+                ? ArrayTool.lookup(obj, jstep as number)
+                : DictTool.get(obj, jstep as string);
     }
 
     static down = <P,C>(
@@ -234,7 +244,7 @@ export default class JsonTool {
     }
     
     static json2jitems(dict_in) {
-        assert(DictTool.is_dict(dict_in));
+        NativeTool.assert(DictTool.is_dict(dict_in));
 
         function dict_jpath2jitems(dict_node, jpath_node,) {
             const jitems_list = Object.entries(dict_node).map(([k, v]) => {

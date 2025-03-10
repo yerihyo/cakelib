@@ -1,7 +1,6 @@
 import { IncomingMessage } from 'http';
 import lodash from 'lodash';
-import { NextApiRequest } from 'next';
-import { PHASE_PRODUCTION_BUILD } from 'next/constants';
+import { GetStaticPathsResult, NextApiRequest } from 'next';
 import { NextApiRequestCookies } from 'next/dist/server/api-utils';
 import { NextURL } from 'next/dist/server/web/next-url';
 import Link from 'next/link';
@@ -14,19 +13,15 @@ import { UrlsearchparamsTool } from '../../url/url_tool';
 export type SsrReq = IncomingMessage & { cookies: NextApiRequestCookies};
 
 /**
- * Reference: https://github.com/vercel/next.js/discussions/22036
- */
-export class NextjsPhase{
-  static phase = () => { return process.env.NEXT_PHASE; }
-  static phase2is_prodbuild = (phase:string) => { return phase === PHASE_PRODUCTION_BUILD; }
-}
-
-/**
  * if page doesn't reload when using Link,
  * put key={} into div so that
  * Next.js knows it's a different component
  */
 export default class NextjsTool{
+  static staticpaths_emptyfallback = <
+    Params extends ParsedUrlQuery = ParsedUrlQuery
+  >():GetStaticPathsResult<Params> => ({paths: [], fallback:true,});
+
   static Linka = (props:{
     children:React.ReactNode,
     href:string,
@@ -100,22 +95,12 @@ export default class NextjsTool{
     setTimeout(onLeave, ms_wait);
   }
 
-  static get(query: ParsedUrlQuery, k: string): any {
-    return NextjsTool.query_key2value(query,k);
-  }
-  static query_key2value(query: ParsedUrlQuery, k:string) : any{
-    // if (!query) { return undefined; }
-
-    return (k in query) ? query[k] : undefined;
-  }
-
   static query_key2string(query: ParsedUrlQuery, k:string) : string{
     // if (!query) { return undefined; }
 
     const s:string = (k in query) ? (query[k] as string) : undefined;
     return s;
   }
-  static query_key2str = NextjsTool.query_key2string;
 
   static queryvalue2strings(v: (string|string[])):string[]{
     if(!v){ return undefined ;}
@@ -138,7 +123,7 @@ export default class NextjsTool{
     UrlsearchparamsTool.str2decommad(query?.[k] as string);
 
   static query_key2int(query: ParsedUrlQuery, k:string) : number{
-    const s = NextjsTool.query_key2str(query, k);
+    const s = NextjsTool.query_key2string(query, k);
     return s ? parseInt(s) : undefined;
   }
 
@@ -226,7 +211,6 @@ export default class NextjsTool{
   //     return jwtDecode(String(jwt ?? '').replace('Bearer ', ''));
   // }
 }
-
 
 export class ParsedUrlQueryTool{
   static query2string = encode;

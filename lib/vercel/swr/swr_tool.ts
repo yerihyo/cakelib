@@ -39,18 +39,24 @@ export class Swrinfo<TT>{
 export default class SwrTool {
 
   static x2fallback_data = <X>(x:X):{fallbackData?:X} => (x!=null ? { fallbackData: x } : undefined);
+  static conf_staystale = ():Pick<SWRConfiguration, 'revalidateIfStale'|'revalidateOnFocus'|'revalidateOnReconnect'> => ({
+    // keepPreviousData: true,  // very controversial.... key change rare anyway...
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    revalidateIfStale: false,
+  })
   static fallback2conf_staystale = <X>(
     fallbackData:X
-  ):Pick<SWRConfiguration, 'fallbackData'|'revalidateIfStale'|'revalidateOnFocus'|'revalidateOnReconnect'|'keepPreviousData'> => {
+  ):Pick<SWRConfiguration, 'fallbackData'|'revalidateIfStale'|'revalidateOnFocus'|'revalidateOnReconnect'> => {
+  // ):Pick<SWRConfiguration, 'fallbackData'|'revalidateIfStale'|'revalidateOnFocus'|'revalidateOnReconnect'|'keepPreviousData'> => {
+    const cls = SwrTool;
     return {
       ...fallbackData == null
         ? {}
         : {
           // keepPreviousData: true,  // very controversial.... key change rare anyway...
-          revalidateOnFocus: false,
-          revalidateOnReconnect: false,
           fallbackData,
-          revalidateIfStale: false,
+          ...cls.conf_staystale(),
         },
     };
   }
@@ -65,6 +71,7 @@ export default class SwrTool {
   //   return is_null ? swr_new : swr;
   // }
 
+  static swrs2are_dataready = (swrs:SWRResponse<any>[]):boolean => swrs?.every(SwrTool.swr2is_data_ready);
   static swrdict2is_dataready = <T>(swrdict:T):boolean => {
     return Object.values(swrdict).every((swr:SWRResponse<any>) => SwrTool.swr2is_data_ready(swr));
   }
@@ -108,7 +115,7 @@ export default class SwrTool {
   }
 
   static codec_list2one = <T>() => ({ decode: (l:T[]) => ArrayTool.l2one(l), encode: (t:T) => ArrayTool.one2l(t) });
-  static list_swr2one_swr = <T>(list_swr:SWRResponse<T[]>):SWRResponse<T> => SwrTool.swr2codeced(list_swr, SwrTool.codec_list2one<T>()); 
+  static list_swr2one_swr = <T>(list_swr:SWRResponse<T[]>):SWRResponse<T> => SwrTool.swr2codeced<T[],T>(list_swr, SwrTool.codec_list2one<T>()); 
   static list_swr2singleton_swr = SwrTool.list_swr2one_swr;
 
   static swr2codeced<P,C>(
@@ -261,15 +268,15 @@ export default class SwrTool {
     };
   }
 
-  static f_data2f_swr_blocking = <T>(
-    f_data2blocking:(t:T) => boolean,
-  ) => {
-    return (swr:SWRResponse<T>) => {
-      if(swr.isLoading){ return true; }
-      if(f_data2blocking(swr.data)){ return true; }
-      return false;
-    }
-  }
+  // static f_data2f_swr_blocking = <T>(
+  //   f_data2blocking:(t:T) => boolean,
+  // ) => {
+  //   return (swr:SWRResponse<T>) => {
+  //     if(swr.isLoading){ return true; }
+  //     if(f_data2blocking(swr.data)){ return true; }
+  //     return false;
+  //   }
+  // }
 
 }
 
