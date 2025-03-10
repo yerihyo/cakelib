@@ -17,7 +17,7 @@ type Cachelike<X, A extends any[]> = {
 // }
 
 export type Timedobj<X> = {
-  time:number;
+  millisec:number;
   obj:X;
 }
 
@@ -167,19 +167,19 @@ export default class CacheTool {
     const callname = `CacheTool.func2tcached @ ${DateTool.time2iso(new Date())}`;
     
     return async (...args) => {
-      const secs_pivot = (new Date()).getTime() - ttl;
+      const millisec_pivot = (new Date()).getTime() - ttl*1000;
 
       const timedobj_cache = timedcache.get(args);
       const hasbeen_cached = timedobj_cache !== undefined;
       // console.log({callname, x_cache, args})
       if(ArrayTool.all([
         hasbeen_cached,
-        MathTool.gt(timedobj_cache?.time, secs_pivot),
+        MathTool.gt(timedobj_cache?.millisec, millisec_pivot),
       ])) return timedobj_cache.obj;
 
       // const fallback_mode = option?.fallback_mode ?? 'NONBLOCKING';
       const obj_promise = fn(...args)
-        .then(FunctionTool.func2f_tee(x => timedcache.set({obj:x, time:(new Date()).getTime()}, args)));
+        .then(FunctionTool.func2f_tee(x => timedcache.set({obj:x, millisec:(new Date()).getTime()}, args)));
 
       return ArrayTool.all([
         hasbeen_cached,
@@ -233,7 +233,7 @@ export default class CacheTool {
   //   const cache = {
   //     get: (args:A) => {
   //       const tx = timedcache.get(args);
-  //       return MathTool.lt(tx.time, (new Date()).getTime() - ttl)
+  //       return MathTool.lt(tx.time, (new Date()).getTime() - ttl*1000)
   //         ? undefined
   //         : tx.obj;
   //     },
@@ -247,33 +247,33 @@ export default class CacheTool {
   //   return cls.func2cached(func, cache);
   // }
 
-  static timedcache2cache = <O, A extends any[]>(
-    timedcache:Cachelike<Timedobj<O>,A>,
-    ttl:number,
-  ):Cachelike<O,A> => {
-    const cls = CacheTool;
-    const callname = `CacheoTool.timedcache2cache @ ${DateTool.time2iso(new Date())}`;
+  // static timedcache2cache = <O, A extends any[]>(
+  //   timedcache:Cachelike<Timedobj<O>,A>,
+  //   ttl:number,
+  // ):Cachelike<O,A> => {
+  //   const cls = CacheTool;
+  //   const callname = `CacheoTool.timedcache2cache @ ${DateTool.time2iso(new Date())}`;
 
-    return {
-      get: (args:A) => {
-        const tx = timedcache.get(args);
-        // console.log({callname, tx, args});
+  //   return {
+  //     get: (args:A) => {
+  //       const tx = timedcache.get(args);
+  //       // console.log({callname, tx, args});
 
-        if(tx === undefined) return undefined;
+  //       if(tx === undefined) return undefined;
 
-        const pivot = (new Date()).getTime() - ttl;
-        return MathTool.gt(tx.time, pivot)
-            ? tx.obj
-            : undefined;
-      },
-      set: (o:O, args:A) => { timedcache.set({obj:o, time:(new Date()).getTime()}, args); },
-      ...!timedcache.remove
-        ? {}
-        : {
-          remove: (args:A) => { timedcache.remove(args); }
-        }
-    };
-  }
+  //       const pivot = (new Date()).getTime() - ttl*1000;
+  //       return MathTool.gt(tx.millisec, pivot)
+  //           ? tx.obj
+  //           : undefined;
+  //     },
+  //     set: (o:O, args:A) => { timedcache.set({obj:o, millisec:(new Date()).getTime()}, args); },
+  //     ...!timedcache.remove
+  //       ? {}
+  //       : {
+  //         remove: (args:A) => { timedcache.remove(args); }
+  //       }
+  //   };
+  // }
   
 
   // static ttlmemo1<X, K = any>(
