@@ -9,6 +9,7 @@ import { decode, encode, ParsedUrlQuery } from 'querystring';
 import DateTool from '../../date/date_tool';
 import StringTool from '../../string/string_tool';
 import { UrlsearchparamsTool } from '../../url/url_tool';
+import DictTool from '../../collection/dict/dict_tool';
 
 export type SsrReq = IncomingMessage & { cookies: NextApiRequestCookies};
 
@@ -158,7 +159,7 @@ export default class NextjsTool{
 
     return is_href_real
       ? <Link href={href} {...rest}>{children}</Link>
-      : <div {...rest}>{children}</div>;
+      : <div {...DictTool.keys2excluded(rest, ['passHref'])}>{children}</div>;
   };
 
   // static headers2host(headers: any): string {
