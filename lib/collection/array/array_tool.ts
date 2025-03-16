@@ -152,6 +152,10 @@ export default class ArrayTool {
   static itemgetter = (i: number) => (l: any[]) => l[i];
   static all = <T>(array: T[], option?:{item2bool?:(t:T) => boolean},): boolean => array?.every(option?.item2bool ?? (x => !!x));
   static any = <T>(array: T[], option?:{item2bool?:(t:T) => boolean},): boolean => array?.some(option?.item2bool ?? (x => !!x));
+
+  static any_nullbypassed = FunctionTool.func2undef_ifany_nullarg(ArrayTool.any);
+  static all_nullbypassed = FunctionTool.func2undef_ifany_nullarg(ArrayTool.all);
+
   static map = <I, O>(array: I[], item2value: (i: I) => O) => (array ? array.map(item2value) : undefined);
   static indexOf = <T>(array: T[], v: T) => v == null ? undefined : array?.indexOf(v);
 
