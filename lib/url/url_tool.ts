@@ -90,7 +90,14 @@ export default class UrlTool{
     return url?.toString();
     // console.log(url)
   }
-  static origin_urlpath2url = (origin:string, urlpath:string):string => [origin,urlpath]?.filter(Boolean)?.join('');
+  static origin_urlpath2url = (origin:string, urlpath:string):string => {
+    return ArrayTool.any([
+      origin == null,
+      urlpath == null,
+    ])
+      ? undefined
+      : [origin,urlpath]?.filter(Boolean)?.join('');
+  }
   static dict2entries = DictTool.entries<string,string>;
   static h2l = DictTool.entries<string,string>;
 
