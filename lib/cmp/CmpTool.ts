@@ -11,6 +11,7 @@ export type Bicomparator<T> = ((t1: T, t2: T) => boolean);
 export type Aggregator<T> = ((l:T[]) => T);
 export type Realigner<T> = ((l:T[]) => T[]);
 export type Indexcomparator<X> = (xi1:[X,number], xi2:[X,number]) => number;
+export type Attenchecker<X> = (x:X, l:X[]) => boolean;
 // export type Aggregator<T> = ((...args:T[]) => T);
 
 class DateToolLocal {
@@ -361,6 +362,20 @@ export default class CmpTool {
   ): Bicomparator<X> {
     const f_eq = config?.f_eq ?? CmpTool.isTriequal;
     return (x1: X, x2: X) => f_eq(f_key(x1), f_key(x2));
+  }
+
+  static f_key2f_in<X, K=any>(
+    f_key: (x: X) => K,
+    config?: {
+      f_eq?: Bicomparator<K>,
+    }
+  ): Attenchecker<X> {
+    const f_eq = config?.f_eq ?? CmpTool.isTriequal;
+
+    return (x: X, l: X[]):boolean => {
+      const k = f_key(x);
+      return l?.some(xi => f_eq(k,f_key(xi)))
+    };
   }
 
   static f_key2f_ne<X, K=any>(
