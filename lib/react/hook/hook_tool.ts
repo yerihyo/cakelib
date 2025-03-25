@@ -1032,7 +1032,7 @@ export default class HookTool{
     return {
       decode: (ps: V[]): V[] => ps?.filter(predicate),
       encode: (cs_post: V[], ps_prev: V[]): V[] => {
-        if(!ArrayTool.bool(ps_prev)){ return cs_post; }
+        if(!ArrayTool.bool(ps_prev)){ return cs_post ?? []; }
         
         const bools = ps_prev?.map(predicate);
         const [cs_prev, cs_prev_excluded] = ArrayTool.bisect_by(ps_prev, (p_prev, i) => bools[i]);
@@ -1143,7 +1143,9 @@ export default class HookTool{
       decode,
       encode: (c_post: V, p_prev: V[]): V[] => {
         const c_prev = decode(p_prev);
-        return c_prev === c_post ? p_prev : [c_post];
+        return c_prev === c_post
+          ? p_prev
+          : [c_post];
       },
     }
   }
