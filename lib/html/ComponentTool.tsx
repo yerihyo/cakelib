@@ -1,13 +1,9 @@
-import React, { MutableRefObject } from 'react'
-import NativeTool from '../native/native_tool';
-import {
-  faXmark as fasXmark,
-} from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import DateTool from '../date/date_tool';
-import { Reacthook } from '../react/hook/hook_tool';
+import React, { MutableRefObject } from 'react';
 import DictTool from '../collection/dict/dict_tool';
+import DateTool from '../date/date_tool';
+import NativeTool from '../native/native_tool';
 import MathTool from '../number/math/math_tool';
+import { Reacthook } from '../react/hook/hook_tool';
 
 export default class ComponentTool {
   static useBound = (props: { containerRef: MutableRefObject<HTMLElement> }): { height: number, width: number } => {
@@ -230,6 +226,8 @@ export default class ComponentTool {
 export class WindowTool{
   static window2top = (w:Window):number => { return w.scrollY || document.documentElement.scrollTop; };
 
+  static scrollY_eqzero = () => MathTool.eq(window.scrollY,0);
+
   static element2top_tight = (element:HTMLElement):number => {
     if(!element){ return ; }
 
@@ -265,8 +263,6 @@ export class WindowTool{
   //   'closed', 'innerHeight', 'innerWidth', 'length',
   //   'screenLeft', 'screenTop', 'screenX', 'screenY', 'scrollX', 'scrollY',
   // ];
-  static window2values = DictTool.dict2valuetypeonly<Window>;
-
   static window_hook = (): Reacthook<Window> => {
     const cls = WindowTool;
     const callname = `WindowTool.window_hook @ ${DateTool.time2iso(new Date())}`;
@@ -276,9 +272,8 @@ export class WindowTool{
     const window_hook = React.useState<ReturnType<typeof WindowTool.window_hook>[0]>();
     const handle = () => {
       // console.log({callname, window, 'window?.scrollY':window?.scrollY})
-      window_hook[1](WindowTool.window2values(window));
+      window_hook[1](DictTool.dict2valuetypeonly<Window>(window));
     }
-    
 
     React.useEffect(() => {
       handle();
@@ -296,4 +291,33 @@ export class WindowTool{
     }, []); // Empty array ensures that effect is only run on mount
     return window_hook;
   }
+
+  static use_scrollyzero = ():boolean => {
+    const hook = React.useState<boolean>();
+    const handle = () => hook[1](MathTool.eq(window?.scrollY, 0));
+    
+    React.useEffect(() => {
+      handle();
+      // Handler to call on window resize
+      
+      // Add event listener
+      window.addEventListener("resize", handle);
+      window.addEventListener("scroll", handle);
+
+      // Remove event listener on cleanup
+      return () => {
+        window.removeEventListener("resize", handle);
+        window.removeEventListener("scroll", handle);
+      }
+    }, []); // Empty array ensures that effect is only run on mount
+    return hook[0];
+  }
+  // static addWindowscrollbarListener = <K extends keyof WindowEventMap>(
+  //   // listener: (this: Window, ev: WindowEventMap[K]) => any,
+  //   listener: EventListenerOrEventListenerObject,
+  //   options?: boolean | AddEventListenerOptions,
+  // ) => {
+  //   window.addEventListener("resize", listener, options);
+  //   window.addEventListener("scroll", listener, options);
+  // };
 }
