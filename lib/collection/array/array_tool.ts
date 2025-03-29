@@ -28,6 +28,13 @@ export default class ArrayTool {
   //   return (t: T) => ArrayTool.l2one(f_array(ArrayTool.one2l(t)));
   // };
 
+  static firstlast = <X>(l:X[]):X[] => {
+    if(l==null) return undefined;
+    if(l?.length == 0) return l;
+    if(l?.length == 1) return l;
+    return [l[0], l[l?.length-1]];
+  }
+
   static has_nullable = (l: any[]): boolean => l?.some((x) => x == null);
 
   static findIndex = <X>(l: X[], predicate: (x: X, i?: number, l?: X[]) => boolean): number => {
