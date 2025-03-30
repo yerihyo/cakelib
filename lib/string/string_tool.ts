@@ -10,6 +10,7 @@ import RegexTool from "../regex/regex_tool";
 export default class StringTool {
 
 
+  static is_english = (s:string):boolean => !!s?.match(/^[\w\-\s]*$/);
 
   static x2string(x: any) {
     const cls = StringTool;
