@@ -11,6 +11,7 @@ export default class StringTool {
 
 
   static is_english = (s:string):boolean => !!s?.match(/^[\w\-\s]*$/);
+  static is_latinbased = (s:string):boolean => !!s?.match(/^[âê\w\-\s]*$/);
 
   static x2string(x: any) {
     const cls = StringTool;
