@@ -5,7 +5,7 @@ import DateTool from "../date/date_tool";
 import MathTool from "../number/math/math_tool";
 import LruCache from "./lru_cache/lru_cache";
 
-type Cachelike<X, A extends any[]> = {
+export type Cachelike<X, A extends any[]> = {
   get: (args?:A) => X,
   set: (x:X, args?:A) => void,
   remove?: (args?:A) => void,

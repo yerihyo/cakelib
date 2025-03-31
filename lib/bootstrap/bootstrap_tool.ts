@@ -163,16 +163,16 @@ export class Pagelayout{
   }
 }
 
-export class Windowinfo{
-  pagelayout:string;
-  window:Window;
+// export class Windowinfo{
+//   pagelayout:string;
+//   window: ReturnType<typeof WindowTool.window_hook>[0];
 
-  static use_windowinfo = ():Windowinfo => {
-    const { pagelayout, } = Pagelayout.gridsize_pivot2layout_info(Gridsize.useGridsize(), Gridsize.MD.value);
-    const window_hook = WindowTool.window_hook();
-    return { pagelayout, window: window_hook[0] };
-  }
-}
+//   static use_windowinfo = ():Windowinfo => {
+//     const { pagelayout, } = Pagelayout.gridsize_pivot2layout_info(Gridsize.useGridsize(), Gridsize.MD.value);
+//     const window_hook = WindowTool.window_hook();
+//     return { pagelayout, window: window_hook[0] };
+//   }
+// }
 
 export default class BootstrapTool{
   // REFERNCE: https://stackoverflow.com/a/55649820
