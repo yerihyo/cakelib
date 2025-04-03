@@ -6,12 +6,21 @@ import NativeTool from "../native/native_tool";
 import SpanTool from "../span/span_tool";
 import FunctionTool from "../function/function_tool";
 import RegexTool from "../regex/regex_tool";
+import MathTool from "../number/math/math_tool";
 
 export default class StringTool {
 
 
   static is_english = (s:string):boolean => !!s?.match(/^[\w\-\s]*$/);
-  static is_latinbased = (s:string):boolean => !!s?.match(/^[âê\w\-\s]*$/);
+  static str2alpha_proportion = (s: string): number => {
+    if (s == null) return undefined;
+
+    const latinRegex = /[\u0000-\u024F\u1E00-\u1EFF]/g;
+    const matches = s?.match(latinRegex);
+
+    return MathTool.div(matches?.length, s?.length);
+  };
+  // static is_latinbased = (s:string):boolean => !!s?.match(/^[âê\w\-\s]*$/);
 
   static x2string(x: any) {
     const cls = StringTool;
