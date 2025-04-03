@@ -10,12 +10,7 @@ export default class MathTool {
   // static floor: ((v:number) => number) = NativeTool.func2undef_shortwired(Math.floor);
   // static trunc: ((v:number) => number) = NativeTool.func2undef_shortwired(Math.trunc);
 
-  static binary2nullableskippped = (f:Numericbinary):Numericbinary => {
-    return (v1:number, v2:number) => {
-      if(v1 == null || v2 == null){ return undefined; }
-      return f(v1,v2);
-    }
-  }
+  static binary2nullableskippped = (f:Numericbinary):Numericbinary => FunctionTool.func2undef_ifany_nullarg(f);
   static abs(v:number):number{ return v == null ? undefined : Math.abs(v); }
   static sum(array: number[]): number { // to deal with nullable
     if (array?.some(x => x == null)) { return undefined; }
