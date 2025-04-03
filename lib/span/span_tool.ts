@@ -208,9 +208,13 @@ export default class SpanTool {
   }
   
   static unionSpans = <T>(spans_original: Pair<T>[], option?: { comparator?: Comparator<T> }): Pair<T>[] => {
-    console.log(JSON.stringify(spans_original))
-    let spans = JSON.parse(JSON.stringify(spans_original)) as Pair<T>[];
-    console.log({spans, spans_original})
+    let spans = spans_original.map(span => {
+      return [
+        span[0] === undefined ? undefined : span[0], 
+        span[1] === undefined ? undefined : span[1]
+      ] as Pair<T>;
+    });
+
     if (!spans || spans.length === 0) return [];
 
     // Check if there's any span that covers the entire range

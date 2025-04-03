@@ -1,17 +1,25 @@
-import lodash from "lodash";
 import CmpTool from "../cmp/CmpTool";
 import ArrayTool from "../collection/array/array_tool";
 import DateTool from "../date/date_tool";
-import NativeTool from "../native/native_tool";
-import SpanTool from "../span/span_tool";
 import FunctionTool from "../function/function_tool";
+import NativeTool from "../native/native_tool";
 import RegexTool from "../regex/regex_tool";
+import SpanTool from "../span/span_tool";
 
 export default class StringTool {
 
 
   static is_english = (s:string):boolean => !!s?.match(/^[\w\-\s]*$/);
-  static is_latinbased = (s:string):boolean => !!s?.match(/^[âê\w\-\s]*$/);
+  static str2alpha_proportion = (s: string): number => {
+    if (s == null) return undefined;
+
+    const latinRegex = /[\u0000-\u024F\u1E00-\u1EFF]/g;
+    const matches = s?.match(latinRegex);
+
+    const div = FunctionTool.func2undef_ifany_nullarg((x1, x2) => x1 / x2);
+    return div(matches?.length, s?.length);
+  };
+  // static is_latinbased = (s:string):boolean => !!s?.match(/^[âê\w\-\s]*$/);
 
   static x2string(x: any) {
     const cls = StringTool;
