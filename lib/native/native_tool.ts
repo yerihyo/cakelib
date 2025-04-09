@@ -25,6 +25,9 @@ const time2iso = (d:Date) => d?.toISOString()?.split("T")?.[1];
 export default class NativeTool {
   // static minus = (t1:number, t2:number):number => t1-t2;
 
+  static log_pretty = (x:any) => console.dir(x, {depth:null});
+  static prettylog = NativeTool.log_pretty;
+
   static tertiary = <T,>(b:boolean, y:T, n:T):T => b == null ? undefined : b ? y : n;
    
   static assert = (x:any, option?:{message?:string}) => {
