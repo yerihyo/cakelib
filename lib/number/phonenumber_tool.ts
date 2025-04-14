@@ -81,6 +81,9 @@ export default class PhonenumberTool{
 }
 
 export class PhonenumberkrTool{
+  static countrycode2is_nonkr = (countrycode:string):boolean => {
+    return countrycode && !ArrayTool.in(countrycode, ['+82']);
+  }
   static is_zdom = (dom:string):boolean => dom?.startsWith('0');
   static dom2zdom = (dom:string):string => dom == null
     ? undefined
