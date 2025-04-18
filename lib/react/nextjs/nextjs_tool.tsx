@@ -187,12 +187,13 @@ export default class NextjsTool{
   //   if(req instanceof IncomingMessage) return req?.rawHeaders?.[key];
   //   return undefined;
   // }
+  static headers2host = (headers:Headers):string => headers?.get('host'); // dev.backend.napoleonbakery.co.kr:57426
   static req2host = (req:Request|IncomingMessage):string => {
     const cls = NextjsTool;
     const callname = `NextjsTool.req2host @ ${DateTool.time2iso(new Date())}`;
         
     // NextRequest
-    if(req instanceof Request) return req?.headers?.get('host'); // 'host works too
+    if(req instanceof Request) return cls.headers2host(req?.headers); // 'host works too
     
     // NextApiRequest
     if(req instanceof IncomingMessage) return req?.headers?.['host'];
