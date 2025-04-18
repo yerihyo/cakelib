@@ -456,27 +456,25 @@ export default class ArrayTool {
     // return arrays.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
   }
 
-  static cartesian<T = any>(arrays: T[][]): T[][] {
-    return arrays.reduce(
-      (ll_prev, array) => {
-        return ll_prev.map(l_prev => {
-          return array.map(x => [...l_prev, x]); // l_posts
-        }) // l_posts_list
-        .reduce((ll_post, l_posts) => [...ll_post, ...l_posts], []);  // flatten
-      },
-      [[]] as T[][]
-    );
+  // static cartesian<T = any>(ll_in: T[][]): T[][] {
+  //   return ll_in.reduce(
+  //     (ll_prev, array) => {
+  //       return ll_prev.map(l_prev => {
+  //         return array.map(x => [...l_prev, x]); // l_posts
+  //       }) // l_posts_list
+  //       .reduce((ll_post, l_posts) => [...ll_post, ...l_posts], []);  // flatten
+  //     },
+  //     [[]] as T[][]
+  //   );
+  // }
 
-    // return arrays.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
-  }
-
+  static cartesian = <T=any>(ll_in:T[][]):T[][] => ll_in?.reduce(
+    (ll_prev:T[][], l:T[]) => ll_prev.flatMap(l_prev => l.map(x => [...l_prev, x])), // l_posts_list
+    [[]] as T[][],
+  );
+  
   static cartesian2 = <X,Y>(xs:X[], ys:Y[]): [X,Y][] => {
-    if(xs == null){ return undefined; }
-    if(ys == null){ return undefined; }
-
-    return xs.flatMap(x => {
-      return ys.map(y => [x,y] as [X,Y]);
-    });
+    return (xs == null || ys == null) ? undefined : xs?.flatMap(x => ys?.map(y => [x,y] as [X,Y]));
   }
 
   static cartesian3 = <X,Y,Z>(xs:X[], ys:Y[], zs:Z[]): [X,Y,Z][] => {
