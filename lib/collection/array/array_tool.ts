@@ -740,7 +740,7 @@ export default class ArrayTool {
   // }
 
   static interpolate = <T>(delim: T, array: T[]): T[] => {
-    return array.reduce((accu: T[], elem: T) => {
+    return array?.reduce((accu: T[], elem: T) => {
       return accu === undefined ? [elem] : [...accu, delim, elem];
     }, undefined) as T[];
   };
