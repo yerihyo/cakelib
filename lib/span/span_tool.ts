@@ -288,24 +288,28 @@ export default class SpanTool {
     return [start, end]
   }
 
-  static intersectSpanspair = <T>(
-    span1: Pair<T>[],
-    span2: Pair<T>[],
+  static spanspair2intersected = <T>(
+    spans1: Pair<T>[],
+    spans2: Pair<T>[],
     option?: { comparator?: Comparator<T> }
   ): Pair<T>[] => {
     const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
+
+    if(spans1 == null) return undefined;
+    if(spans2 == null) return undefined;
+
     const f_lt = CmpTool.f_cmp2f_lt(comparator);
   
     const events: Array<[T | null | undefined, 'start' | 'end', number]> = [];
   
-    span1.forEach((pair, index) => {
+    spans1.forEach((pair, index) => {
       events.push([pair[0], 'start', index]);
       events.push([pair[1], 'end', index]);
     });
     
-    span2.forEach((pair, index) => {
-      events.push([pair[0], 'start', index + span1.length]);
-      events.push([pair[1], 'end', index + span1.length]);
+    spans2.forEach((pair, index) => {
+      events.push([pair[0], 'start', index + spans1.length]);
+      events.push([pair[1], 'end', index + spans1.length]);
     });
   
     events.sort((a, b) => {
@@ -355,7 +359,7 @@ export default class SpanTool {
   ): Pair<T>[] => {
     const cls = SpanTool;
     return spans_list?.reduce(
-      (r, spans) => spans == null ? undefined : cls.intersectSpanspair(r, spans, option),
+      (r, spans) => spans == null ? undefined : cls.spanspair2intersected(r, spans, option),
       [SpanTool.nullnull()],
     );
   }
