@@ -287,6 +287,13 @@ export default class HookTool{
     }
   }
 
+  static codec_int2bool = (option?:{default:number}):Hookcodec<number,boolean> => {
+    return {
+      decode: x => !!x,
+      encode: x => x ? (option?.default ?? 1) : 0,
+    }
+  }
+
   /**
    * Very dangerous. Don't use.
    */
@@ -495,9 +502,6 @@ export default class HookTool{
   static hook2codeced<I,O>(
     hook: Reacthook<I>,
     codec: Hookcodec<I,O>,
-    // options?:{
-    //   is_equal?:(io1:[I,O], io2:[I,O]) => boolean,
-    // }
   ):Reacthook<O> {
     const cls = HookTool;
 
@@ -511,6 +515,12 @@ export default class HookTool{
     const setO = cls.setter2codeced(setI, codec);
 
     return [o, setO];
+  }
+
+  static hook2codecspiped = <I,O>(hook:Reacthook<I>, codecs:Hookcodec<any,any>[]):Reacthook<O> => {
+    const cls = HookTool;
+    const codec:Hookcodec<I,O> = cls.codecs2piped(codecs);
+    return cls.hook2codeced(hook, codec);
   }
 
   static hook2teed_DEPRECATED = <X, O>(
