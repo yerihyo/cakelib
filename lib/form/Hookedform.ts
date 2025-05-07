@@ -26,36 +26,6 @@ export class Xinfo{
   static xinfo2up(xinfo:Xinfo, xpath:string):Xinfo{
     return {...xinfo, xpath: XpathTool.concat(xpath, xinfo.xpath)};
   }
-
-  static codec_down(xpath:string,):Hookcodec<Xinfo[],Xinfo[]>{
-    const cls = Xinfo;
-    // const xinfo2prefix_stemmed = (p:Xinfo) => ({...p, xpath:XpathTool.xpath2prefix_stemmed(p.xpath, xpath)} as Xinfo);
-    const decode = (ps:Xinfo[]) => ps.map(p => cls.xinfo2down(p, xpath));
-
-    const codec_prefixstem:Hookcodec<Xinfo[],Xinfo[]> = {
-      decode,
-      encode:(cs_post, ps_prev) => {
-        const is_identical = (() => {
-          if(cs_post == null && ps_prev == null){ return true; }
-          if(cs_post == null || ps_prev == null){ return false; }
-
-          if(cs_post?.length !== ps_prev?.length){ return false; }
-          
-          const cs_prev = decode(ps_prev);
-          if(cs_prev === cs_post){ return true; }
-
-          return cs_post?.every((c_post, i) => c_post === cs_prev[i]);
-        })();
-
-        return is_identical ? ps_prev : cs_post.map(c => Xinfo.xinfo2up(c, xpath));
-      },
-    };
-
-    return HookTool.codecs2piped([
-      HookTool.listcodec_filter_n_extend<Xinfo>(xinfo => XpathTool.is_prefix(xpath, xinfo.xpath)),
-      codec_prefixstem,
-    ]);
-  }
 }
 
 
