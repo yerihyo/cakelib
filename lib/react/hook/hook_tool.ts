@@ -293,7 +293,7 @@ export default class HookTool{
     return {
       decode: x => !!x,
       encode: x => {
-        console.log({callname, x})
+        // console.log({callname, x})
         return x ? (option?.default ?? 1) : 0;
       }
     }
