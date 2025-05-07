@@ -288,9 +288,14 @@ export default class HookTool{
   }
 
   static codec_int2bool = (option?:{default:number}):Hookcodec<number,boolean> => {
+    const callname = `HookTool.codec_int2bool @ ${DateTool.time2iso(new Date())}`;
+
     return {
       decode: x => !!x,
-      encode: x => x ? (option?.default ?? 1) : 0,
+      encode: x => {
+        console.log({callname, x})
+        return x ? (option?.default ?? 1) : 0;
+      }
     }
   }
 
@@ -1029,11 +1034,6 @@ export default class HookTool{
   //     },
   //   }
   // }
-
-  // static listcodec_filter_n_extend = <V>(
-  //   predicate: (v: V, i?:number, l?:V[]) => boolean,
-  // ) =>  HookTool.listcodec_upsert(predicate);
-
   static listcodec_filter_n_extend<V>(
     predicate: (v: V, i?:number, l?:V[]) => boolean,
   ):Hookcodec<V[],V[]> {
@@ -1066,66 +1066,20 @@ export default class HookTool{
     }
   }
 
-  static listcodec_upsert<V>(
-    predicate: (v: V, i?:number, l?:V[]) => boolean,
-    f_key: (v:V) => Dictkey,
-  ):Hookcodec<V[],V[]> {
-    const cls = HookTool;
-    const callname = `HookTool.listcodec_upsert @ ${DateTool.time2iso(new Date())}`;
-
-    return HookTool.codecs2piped([
-      cls.encoder2codec((cs_post:V[], ps_prev:V[]) => {
-        const bools = ps_prev?.map(predicate);
-        const n = ps_prev.length;
-        const dict_key2index = ArrayTool.array2dict(ArrayTool.range(n), i => f_key(ps_prev[i]));
-        
-        type H = {v:V, i:number};
-        const vi2h = (v:V, i:number):H => ({v,i});
-        const hs:H[] = ArrayTool.sorted(
-          [
-            ...(ps_prev?.map(vi2h)?.filter((h:H) => !bools[h.i]) ?? []),
-            ...(cs_post?.map(c => vi2h(c, dict_key2index[f_key(c)])) ?? []),
-          ],
-          CmpTool.f_key2f_cmp(h => h.i, AbsoluteOrder.f_cmp2f_cmp_nullable2max(CmpTool.pair2cmp_default)),
-        )
-
-        const indexes_covered = hs.map(h => h.i)?.filter(i => i !=null);
-
-        // console.log({
-        //   callname,
-        //   hs,
-        //   f_key,
-        //   cs_post,
-        //   ps_prev,
-        // });
-        if(ArrayTool.has_duplicate(indexes_covered)){ throw new Error(`indexes_covered: ${indexes_covered}`)}
-
-        return hs.map(h => h.v);
-      },),
-      cls.listcodec_filter_n_extend(predicate),
-    ]);
-  }
-
-  static listcodec_filter_n_sorted<V>(
-    predicate: (v: V, i?:number, l?:V[]) => boolean,
-    comparator: Comparator<V>,
-  ):Hookcodec<V[],V[]> {
-    const cls = HookTool;
-    const callname = `HookTool.listcodec_filter_n_extend @ ${DateTool.time2iso(new Date())}`;
-
-    return HookTool.codecs2piped([
-      cls.encoder2codec((c_post:V[]) => ArrayTool.sorted(c_post, comparator),),
-      cls.listcodec_filter_n_extend(predicate),
-    ]);
-  }
-
-
-
-  static codec_list2filter_one = <V=any>(predicate:(v:V) => boolean):Hookcodec<V[],V> => {
+  static filter2codec_vs2v = <V>(predicate:(v:V) => boolean):Hookcodec<V[],V> => {
     const cls = HookTool;
     return cls.codecs2piped([
       HookTool.listcodec_filter_n_extend<V>(predicate),
-      HookTool.codec_singleton(),
+      HookTool.codec_singleton<V>(),
+    ]);
+  }
+
+
+  static kv2codec_vs2v = <X,V=any>(k:string, v:V):Hookcodec<X[],X> => {
+    const cls = HookTool;
+    return cls.codecs2piped([
+      cls.filter2codec_vs2v<X>(x => x?.[k] === v),
+      cls.encoder2codec<X>(c => c == null ? undefined : c?.[k] === v ? c : {...c, [k]:v}),
     ]);
   }
 
@@ -1145,20 +1099,32 @@ export default class HookTool{
     }
   }
 
-  static codec_singleton<V>():Hookcodec<V[],V> {
-    const callname = `HookTool.codec_singleton @ ${DateTool.time2iso(new Date())}`;
+  static f_one2l2encoder = <V>(f_one2l:(v:V) => V[]) => {
+    return (c_post: V, p_prev: V[]): V[] => {
+      return ArrayTool.l2one(p_prev) === c_post
+        ? p_prev
+        : f_one2l(c_post);
+    }
+  }
+
+  static f_one2l2codec = <V>(f_one2l:(v:V) => V[]) => {
+    const cls = HookTool;
+    const callname = `HookTool.f_one2l2codec @ ${DateTool.time2iso(new Date())}`;
 
     const decode = ArrayTool.l2one;
     return {
       decode,
-      encode: (c_post: V, p_prev: V[]): V[] => {
-        const c_prev = decode(p_prev);
-        return c_prev === c_post
-          ? p_prev
-          : [c_post];
-      },
+      encode: cls.f_one2l2encoder(f_one2l),
     }
   }
+
+  static codec_vs2vs_nonullish = <X>():Hookcodec<X[],X[]> => HookTool.encoder2codec<X[]>(l => l?.filter(x => x !=null));
+  static codec_l2one_nonullish = <X>():Hookcodec<X[],X> => HookTool.codecs2piped([
+    HookTool.codec_vs2vs_nonullish<X[]>(),
+    HookTool.f_one2l2codec<X>(ArrayTool.one2l),
+  ]);
+
+  static codec_singleton = <V>():Hookcodec<V[],V> => HookTool.f_one2l2codec(x => [x])
 
   static codec_filtered<V>(predicate: (v: V) => boolean,) {
     throw new Error("Not implemented error!!");
