@@ -197,7 +197,12 @@ export default class JsonTool {
         // console.log({callname, jdoc_in, hdoc_out});
         return hdoc_out;
     }
-    static jstr2hdoc = <T>(s: string): T => s != null ? (JsonTool.jdoc2hdoc(JsonTool.parse(s)) as T) : undefined;
+
+    static jstr2hdoc = lodash.flow(
+        JsonTool.parse,
+        JsonTool.jdoc2hdoc,
+    )
+    // static jstr2hdoc = <T>(s: string): T => s != null ? (JsonTool.jdoc2hdoc(JsonTool.parse(s)) as T) : undefined;
 
     static hdoc2jdoc = <H=any, J=any>(hdoc_in: H): J => {
         const callname = `JsonTool.hdoc2jdoc @ ${DateTool.time2iso(new Date())}`;
