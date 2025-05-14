@@ -232,10 +232,12 @@ export default class DateTool {
   }
 
   static millisecs2added = function (d: Date, millisecs: number): Date {
+    const callname = `DateTool.millisecs2added @ ${DateTool.time2iso(new Date())}`;
+
     if (d == null) { return undefined; }
     if (millisecs == null) { return undefined; }
     // if (millisecs == Infinity){ return Infinity; }
-    // console.log({d});
+    // console.log({callname, d});
     // https://stackoverflow.com/a/12795802
     return new Date(d?.getTime() + millisecs);
   }

@@ -60,6 +60,13 @@ export default class MathTool {
   // static floor = (v: number,): number => (v == null ? v : Math.floor(v));
 
   // https://stackoverflow.com/a/19621472
+  static f_round2unitted = (
+    f_round:(x:number) => number,
+    unit:number,
+  ) => {
+    return (v:number) => MathTool.times(f_round(MathTool.div(v, unit)), unit);
+  }
+
   static round2unit(
     v:number,
     unit:number,

@@ -44,7 +44,7 @@ export default class StorageTool {
       : storage.setItem(k, s);
   }
   static str2storage = StorageTool.updateItem
-  static hdoc2storage = (s: Storage, k: string, hdoc: Object) => StorageTool.updateItem(s, k, JsonTool.hdoc2jstr(hdoc));
+  static hdoc2storage = <X>(s: Storage, k: string, hdoc: X) => StorageTool.updateItem(s, k, JsonTool.hdoc2jstr(hdoc));
 
   // static storage_key2writer = (storage:Storage, key:string):((x:Object) => void) => {
   //   return (x:Object) => StorageTool.updateItem(storage, key, JsonTool.hdoc2jstr(x))
