@@ -265,6 +265,9 @@ export default class DateTool {
     return self.x2is_date(x) ? x : self.str2date(x);
   }
 
+  static epoch2date = (epoch: number): Date => new Date(epoch * 1000);
+  static date2epoch = (d:Date): number => Math.floor(MathTool.div(d.getTime(), 1000));
+
   static str2date(s: string): Date {
     return s ? (new Date(s)) : undefined;
   }
