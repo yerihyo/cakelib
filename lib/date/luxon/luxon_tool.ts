@@ -68,6 +68,8 @@ export default class LuxonTool{
   //   return MathTool.mod(dow, 7);
   // }
 
+  static dt2epoch = (dt:DateTime):number => MathTool.div(dt?.toMillis(),  1000);
+
   static dow2dowJs(dow:number):number{
     return MathTool.mod(dow, 7);
   }
@@ -206,4 +208,35 @@ export default class LuxonTool{
     return LuxonTool.dt2day8(DateTime.utc(y, m, d)?.plus({days}))
   }
   static day82unitimpulse = (day8:number):Pair<number> => [day8, LuxonTool.day82days_added(day8, 1),];
+
+  static dtpair2diffms:Comparator<DateTime> = (dt1:DateTime, dt2:DateTime):number => {
+    if(dt1 == null){ return undefined; }
+    if(dt2 == null){ return undefined; }
+    
+    return dt1.diff(dt2)?.milliseconds;
+  }
+  
+  // (p1:Pair<DateTime>, p2:Pair<DateTime>):number => {
+  //   if(p1 == null){ return undefined; }
+  //   if(p2 == null){ return undefined; }
+
+  //   static record_day82diffms <T>(historyRecord: HistoryRecord<T>, day8_pivot:number):number {
+  //     const day8_availspan = HistoryRecord.historyRecord2day8_availspan(historyRecord);
+  //     if(SpanTool.span2istriequal_nullnull(day8_availspan)){ return 0; }
+  
+  //     const dt_availspan = day8_availspan?.map(CakeaholicDate.day82dt_midnight) as Pair<DateTime>;
+  //     const dt_pivot = CakeaholicDate.day82dt_midnight(day8_pivot);
+  
+  //     return SpanTool.f_cmp_pivot2f_cmp_span(MathTool.sub)(
+  //       dt_availspan?.map(dt => dt?.toMillis()) as Pair<number>,
+  //       SpanTool.pivot2unitimpulse(dt_pivot?.toMillis()),
+  //     );
+  
+  //     // const [dt_start, dt_end] = dt_availspan;
+  //     // if(dt_start != null && LuxonTool.lt(dt_pivot, dt_start, )){ return LuxonTool.diffms(dt_start, dt_pivot); }
+  //     // if(dt_end != null && LuxonTool.lte(dt_end, dt_pivot,)){ return Math.min(LuxonTool.diffms(dt_end, dt_pivot),-1); }
+  //     // return 0;
+  //   }
+  //   return LuxonTool.diffms(p1[1], p2[0]);
+  // }
 }
