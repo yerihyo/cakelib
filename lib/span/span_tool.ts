@@ -397,21 +397,22 @@ export default class SpanTool {
     spans2: Pair<T>[],
     option?: { comparator?: Comparator<T> }
   ): Pair<T>[] => {
-    if(spans1 == null || spans2 == null){ return undefined; }
+    if(spans1 == null){ return undefined; }
+    if(spans2 == null){ return undefined; }
 
     if(!ArrayTool.bool(spans1)){ return []; }
     if(!ArrayTool.bool(spans2)){ return spans1; }
     // if (!spans1 || spans1.length === 0) return [];
     // if (!spans2 || spans2.length === 0) return spans1;
 
-    return spans1.map(span1 => {
+    return spans1.flatMap(span1 => {
       return spans2.reduce<Pair<T>[]>((spans_,span2) => {
         return spans_
           .map(span_ => SpanTool.subtract(span_, span2, option))
           .filter(SpanTool.bool)
           .flat()
       },[span1]);
-    }).flat();
+    });
   };
 
   static subtractSpans_deprecated = <T>(
