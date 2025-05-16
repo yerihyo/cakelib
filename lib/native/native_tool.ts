@@ -31,6 +31,8 @@ export default class NativeTool {
     if(!x){ throw new Error(option?.message ? option?.message : '')}
   }
 
+  static valid_or_undef = <X>(x:X, f_bool:(x:X) => boolean):X => f_bool(x) ? x : undefined;
+
   static var2name = (variable: any): string => {
     return Object.keys(variable)[0]
   }

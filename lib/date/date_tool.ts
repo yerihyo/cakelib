@@ -24,6 +24,9 @@ export default class DateTool {
 
   static secoffset_noon():number{ return 12*60*60; }
 
+  static epoch2date = (epoch: number): Date => new Date(epoch * 1000);
+  static date2epoch = (d:Date): number => Math.floor(MathTool.div(d.getTime(), 1000));
+
   static day8time42daytime12(day8:number, time4:number):number{
     return MathTool.plus(MathTool.times(day8, 10000), time4);
   }
@@ -247,8 +250,21 @@ export default class DateTool {
   static mins2added = (d: Date, mins: number): Date  =>  DateTool.secs2added(d, MathTool.times(mins,60));
   static hours2added = (d: Date, hours: number): Date  =>  DateTool.mins2added(d, MathTool.times(hours,60));
   static days2added = (d: Date, days: number): Date  =>  DateTool.hours2added(d, MathTool.times(days,24));
-  static day82days_added = (day8: number, days: number): number => DateTool.date2day8(DateTool.days2added(DateTool.day82date(day8), days));
+  static day82days_added = (day8: number, days: number): number => DateTool.date2day8(DateTool.days2added(DateTool.day82date_midnight(day8), days));
   static day8days2added = DateTool.day82days_added;
+
+  static day82epoch = lodash.flow(DateTool.day82date_midnight, DateTool.date2epoch);
+  static day82epochms = lodash.flow(DateTool.day82date_midnight, d => d?.getTime());
+
+  static day8span2days = (day8span:Pair<number>):number => {
+    const cls = DateTool;
+
+    if(day8span[0] == null) return Infinity;
+    if(day8span[1] == null) return Infinity;
+
+    const secs = MathTool.sub(cls.day82epoch(day8span[1]), cls.day82epoch(day8span[0]));
+    return MathTool.div(secs, 86400);
+  }
 
   static date2iso = function (d: Date): string {
     return d?.toISOString()
@@ -265,14 +281,11 @@ export default class DateTool {
     return self.x2is_date(x) ? x : self.str2date(x);
   }
 
-  static epoch2date = (epoch: number): Date => new Date(epoch * 1000);
-  static date2epoch = (d:Date): number => Math.floor(MathTool.div(d.getTime(), 1000));
-
   static str2date(s: string): Date {
     return s ? (new Date(s)) : undefined;
   }
 
-  static day82date(v: number): Date {
+  static day82date_midnight(v: number): Date {
     if (v == null) { return undefined; }
 
     const y = Math.floor(v / 10000);

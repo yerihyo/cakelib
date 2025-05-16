@@ -397,21 +397,22 @@ export default class SpanTool {
     spans2: Pair<T>[],
     option?: { comparator?: Comparator<T> }
   ): Pair<T>[] => {
-    if(spans1 == null || spans2 == null){ return undefined; }
+    if(spans1 == null){ return undefined; }
+    if(spans2 == null){ return undefined; }
 
     if(!ArrayTool.bool(spans1)){ return []; }
     if(!ArrayTool.bool(spans2)){ return spans1; }
     // if (!spans1 || spans1.length === 0) return [];
     // if (!spans2 || spans2.length === 0) return spans1;
 
-    return spans1.map(span1 => {
+    return spans1.flatMap(span1 => {
       return spans2.reduce<Pair<T>[]>((spans_,span2) => {
         return spans_
           .map(span_ => SpanTool.subtract(span_, span2, option))
           .filter(SpanTool.bool)
           .flat()
       },[span1]);
-    }).flat();
+    });
   };
 
   static subtractSpans_deprecated = <T>(
@@ -551,26 +552,53 @@ export default class SpanTool {
     }
   }
 
-  static f_cmpitem2f_cmpspan_overlap = <T>(f_cmppivot: Comparator<T>): Comparator<Pair<T>> => {
+  static f_cmp2f_cmp_es = <X>(f_cmp: Comparator<X>): Comparator<X> => {
+    return (e1:X, s2:X):number => {
+      if(e1 == null) return Number.POSITIVE_INFINITY;
+      if(s2 == null) return Number.POSITIVE_INFINITY;
+      return f_cmp(e1, s2);
+    }
+  }
+
+  static f_cmp2f_cmp_se = <X>(f_cmp: Comparator<X>): Comparator<X> => {
+    return (s1:X, e2:X):number => {
+      if(s1 == null) return Number.NEGATIVE_INFINITY;
+      if(e2 == null) return Number.NEGATIVE_INFINITY
+      return f_cmp(s1, e2);
+    }
+  }
+
+  static f_cmp_pivot2f_cmp_span = <T>(
+    f_cmp_pivot: Comparator<T>,
+    // option?:{
+    //   nullvalue_propagated?: boolean,
+    // },
+  ): Comparator<Pair<T>> => {
+    const cls = SpanTool;
+
     return (p1:Pair<T>, p2:Pair<T>) => {
       if(p1 == null || p2 == null){ return undefined; }
       
-      const cmp_minus = f_cmppivot(p1[1], p2[0]);
+      const cmp_minus = cls.f_cmp2f_cmp_es(f_cmp_pivot)(p1[1], p2[0]);
       if(MathTool.lte(cmp_minus, 0)){ return Math.min(cmp_minus, -Number.EPSILON); }
 
-      const cmp_plus = f_cmppivot(p1[0], p2[1]);
+      const cmp_plus = cls.f_cmp2f_cmp_se(f_cmp_pivot)(p1[0], p2[1]);
       if(MathTool.gte(cmp_plus, 0)){ return Math.max(cmp_plus, Number.EPSILON); }
+
       return 0;
     }
   }
-  static pair2cmp_overlap_default = SpanTool.f_cmpitem2f_cmpspan_overlap(CmpTool.pair2cmp_default);
+  static pair2cmp_default = SpanTool.f_cmp_pivot2f_cmp_span(CmpTool.pair2cmp_default);
+  static pair2cmp_number = SpanTool.f_cmp_pivot2f_cmp_span(MathTool.sub);
 
-  static pivot2unitimpulse = <T>(pivot:T, option?:{f_next?:(t:T) => T}):Pair<T> => {
-    const f_next = option?.f_next ?? ((t) => (+t + Number.EPSILON) as T);
-    return [pivot,f_next(pivot)];
+  static pivot2unitimpulse = (pivot:number,):Pair<number> => {
+    return [pivot,pivot + Number.EPSILON];
   }
-  static pivot_span2cmp = <T>(pivot: T,span: Pair<T>,):number => 
-    SpanTool.pair2cmp_overlap_default(SpanTool.pivot2unitimpulse(pivot), span);
+
+  // static pivot2unitimpulse = <T>(pivot:T, option?:{f_next?:(t:T) => T}):Pair<T> => {
+  //   const f_next = option?.f_next ?? ((t) => (+t + Number.EPSILON) as T);
+  //   return [pivot,f_next(pivot)];
+  // }
   
   static pivot_span2cmp_deprecated = (
     pivot: number,
