@@ -22,6 +22,8 @@ export default class MathTool {
   static minus = MathTool.binary2nullableskippped((x1, x2) => x1 - x2);
   static sub = MathTool.minus;
 
+  static pow = FunctionTool.func2undef_ifany_nullarg(Math.pow);
+
   static product(array: number[]): number { // to deal with nullable
     if (array?.some(x => x == 0)) { return 0; }
     if (array?.some(x => x == null)) { return undefined; }
