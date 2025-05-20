@@ -364,6 +364,18 @@ export default class SpanTool {
     );
   }
 
+  static spans_list2unioned = <T>(
+    spans_list: Pair<T>[][],
+    option?: { comparator?: Comparator<T> },
+  ): Pair<T>[] => {
+    const cls = SpanTool;
+    const comparator = option?.comparator;
+    return SpanTool.unionSpans(
+      ArrayTool.flatten(spans_list),
+      {...comparator ? {comparator} : {},},
+    );
+  }
+
   static subtract = <T>(span1: Pair<T>, span2: Pair<T>, option?:{comparator?:Comparator<T>,}): Pair<T>[] => {
     const cls = SpanTool;
     const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
