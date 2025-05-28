@@ -7,6 +7,8 @@ import SignTool from '../number/sign_tool'
 import MathTool from '../number/math/math_tool'
 import FunctionTool from '../function/function_tool';
 
+const time2iso = (d: Date): string => d?.toISOString()?.split("T")?.[1];
+
 export default class SpanTool {
   static zerospan = <T>() => ([] as unknown as Pair<T>);
   static bool = ArrayTool.bool;
@@ -288,70 +290,108 @@ export default class SpanTool {
     return [start, end]
   }
 
-  static spanspair2intersected = <T>(
+  // static spanspair2intersected = <T>(
+  //   spans1: Pair<T>[],
+  //   spans2: Pair<T>[],
+  //   option?: { comparator?: Comparator<T> }
+  // ): Pair<T>[] => {
+  //   const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
+
+  //   if(spans1 == null) return undefined;
+  //   if(spans2 == null) return undefined;
+
+  //   const f_lt = CmpTool.f_cmp2f_lt(comparator);
+  
+  //   const events: Array<[T | null | undefined, 'start' | 'end', number]> = [];
+  
+  //   spans1.forEach((pair, index) => {
+  //     events.push([pair[0], 'start', index]);
+  //     events.push([pair[1], 'end', index]);
+  //   });
+    
+  //   spans2.forEach((pair, index) => {
+  //     events.push([pair[0], 'start', index + spans1.length]);
+  //     events.push([pair[1], 'end', index + spans1.length]);
+  //   });
+  
+  //   events.sort((a, b) => {
+  //     if (a[0] === null || a[0] === undefined) return -1;
+  //     if (b[0] === null || b[0] === undefined) return 1;
+  //     const comp = comparator(a[0], b[0]);
+  //     if (comp !== 0) return comp;
+  //     if (a[1] === 'start' && b[1] === 'end') return -1;
+  //     if (a[1] === 'end' && b[1] === 'start') return 1;
+  //     return 0;
+  //   });
+  
+  //   const activeSpans = new Set<number>();
+  //   const intersections: Pair<T>[] = [];
+  //   let intersectionStart: T | null | undefined = null;
+  
+  //   for (const [value, type, index] of events) {
+  //     if (type === 'start') {
+  //       if (activeSpans.size === 1) {
+  //         intersectionStart = value;
+  //       }
+  //       activeSpans.add(index);
+  //     } else {
+  //       if (activeSpans.size === 2) {
+  //         if(f_lt(intersectionStart, value)){
+  //         intersections.push([intersectionStart, value]);
+  //         }
+  //       }
+  //       activeSpans.delete(index);
+  //       if (activeSpans.size === 1 && value !== null && value !== undefined) {
+  //         intersectionStart = value;
+  //       }
+  //     }
+  //   }
+  
+  //   // Handle case where intersection extends to infinity
+  //   if (activeSpans.size === 2) {
+  //     intersections.push([intersectionStart, null]);
+  //   }
+  
+  //   return intersections;
+  // }
+
+  // chatGPT
+  static spans_pair2intersected = <T>(
     spans1: Pair<T>[],
     spans2: Pair<T>[],
-    option?: { comparator?: Comparator<T> }
+    option?:{comparator?: Comparator<T>,},
   ): Pair<T>[] => {
-    const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
+    const cls = SpanTool;
 
-    if(spans1 == null) return undefined;
-    if(spans2 == null) return undefined;
-
-    const f_lt = CmpTool.f_cmp2f_lt(comparator);
-  
-    const events: Array<[T | null | undefined, 'start' | 'end', number]> = [];
-  
-    spans1.forEach((pair, index) => {
-      events.push([pair[0], 'start', index]);
-      events.push([pair[1], 'end', index]);
-    });
+    if(spans1==null) return undefined;
+    if(spans2==null) return undefined;
     
-    spans2.forEach((pair, index) => {
-      events.push([pair[0], 'start', index + spans1.length]);
-      events.push([pair[1], 'end', index + spans1.length]);
-    });
-  
-    events.sort((a, b) => {
-      if (a[0] === null || a[0] === undefined) return -1;
-      if (b[0] === null || b[0] === undefined) return 1;
-      const comp = comparator(a[0], b[0]);
-      if (comp !== 0) return comp;
-      if (a[1] === 'start' && b[1] === 'end') return -1;
-      if (a[1] === 'end' && b[1] === 'start') return 1;
-      return 0;
-    });
-  
-    const activeSpans = new Set<number>();
-    const intersections: Pair<T>[] = [];
-    let intersectionStart: T | null | undefined = null;
-  
-    for (const [value, type, index] of events) {
-      if (type === 'start') {
-        if (activeSpans.size === 1) {
-          intersectionStart = value;
-        }
-        activeSpans.add(index);
-      } else {
-        if (activeSpans.size === 2) {
-          if(f_lt(intersectionStart, value)){
-          intersections.push([intersectionStart, value]);
-          }
-        }
-        activeSpans.delete(index);
-        if (activeSpans.size === 1 && value !== null && value !== undefined) {
-          intersectionStart = value;
-        }
+    const comparator = option?.comparator ?? CmpTool.pair2cmp_default;
+    const comparator_end = AbsoluteOrder.f_cmp2f_cmp_nullable2max(comparator);
+
+    const result: Pair<T>[] = [];
+    let i = 0;
+    let j = 0;
+
+    while (i < spans1.length && j < spans2.length) {
+      const span1 = spans1[i];
+      const span2 = spans2[j];
+
+      const span_out = SpanTool.intersect([span1, span2], {comparator});
+      if (SpanTool.bool(span_out)) {
+          result.push(span_out);
       }
+
+      // Move the pointer whose end is smaller
+      const e1 = span1[1];
+      const e2 = span2[1];
+      const e_cmp = comparator_end(e1, e2)
+      if (e_cmp <= 0) {i++;}
+      if (e_cmp >= 0) {j++;}
     }
-  
-    // Handle case where intersection extends to infinity
-    if (activeSpans.size === 2) {
-      intersections.push([intersectionStart, null]);
-    }
-  
-    return intersections;
-  }
+
+    return result;
+}
 
   static spans_list2intersected = <T>(
     spans_list: Pair<T>[][],
@@ -359,7 +399,7 @@ export default class SpanTool {
   ): Pair<T>[] => {
     const cls = SpanTool;
     return spans_list?.reduce(
-      (r, spans) => spans == null ? undefined : cls.spanspair2intersected(r, spans, option),
+      (r, spans) => spans == null ? undefined : cls.spans_pair2intersected(r, spans, option),
       [SpanTool.nullnull()],
     );
   }

@@ -63,11 +63,11 @@ export default class FunctionTool{
   static fny2f1y = <X, A extends any[], R>(fny:(l:X[], ...args:A) => R):((x:X, ...args:A) => R) =>
     (x:X, ...args:A):R => fny == null ? undefined : fny?.(x == null ? (x as X[]) : [x], ...args);
   
-  static f1b2f_every = <X, A extends any[]>(f_decider:(x:X, ...args:A) => boolean,) =>
-    (l:X[], ...args:A) => l?.every(x => f_decider(x, ...args));
+  static f1b2fnb_every = <X, A extends any[]>(f1b:(x:X, ...args:A) => boolean,) => (l:X[], ...args:A) => l?.every(x => f1b(x, ...args));
+  static f1b2fnb_some = <X, A extends any[]>(f1b:(x:X, ...args:A) => boolean,) => (l:X[], ...args:A) => l?.some(x => f1b(x, ...args));
 
-  static f1b2f_some = <X, A extends any[]>(f_decider:(x:X, ...args:A) => boolean,) =>
-    (l:X[], ...args:A) => l?.some(x => f_decider(x, ...args));
+  static fabs2fab_every = <A extends any[]>(fabs:FuncAB<A>[]):FuncAB<A> => (...args:A):boolean => fabs?.every(fab => fab(...args));
+  static fabs2fab_some = <A extends any[]>(fabs:FuncAB<A>[]):FuncAB<A> => (...args:A):boolean => fabs?.some(fab => fab(...args));
   
   // static f11_decider2fn1_every =  <X, A extends any[], R>(
   //   f11:(x:X, ...args:A) => R,
@@ -204,9 +204,9 @@ export default class FunctionTool{
    */
   static applyFn = <O,A extends any[]>(fn:FuncAO<O,A>, ...args:A):O => fn(...args);
 
-  static fs2f_every = <A extends any[]>(fs: FuncAB<A>[]):FuncAB<A> => {
-    return (...args:A) => fs?.every(f => f(...args));
-  };
+  // static fs2f_every = <A extends any[]>(fs: FuncAB<A>[]):FuncAB<A> => {
+  //   return (...args:A) => fs?.every(f => f(...args));
+  // };
   
   // static func2wrapped(wrapper, f){
   //     return wrapper(f);
