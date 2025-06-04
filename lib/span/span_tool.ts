@@ -210,6 +210,8 @@ export default class SpanTool {
   }
   
   static unionSpans = <T>(spans_original: Pair<T>[], option?: { comparator?: Comparator<T> }): Pair<T>[] => {
+    if(spans_original == null){ return undefined; }
+    
     let spans = spans_original.map(span => {
       return [
         span[0] === undefined ? undefined : span[0], 
