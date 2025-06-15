@@ -456,11 +456,14 @@ export default class HookTool{
     setI:Reacthooksetter<I>, // (i_action: React.SetStateAction<I>) => void,
     codec: Hookcodec<I,O>,
   ):Reacthooksetter<O>{
+    const callname = `HookTool.setter2codeced @ ${DateTool.time2iso(new Date())}`;
+
     const {encode, decode} = codec;
     const setO = (o_action:React.SetStateAction<O>):void => {
       setI((i_prev:I) => {
         const o_prev:O = decode(i_prev);
         const o_post:O = ReactTool.prev2actioned(o_action, o_prev);
+        // console.log({callname, 'o_prev === o_post':o_prev === o_post, o_prev, o_post, i_prev,});
         if(o_prev === o_post){ return i_prev; }
 
         const i_post:I = encode(o_post, i_prev);
@@ -776,6 +779,8 @@ export default class HookTool{
   }
 
   static jpath2codec_down = <P,C>(jpath:Jpath):Hookcodec<P,C> => {
+    const callname = `HookTool.jpath2codec_down @ ${DateTool.time2iso(new Date())}`;
+
     const edge2reduced = JsonTool.edge2reduced_create;
     const decode = (p_prev:P):C => JsonTool.down(p_prev, jpath);
 
@@ -783,6 +788,7 @@ export default class HookTool{
       decode,
       encode: (c_post:C, p_prev:P):P => {
         const c_prev = decode(p_prev);
+        // console.log({callname, c_prev, c_post, p_prev,})
         if(c_prev === c_post){ return p_prev; }
         
         const p_post = JsonTool.reduceUp((p_prev ?? {}) as P, jpath, c_post, edge2reduced);
