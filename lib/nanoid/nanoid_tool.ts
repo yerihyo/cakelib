@@ -1,7 +1,5 @@
-import {customRandom, nanoid, urlAlphabet,} from 'nanoid';
+import { customAlphabet, customRandom, urlAlphabet } from 'nanoid';
 import { Cipherspace } from '../cipher/cipher_tool';
-import ArrayTool from '../collection/array/array_tool';
-import DateTool from '../date/date_tool';
 
 export default class NanoidTool{
   
@@ -15,6 +13,7 @@ export default class NanoidTool{
   static alnum_human = () => 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
   static alpha_human = () => 'ABCDEFGHJKLMNPQRSTUVWXYZ';
 
+  static alphabet_size2code = (alphabet:string, size:number,) => customAlphabet(alphabet)(size);
   static rng2generator = (
     rng:() => number,
     options?:{
