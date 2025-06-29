@@ -53,6 +53,14 @@ export default class DateTool {
     return minoffset == null ? undefined : Math.floor(minoffset / 60) * 100 + (minoffset % 60);
   }
 
+  static fXX_minoffset2fXX_time4 = (f_minoffset: (minoffset: number) => number): ((time4: number) => number) => {
+    return lodash.flow(
+      DateTool.time42minoffset,
+      f_minoffset,
+      DateTool.minoffset2time4,
+    )
+  }
+
   // static time42minute(time4: number): number {
   //   if (time4 == null) { return undefined; }
   //   return Math.floor(time4 / 100) + (time4 % 100);
