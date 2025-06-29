@@ -32,6 +32,17 @@ export default class MathTool {
   
   static times = (...array: number[]) => MathTool.product(array); // to deal with nullable
   static mul = MathTool.times;
+  static v2sliced = (
+    v:number,
+    ratiopair:Pair<number>,
+    option?:{f_round?:(v:number) => number,}
+  ):number => {
+    const f_round = option?.f_round ?? Math.round;
+    return MathTool.minus(
+      f_round(MathTool.mul(v, ratiopair?.[1])),
+      f_round(MathTool.mul(v, ratiopair?.[0])),
+    )
+  }
 
   static div = MathTool.binary2nullableskippped((x1, x2) => x1 / x2);
 
