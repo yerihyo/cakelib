@@ -5,10 +5,6 @@ import SignTool from "../sign_tool";
 export type Numericbinary = (x1:number, x2:number) => number;
 
 export default class MathTool {
-  // static floor(v:number) { return ~~v; }
-  // static ceil: ((v:number) => number) = NativeTool.func2undef_shortwired(Math.ceil);
-  // static floor: ((v:number) => number) = NativeTool.func2undef_shortwired(Math.floor);
-  // static trunc: ((v:number) => number) = NativeTool.func2undef_shortwired(Math.trunc);
 
   static binary2nullableskippped = (f:Numericbinary):Numericbinary => FunctionTool.func2undef_ifany_nullarg(f);
   static abs(v:number):number{ return v == null ? undefined : Math.abs(v); }
@@ -32,7 +28,7 @@ export default class MathTool {
   
   static times = (...array: number[]) => MathTool.product(array); // to deal with nullable
   static mul = MathTool.times;
-  static v2sliced = (
+  static v2quantized = (
     v:number,
     ratiopair:Pair<number>,
     option?:{f_round?:(v:number) => number,}
@@ -44,7 +40,15 @@ export default class MathTool {
     )
   }
 
+  static f_unsigned2f = <A extends any[]>(f:(v:number, ...args:A) => number):((v:number, ...args:A) => number) => {
+    return (v:number, ...args:A) => SignTool.value2signed(f(Math.abs(v), ...args), SignTool.number2sign(v));
+  }
+
+  // static v2round_nearzero = MathTool.f_unsigned2f(Math.floor);
+  static trunc = (v:number) => v == null ? undefined : Math.trunc(v)
+
   static div = MathTool.binary2nullableskippped((x1, x2) => x1 / x2);
+  static div_byzeroavoided = MathTool.binary2nullableskippped((x1, x2) => x2 == 0 ? 0 : x1 / x2);
 
   static muldiv = (v: number, m: number, d: number) => {
     return m == d // m & d might be both zero, in which case we just ignore both
@@ -224,5 +228,18 @@ export default class MathTool {
   static index2offratio_mycenter(numbers: number[], index: number) {
     const offset = MathTool.index2offset_mycenter(numbers, index);
     return offset / MathTool.sum(numbers);
+  }
+
+  static values_index2ratiopair = (values:number[], index:number): Pair<number> => {
+    if(values == null) return undefined;
+
+    const sum_before = MathTool.sum(values.slice(0,index));
+    const sum_after = MathTool.sum(values.slice(0,index+1));
+    const sum = MathTool.sum(values);
+
+    return [
+      MathTool.div_byzeroavoided(sum_before,sum),
+      MathTool.div_byzeroavoided(sum_after,sum),
+    ];
   }
 }
