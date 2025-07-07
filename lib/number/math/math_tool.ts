@@ -30,13 +30,13 @@ export default class MathTool {
   static mul = MathTool.times;
   static v2quantized = (
     v:number,
-    ratiopair:Pair<number>,
+    ratiospan:Pair<number>,
     option?:{f_round?:(v:number) => number,}
   ):number => {
     const f_round = option?.f_round ?? Math.round;
     return MathTool.minus(
-      f_round(MathTool.mul(v, ratiopair?.[1])),
-      f_round(MathTool.mul(v, ratiopair?.[0])),
+      f_round(MathTool.mul(v, ratiospan?.[1])),
+      f_round(MathTool.mul(v, ratiospan?.[0])),
     )
   }
 
@@ -230,7 +230,7 @@ export default class MathTool {
     return offset / MathTool.sum(numbers);
   }
 
-  static values_index2ratiopair = (values:number[], index:number): Pair<number> => {
+  static values_index2ratiospan = (values:number[], index:number): Pair<number> => {
     if(values == null) return undefined;
 
     const sum_before = MathTool.sum(values.slice(0,index));
