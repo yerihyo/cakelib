@@ -1146,7 +1146,8 @@ export default class HookTool{
     HookTool.f_one2l2codec<X>(ArrayTool.one2l),
   ]);
 
-  static codec_singleton = <V>():Hookcodec<V[],V> => HookTool.f_one2l2codec(x => [x])
+  // static codec_singleton = <V>():Hookcodec<V[],V> => HookTool.f_one2l2codec(x => [x])
+  static codec_singleton = <V>():Hookcodec<V[],V> => HookTool.f_one2l2codec(ArrayTool.one2l)
 
   static codec_filtered<V>(predicate: (v: V) => boolean,) {
     throw new Error("Not implemented error!!");
