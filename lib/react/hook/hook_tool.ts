@@ -947,7 +947,7 @@ export default class HookTool{
     }
   }
 
-  static jstep_validator2encoder_edgedropped = <P,C>(jstep:Jstep, c2is_valid:(c:C) => boolean):Hookencoder<P,P> => {
+  static jstep_validator2encoder_removechildifinvalid = <P,C>(jstep:Jstep, c2is_valid:(c:C) => boolean):Hookencoder<P,P> => {
     return (p:P):P => {
       const c = JsonTool.down_one<P,C>(p, jstep);
 
@@ -958,6 +958,10 @@ export default class HookTool{
         : DictTool.keys2excluded<P>(p, ArrayTool.one2l(jstep as string));
     }
   }
+  static jstep_validator2codec_removechildifinvalid = lodash.flow(
+    HookTool.jstep_validator2encoder_removechildifinvalid,
+    HookTool.encoder2codec,
+  )
 
   static keycodec2codec_dicthook<V>(
     keycodec: { encode: (k: string) => string, decode: (k: string) => string }
