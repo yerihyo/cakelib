@@ -5,7 +5,7 @@ import ArrayTool from '../../collection/array/array_tool';
 import { AbsoluteOrder } from '../../collection/array/minimax_tool';
 import Queue from '../../collection/deque/queue';
 import DictTool from '../../collection/dict/dict_tool';
-import JsonTool, { Jpath } from '../../collection/dict/json/json_tool';
+import JsonTool, { Jpath, Jstep } from '../../collection/dict/json/json_tool';
 import DateTool from '../../date/date_tool';
 import FunctionTool from '../../function/function_tool';
 import StorageTool, { WindoweventTool } from '../../html/storage/StorageTool';
@@ -944,6 +944,18 @@ export default class HookTool{
     return {
       decode: (p: X) => p,
       encode:encoder,
+    }
+  }
+
+  static jstep_validator2encoder_edgedropped = <P,C>(jstep:Jstep, c2is_valid:(c:C) => boolean):Hookencoder<P,P> => {
+    return (p:P):P => {
+      const c = JsonTool.down_one<P,C>(p, jstep);
+
+      if(c2is_valid(c)) return p;
+
+      return NumberTool.is_number(jstep)
+        ? ArrayTool.splice<C>(p as unknown as C[], jstep as number, 1) as P
+        : DictTool.keys2excluded<P>(p, ArrayTool.one2l(jstep as string));
     }
   }
 

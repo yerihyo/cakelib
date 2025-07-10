@@ -1,7 +1,7 @@
 import CmpTool from '../../../cmp/CmpTool';
 import DateTool from '../../../date/date_tool';
 import FunctionTool from '../../../function/function_tool';
-import NativeTool, { ParamsWithoutfirst } from '../../../native/native_tool';
+import NativeTool, { Dictkey, ParamsWithoutfirst } from '../../../native/native_tool';
 import NumberTool from '../../../number/number_tool';
 import ReactTool from '../../../react/react_tool';
 import StringTool from '../../../string/string_tool';
@@ -144,12 +144,12 @@ export default class JsonTool {
         const cls = JsonTool;
         return cls.parse(cls.stringify(x));
     }
-    static down_one = (obj:any, jstep: Jstep) => {
+    static down_one = <P,C>(obj:P, jstep: Jstep):C => {
         return obj == null
             ? undefined
             : NumberTool.is_number(jstep)
-                ? ArrayTool.lookup(obj, jstep as number)
-                : DictTool.get(obj, jstep as string);
+                ? ArrayTool.lookup<C>(obj as unknown as C[], jstep as number)
+                : DictTool.get<C,Dictkey>(obj as Record<Dictkey,C>, jstep as string);
     }
 
     static down = <P,C>(
