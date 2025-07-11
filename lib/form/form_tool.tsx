@@ -108,9 +108,7 @@ export default class FormTool{
   static enterkeys():string[]{ return ['Enter']; }
   static escapekeys():string[]{ return ['Escape']; }
 
-  // static keyevent2is_composing(e: React.KeyboardEvent):boolean {
-  //   return e.nativeEvent.isComposing;
-  // }
+  static keyevent2is_composing = (e: React.KeyboardEvent):boolean  => e?.nativeEvent?.isComposing;
   static keyevent2is_valid_enter(e: React.KeyboardEvent) {
     /**
      * refereneces
@@ -121,7 +119,7 @@ export default class FormTool{
 
     return [
       ArrayTool.in(e.key, FormTool.enterkeys()),
-      e.nativeEvent.isComposing === false,
+      FormTool.keyevent2is_composing(e) === false,
     ].every(Boolean);
   }
   
