@@ -702,7 +702,15 @@ export default class HookTool{
         return p_out;
       },
     }
+  }
 
+  static codec_length2limited(n:number):Hookcodec<string,string>{
+    const callname = `HookTool.codec_length2limited @ ${DateTool.time2iso(new Date())}`;
+
+    return {
+      decode:p => p,
+      encode:(c_out) => c_out?.slice(0,n),
+    }
   }
 
   // static setter2setter_conditioned<X>(
