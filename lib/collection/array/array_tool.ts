@@ -1059,10 +1059,8 @@ export default class ArrayTool {
     return Array.from(Array(count).keys()).map((i) => i * step + s);
   }
 
-  static in<X>(x: X, l: X[]): boolean {
-    // if(!l){ return false; }
-    return l?.includes(x);
-  }
+  static in = <X>(x: X, l: X[]): boolean => l?.includes(x);
+  static nin = lodash.flow(ArrayTool.in, NativeTool.negate3,)
 
   static hasmatch<X>(predicate: (value: X, index: number, obj: X[]) => boolean, l: X[]): boolean {
     return l?.find(predicate) !== undefined;
