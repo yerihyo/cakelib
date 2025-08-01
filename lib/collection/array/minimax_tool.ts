@@ -65,17 +65,20 @@ export class AbsoluteOrder{
     functions: {
       v2is_absmin?: (v: V) => boolean,
       v2is_absmax?: (v: V) => boolean,
+      v2is_abseq?: (v: V) => boolean,
     },
   ): (v1: V, v2: V) => number {
     const callname = `AbsoluteOrder.f_cmp2f_cmp_abs @ ${DateTool.time2iso(new Date())}`;
 
-    const {v2is_absmin, v2is_absmax} = (functions || {});
+    const {v2is_absmin, v2is_absmax, v2is_abseq} = (functions || {});
 
     const f_cmp_out = (v1: V, v2: V) => {
+
       const [b1_absmin, b2_absmin] = (v2is_absmin ? [v1, v2].map(v2is_absmin) : [undefined, undefined]);
       const [b1_absmax, b2_absmax] = (v2is_absmax ? [v1, v2].map(v2is_absmax) : [undefined, undefined]);
-
-      // console.log({callname, v1, v2, b1_absmin, b2_absmin, b1_absmax, b2_absmax,});
+      const [b1_abseq, b2_abseq] = (v2is_abseq ? [v1, v2].map(v2is_abseq) : [undefined, undefined]);
+      
+      if(b1_abseq || b2_abseq) { return 0; }
 
       if(v2is_absmin){
         if (b1_absmin && b2_absmin) { return 0; }
@@ -115,6 +118,9 @@ export class AbsoluteOrder{
   
   static f_cmp2f_cmp_nullable2max = <K>(f_cmp_in: Comparator<K>,): Comparator<K> =>
     AbsoluteOrder.f_cmp2f_cmp_abs(f_cmp_in, {v2is_absmax: x=> x == null});
+
+  static f_cmp2f_cmp_nullable2eq = <K>(f_cmp_in: Comparator<K>,): Comparator<K> => 
+    AbsoluteOrder.f_cmp2f_cmp_abs(f_cmp_in, {v2is_absmin: x=> x == null});
 
   static f_cmp2f_cmp_infs2minmax = <K>(f_cmp_in: Comparator<K>,): Comparator<K> =>
     AbsoluteOrder.f_cmp2f_cmp_abs(
