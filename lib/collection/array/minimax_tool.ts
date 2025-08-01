@@ -120,7 +120,7 @@ export class AbsoluteOrder{
     AbsoluteOrder.f_cmp2f_cmp_abs(f_cmp_in, {v2is_absmax: x=> x == null});
 
   static f_cmp2f_cmp_nullable2eq = <K>(f_cmp_in: Comparator<K>,): Comparator<K> => 
-    AbsoluteOrder.f_cmp2f_cmp_abs(f_cmp_in, {v2is_absmin: x=> x == null});
+    AbsoluteOrder.f_cmp2f_cmp_abs(f_cmp_in, {v2is_abseq: x=> x == null});
 
   static f_cmp2f_cmp_infs2minmax = <K>(f_cmp_in: Comparator<K>,): Comparator<K> =>
     AbsoluteOrder.f_cmp2f_cmp_abs(
