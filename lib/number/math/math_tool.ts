@@ -28,7 +28,7 @@ export default class MathTool {
   
   static times = (...array: number[]) => MathTool.product(array); // to deal with nullable
   static mul = MathTool.times;
-  static v2quantized = (
+  static v2ratiospanned = (
     v:number,
     ratiospan:Pair<number>,
     option?:{f_round?:(v:number) => number,}
@@ -241,5 +241,12 @@ export default class MathTool {
       MathTool.div_byzeroavoided(sum_before,sum),
       MathTool.div_byzeroavoided(sum_after,sum),
     ];
+  }
+
+  static values2ratiospans = (values:number[],): Pair<number>[] => {
+    const cls = MathTool;
+    if(values == null) return undefined;
+
+    return values?.map((_,i) => cls.values_index2ratiospan(values, i));
   }
 }
