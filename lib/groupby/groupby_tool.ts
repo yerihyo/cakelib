@@ -11,17 +11,17 @@ export default class GroupbyTool {
 
   static dict_groupby<X, OTREE, K extends Dictkey,>(
     items: X[],
-    funcs: ((item: X) => K)[],
+    f_item2key_list: ((item: X) => K)[],
   ): OTREE {
     const cls = GroupbyTool;
     const callname = `GropubyTool.dict_groupby @ ${DateTool.time2iso(new Date())}`;
 
     // console.log({callname, stage:'in', funcs, items,});
-    if (!ArrayTool.bool(funcs)) { return items as unknown as OTREE; }
+    if (!ArrayTool.bool(f_item2key_list)) { return items as unknown as OTREE; }
     if (items == null) { return undefined; }
 
     const h_tree = items.reduce((h_in, x) => {
-      const k = funcs[0](x);
+      const k = f_item2key_list[0](x);
 
       if (!(k in h_in)) { h_in[k] = [] }
       h_in[k].push(x);
@@ -29,7 +29,7 @@ export default class GroupbyTool {
     }, {} as Record<K, X[]>);
 
     const h_out = DictTool.dict2values_mapped(h_tree,
-      (k: K, l: X[]) => cls.dict_groupby(l, funcs.slice(1))
+      (_: K, l: X[]) => cls.dict_groupby(l, f_item2key_list.slice(1))
     );
 
     // console.log({callname, stage:'out', funcs, items, h_out});

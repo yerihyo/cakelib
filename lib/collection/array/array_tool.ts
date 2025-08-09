@@ -1302,6 +1302,12 @@ export default class ArrayTool {
     const colcount_max = ArrayTool.max(colcounts);
     return ArrayTool.range(colcount_max).map((i) => rows.map((row) => row[i])) as O;
   }
+
+  static zip2 = <V1,V2>(l1:V1[], l2:V2[]): [V1,V2][] => {
+    if(l1 == null && l2 == null) return undefined;
+    if (l1.length !== l2.length) { throw new Error(`Array length mismatch: ${l1.length} vs ${l2.length}`); }
+    return l1.map((v1, i) => [v1, l2[i]]);
+  };
   static zip = <O = any[][], I = any>(...rows: I[][]): O => ArrayTool.ll2zip(rows);
 
   static void_cleaned(array) {
