@@ -43,16 +43,15 @@ export default class DictTool{
     //     };
     // }
 
-    static entries2dict<I = any, O = Record<Dictkey, I>>(entries: [Dictkey, I][]): O {
-        const h_out = entries.reduce((h, [k, v]) => {
+    static entries2dict<V, K extends Dictkey=Dictkey>(entries: [K, V][]): Record<K,V> {
+        return entries?.reduce((h, [k, v]) => {
             if(k in h){
                 throw new Error(`Duplicate key: (k:${k?.toString()})`);
             }
 
             h[k] = v;
             return h;
-        }, {});
-        return h_out as O;
+        }, {} as Record<K,V>);
     }
     static pairlist2dict = DictTool.entries2dict;
 
