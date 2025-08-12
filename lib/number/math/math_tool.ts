@@ -1,3 +1,4 @@
+import { values } from "lodash";
 import FunctionTool from "../../function/function_tool";
 import { Pair } from "../../native/native_tool";
 import SignTool from "../sign_tool";
@@ -230,16 +231,24 @@ export default class MathTool {
     return offset / MathTool.sum(numbers);
   }
 
-  static values_index2ratiospan = (values:number[], index:number): Pair<number> => {
+  static values2accumulates = (values: number[]): number[] => {
+    return values?.map((_, i) => MathTool.sum(values.slice(0, i + 1)));
+  }
+
+  static values_index2ratiospan = (values:number[], index:number, total:number): Pair<number> => {
+    const cls = MathTool;
     if(values == null) return undefined;
 
     const sum_before = MathTool.sum(values.slice(0,index));
     const sum_after = MathTool.sum(values.slice(0,index+1));
-    const sum = MathTool.sum(values);
+
+    // const sum = MathTool.sum(values);
+    // Is this really what we want???
+    // const maxaccum = Math.max(...cls.values2accumulates(values) ?? []);
 
     return [
-      MathTool.div_byzeroavoided(sum_before,sum),
-      MathTool.div_byzeroavoided(sum_after,sum),
+      MathTool.div_byzeroavoided(sum_before,total),
+      MathTool.div_byzeroavoided(sum_after,total),
     ];
   }
 
