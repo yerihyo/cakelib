@@ -252,10 +252,10 @@ export default class MathTool {
     ];
   }
 
-  static values2ratiospans = (values:number[],): Pair<number>[] => {
-    const cls = MathTool;
-    if(values == null) return undefined;
+  // static values2ratiospans = (values:number[],): Pair<number>[] => {
+  //   const cls = MathTool;
+  //   if(values == null) return undefined;
 
-    return values?.map((_,i) => cls.values_index2ratiospan(values, i));
-  }
+  //   return values?.map((_,i) => cls.values_index2ratiospan(values, i));
+  // }
 }
