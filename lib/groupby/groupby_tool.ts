@@ -397,27 +397,37 @@ export class MapreduceTool{
           {emptyresult_forbidden:true},
         )?.toString(),
       );
+      const is_list = ArrayTool.range(p).map(j => dict_j2is[j?.toString()]);
 
-      const ys_list = await Promise.all(
-        mapinfos?.map(async (mapinfo,j) => {
-          const is = dict_j2is[j?.toString()];
-          // console.log({callname, 'ArrayTool.bool(is)':ArrayTool.bool(is), is, dict_j2is, j});
-          return !ArrayTool.bool(is)
-            ? []
-            : mapinfo.f_batch(is?.map(i => l_in[i]), ...args);
-        })
-      )
+      const ys_list = await Promise.all(mapinfos?.map(async (mapinfo,j) => {
+        const is = is_list[j];
+        // console.log({callname, 'ArrayTool.bool(is)':ArrayTool.bool(is), is, dict_j2is, j});
+        if(!ArrayTool.bool(is)) return [];
+          
+        const ys_out = await mapinfo.f_batch(is?.map(i => l_in[i]), ...args);
+        // console.log({callname, ys_out})
+        return ys_out;
+      }))
+
+      // console.log({
+      //   callname,
+      //   n, p, 
+      //   'is_list?.length':is_list?.length,
+      //   'is_list?.map(is => is?.length)':is_list?.map(is => is?.length),
+      //   'ys_list?.length':ys_list?.length,
+      //   'ys_list?.map(ys => ys?.length)':ys_list?.map(ys => ys?.length),
+      // })
 
       const dict_i2y = DictTool.merge_dicts<Record<number,Y>>(
         ArrayTool.range(p).flatMap(j => {
-          const is = dict_j2is[j?.toString()];
+          const is = is_list[j];
           const ys = ys_list[j];
-          return is?.map((i,ii) => ({[i]:ys[ii]} as Record<number,Y>)) ?? [];
+          return is?.map((i,ii) => ({[i?.toString()]:ys[ii]} as Record<number,Y>)) ?? [];
         }),
         DictTool.WritePolicy.no_duplicate_key
       );
 
-      return ArrayTool.range(n).map(i => dict_i2y[i]);
+      return ArrayTool.range(n).map(i => dict_i2y[i?.toString()]);
     }
   }
 }
