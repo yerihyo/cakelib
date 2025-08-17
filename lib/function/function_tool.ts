@@ -248,4 +248,15 @@ export default class FunctionTool{
   ):FuncAO<X,B> => {
     return (...b:B) => f_ax(...encode(b));
   }
+
+  static f_bools2f_bools_disjoint = <A extends any[]>(f_bools:FuncAB<A>[]):FuncAB<A>[] => {
+    return f_bools?.map((f_bool,i):FuncAB<A> => {
+      return (...args:A) =>{
+        return [
+          ...[...Array(i).keys()].map((j) => !f_bools[j](...args)), // prevs are all false
+          f_bool(...args), // this is true
+        ]?.every(Boolean);
+      }
+    });
+  }
 }
