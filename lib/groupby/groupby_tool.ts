@@ -1,3 +1,4 @@
+import FunctionTool from "../function/function_tool";
 import CmpTool from "../cmp/CmpTool";
 import ArrayTool from "../collection/array/array_tool"
 import DictTool from "../collection/dict/dict_tool";
@@ -356,37 +357,54 @@ export default class GroupbyTool {
       ?.flat();
   }
 
+}
+
+export class Mapinfo<X, Y, A extends any[]=any[],>{
+  f_cond: (x: X, i?:number) => boolean
+  f_batch: (l: X[], ...args: A) => Y[]|Promise<Y[]>
+
+  static infos2infos_condsdisjoint = <X, Y, A extends any[]=any[],>(infos:Mapinfo<X, Y, A>[]):Mapinfo<X, Y, A>[] => {
+    const f_conds_disjoint = FunctionTool.f_bools2f_bools_disjoint(infos?.map(info => info.f_cond));
+
+    return infos?.map((info,i) => {
+      return {
+        f_cond: f_conds_disjoint[i],
+        f_batch: info.f_batch,
+      }
+    })
+    
+  }
+}
+export class MapreduceTool{
+
   static async_mapreduce = <X, Y, A extends any[]=any[]>(
-    cfs: {
-      f_cond: (x: X, i?:number) => boolean,
-      f_batch: (l: X[], ...args: A) => Y[]|Promise<Y[]>,
-    }[],
+    mapinfos: Mapinfo<X, Y, A>[],
   ): (l: X[], ...args: A) => Promise<Y[]> => {
     const cls = GroupbyTool;
-    const callname = `GropubyTool.async_mapreduce @ ${DateTool.time2iso(new Date())}`;
+    const callname = `MapreduceTool.async_mapreduce @ ${DateTool.time2iso(new Date())}`;
 
     return async (l_in: X[], ...args: A): Promise<Y[]> => {
       if (l_in == null) return undefined;
 
       const n = l_in?.length;
-      const p = cfs?.length;
+      const p = mapinfos?.length;
 
       const dict_j2is = cls.dict_groupby_1step(
         ArrayTool.range(n),
         i => ArrayTool.filter2one(
-          j => cfs[j].f_cond(l_in[i], i),
+          j => mapinfos[j].f_cond(l_in[i], i),
           ArrayTool.range(p),
           {emptyresult_forbidden:true},
         )?.toString(),
       );
 
       const ys_list = await Promise.all(
-        cfs?.map(async (cf,j) => {
+        mapinfos?.map(async (mapinfo,j) => {
           const is = dict_j2is[j?.toString()];
           // console.log({callname, 'ArrayTool.bool(is)':ArrayTool.bool(is), is, dict_j2is, j});
           return !ArrayTool.bool(is)
             ? []
-            : cf.f_batch(is?.map(i => l_in[i]), ...args);
+            : mapinfo.f_batch(is?.map(i => l_in[i]), ...args);
         })
       )
 
