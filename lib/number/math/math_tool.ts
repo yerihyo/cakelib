@@ -235,9 +235,11 @@ export default class MathTool {
     return values?.map((_, i) => MathTool.sum(values.slice(0, i + 1)));
   }
 
-  static values_index2ratiospan = (values:number[], index:number, total:number): Pair<number> => {
+  static values_index2ratiospan = (values:number[], index:number, option?:{total?:number}): Pair<number> => {
     const cls = MathTool;
     if(values == null) return undefined;
+
+    const total = option?.total ?? MathTool.sum(values);
 
     const sum_before = MathTool.sum(values.slice(0,index));
     const sum_after = MathTool.sum(values.slice(0,index+1));
@@ -252,10 +254,10 @@ export default class MathTool {
     ];
   }
 
-  // static values2ratiospans = (values:number[],): Pair<number>[] => {
-  //   const cls = MathTool;
-  //   if(values == null) return undefined;
+  static values2ratiospans = (values:number[], option?:{total?:number}): Pair<number>[] => {
+    const cls = MathTool;
+    if(values == null) return undefined;
 
-  //   return values?.map((_,i) => cls.values_index2ratiospan(values, i));
-  // }
+    return values?.map((_,i) => cls.values_index2ratiospan(values, i, option));
+  }
 }
