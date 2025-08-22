@@ -54,6 +54,7 @@ export default class DictTool{
         }, {} as Record<K,V>);
     }
     static pairlist2dict = DictTool.entries2dict;
+    static listpair2dict = <K extends Dictkey, V>(ks: K[], vs: V[]) => DictTool.entries2dict(ArrayTool.zip2(ks,vs));
 
     static merge_dicts_noduplicatekey<T>(dicts: Record<Dictkey, T>[]): Record<Dictkey, T> {
         return DictTool.merge_dicts(dicts, DictTool.WritePolicy.no_duplicate_key,)
