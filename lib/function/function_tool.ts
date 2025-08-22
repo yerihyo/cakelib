@@ -60,7 +60,7 @@ export default class FunctionTool{
   }
   static f12fn_flat = FunctionTool.f1n2fnn;
 
-  static fny2f1y = <R, X, A extends any[]=any[],>(fny:(l:X[], ...args:A) => R):((x:X, ...args:A) => R) =>
+  static fny2f1y = <R, X, A extends any[]>(fny:(l:X[], ...args:A) => R):((x:X, ...args:A) => R) =>
     (x:X, ...args:A):R => fny == null ? undefined : fny?.(x == null ? (x as X[]) : [x], ...args);
   
   static f1b2fnb_every = <X, A extends any[]>(f1b:(x:X, ...args:A) => boolean,) => (l:X[], ...args:A) => l?.every(x => f1b(x, ...args));
