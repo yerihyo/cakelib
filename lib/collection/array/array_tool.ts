@@ -158,6 +158,12 @@ export default class ArrayTool {
   static bool = <T>(array: T[]): boolean => (array == null ? undefined : !ArrayTool.is_empty(array));
   static itemgetter = (i: number) => (l: any[]) => l[i];
   static all = <T>(array: T[], option?:{item2bool?:(t:T) => boolean},): boolean => array?.every(option?.item2bool ?? (x => !!x));
+  static all_n_gtzero = <T>(
+    array: T[], option?:{item2bool?:(t:T) => boolean},
+  ): boolean => ArrayTool.all([
+    ArrayTool.bool(array,),
+    ArrayTool.all(array, option),
+  ]);
   static any = <T>(array: T[], option?:{item2bool?:(t:T) => boolean},): boolean => array?.some(option?.item2bool ?? (x => !!x));
 
   static any_nullbypassed = FunctionTool.func2undef_ifany_nullarg(ArrayTool.any);
