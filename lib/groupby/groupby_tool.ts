@@ -1,5 +1,5 @@
 import FunctionTool from "../function/function_tool";
-import CmpTool from "../cmp/CmpTool";
+import CmpTool, { Comparator } from "../cmp/CmpTool";
 import ArrayTool from "../collection/array/array_tool"
 import DictTool from "../collection/dict/dict_tool";
 import DateTool from "../date/date_tool";
@@ -194,7 +194,7 @@ export default class GroupbyTool {
       item2parent: (item: X, index?: number, array?: X[]) => P,
       parent2key?: (parent: P) => Dictkey,
       // items2leaf?: (items:X[]) => L,
-      entries2cmp?: (pl1: [P, X[]], pl2: [P, X[]]) => number,
+      entries2cmp?: Comparator<[P, X[]]>,
     },
   ): Groupnode<P, X>[] {
     const self = GroupbyTool;
