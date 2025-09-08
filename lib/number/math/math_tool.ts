@@ -1,4 +1,3 @@
-import { values } from "lodash";
 import FunctionTool from "../../function/function_tool";
 import { Pair } from "../../native/native_tool";
 import SignTool from "../sign_tool";
@@ -6,6 +5,14 @@ import SignTool from "../sign_tool";
 export type Numericbinary = (x1:number, x2:number) => number;
 
 export default class MathTool {
+
+  static f2oddextended = <A extends any[]>(f:(v:number, ...args:A) => number):((v:number, ...args:A) => number) => {
+    return (v:number, ...args:A) => {
+      return v == null
+        ? v
+        : SignTool.value2signed(f(Math.abs(v), ...args), SignTool.number2sign(v));
+    }
+  }
 
   static binary2nullableskippped = (f:Numericbinary):Numericbinary => FunctionTool.func2undef_ifany_nullarg(f);
   static abs(v:number):number{ return v == null ? undefined : Math.abs(v); }
@@ -29,24 +36,28 @@ export default class MathTool {
   
   static times = (...array: number[]) => MathTool.product(array); // to deal with nullable
   static mul = MathTool.times;
+
+  static trunc = (v:number) => v == null ? undefined : Math.trunc(v)
+  // static ceil_oddextended = MathTool.f2oddextended(Math.ceil)
+
+  static v2int_nearzero = MathTool.f2oddextended(Math.floor); // basically trunc
+  static v2int_awayzero = MathTool.f2oddextended(Math.ceil);
+  static round_oddextended = MathTool.f2oddextended(Math.round);
+
   static v2ratiospanned = (
     v:number,
     ratiospan:Pair<number>,
     option?:{f_round?:(v:number) => number,}
   ):number => {
-    const f_round = option?.f_round ?? Math.round;
+    
+    const f_round = option?.f_round ?? MathTool.round_oddextended;
     return MathTool.minus(
       f_round(MathTool.mul(v, ratiospan?.[1])),
       f_round(MathTool.mul(v, ratiospan?.[0])),
     )
   }
-
-  static f_unsigned2f = <A extends any[]>(f:(v:number, ...args:A) => number):((v:number, ...args:A) => number) => {
-    return (v:number, ...args:A) => SignTool.value2signed(f(Math.abs(v), ...args), SignTool.number2sign(v));
-  }
-
-  // static v2round_nearzero = MathTool.f_unsigned2f(Math.floor);
-  static trunc = (v:number) => v == null ? undefined : Math.trunc(v)
+  // static v2round_nearzero = MathTool.f2oddextended(Math.floor);
+  
 
   static div = MathTool.binary2nullableskippped((x1, x2) => x1 / x2);
   static div_byzeroavoided = MathTool.binary2nullableskippped((x1, x2) => x2 == 0 ? 0 : x1 / x2);
