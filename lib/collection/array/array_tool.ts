@@ -1,7 +1,7 @@
 import lodash from 'lodash';
 import CmpTool, { Bicomparator, Comparator, EqualTool, Realigner } from '../../cmp/CmpTool';
 import FunctionTool from '../../function/function_tool';
-import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
+import NativeTool, { Dictkey, Omitfirst, Pair } from '../../native/native_tool';
 import MathTool from '../../number/math/math_tool';
 import DictTool from '../dict/dict_tool';
 
@@ -910,6 +910,38 @@ export default class ArrayTool {
     return l;
   };
 
+  static uniqinfos = <X>(
+    items: X[],
+    item2key?: (t: X) => string,
+  ): {index:number, item:X}[] => {
+    const cls = ArrayTool;
+    if (items == null) return undefined;
+
+    const i2key = (i:number):string => item2key ? item2key(items[i]) : (items[i] as unknown as string);
+
+    var h: Record<string, number> = {};
+    var indexes_uniq:number[] = [];
+
+    for (var i = 0; i < items.length; i++) {
+      const key = i2key(i);
+      if (key in h) continue;
+
+      h[key] = 1;
+      indexes_uniq.push(i);
+    }
+    return indexes_uniq?.map(i => ({index:i, item:items[i]}));
+  };
+
+  static uniqindexes = lodash.flow(
+    ArrayTool.uniqinfos,
+    infos => infos?.map(x => x.index),
+  )
+
+  static uniq = lodash.flow(
+    ArrayTool.uniqinfos,
+    infos => infos?.map(x => x.item),
+  )
+
   static is_singleton = (l: any[]): boolean => l?.length == 1;
 
   static assert_onekidpolicy = <T>(l: T[]): T[] => ArrayTool.assert_length(l, [0, 1]);
@@ -953,29 +985,6 @@ export default class ArrayTool {
   };
 
   static chain = <T>(...arrays: T[]) => [].concat(...arrays.filter((x) => !!x));
-
-  static uniq<T = any>(
-    items: T[],
-    item2key?: (t: T) => string,
-  ): T[] {
-    if (items == null) return undefined;
-
-    const x2key = item2key ?? ((item) => item as unknown as string);
-
-    var h: Record<string, number> = {};
-    var items_uniq: T[] = [];
-    for (var i = 0; i < items.length; i++) {
-      const item = items[i];
-      const key = x2key(item);
-      if (key in h) {
-        continue;
-      }
-
-      h[key] = 1;
-      items_uniq.push(item);
-    }
-    return items_uniq;
-  }
 
   static f_array2f_array_backtoforward = <T, A extends any[]>(
     f_array:(l:T[], ...args:A) => T[],
