@@ -824,12 +824,15 @@ export default class ArrayTool {
           ?.map((k, i) => ({ k, i }))
           ?.filter((x) => x.k == k)
           ?.map((x) => x.i);
+
+        // const items_duplicate = items?.filter((v,i) => indexes_duplicate?.includes(i));
         console.log({
           callname,
-          k,
+          key_duplicate:k,
           v,
           indexes_duplicate,
           "h[k]": h[k],
+          // items_duplicate,
         });
         throw new Error(`k:${k as string}, h:${JSON.stringify(h)}`);
       }
