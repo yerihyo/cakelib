@@ -1,7 +1,7 @@
 import CmpTool from '../../../cmp/CmpTool';
 import DateTool from '../../../date/date_tool';
 import FunctionTool from '../../../function/function_tool';
-import NativeTool, { Dictkey, ParamsWithoutfirst } from '../../../native/native_tool';
+import NativeTool, { Dictkey, Lastparam, ParamsWithoutfirst } from '../../../native/native_tool';
 import NumberTool from '../../../number/number_tool';
 import ReactTool from '../../../react/react_tool';
 import StringTool from '../../../string/string_tool';
@@ -264,7 +264,7 @@ export default class JsonTool {
     return dict_jpath2jitems(dict_in, []);
   }
 
-  static edge2reduced_upsert = <O, C, P = O>(node: P, edge: Jstep, value: C): O => {
+  static edge2reduced_inplace = <O, C, P = O>(node: P, edge: Jstep, value: C): O => {
     if (node?.[edge] === value) { return node as unknown as O; }
 
     return (
@@ -274,7 +274,7 @@ export default class JsonTool {
     ) as O;
   }
 
-  static edge2reduced_create = <O, C, P = O>(node: P, edge: Jstep, value: C): O => {
+  static edge2reduced_newobj = <O, C, P = O>(node: P, edge: Jstep, value: C): O => {
     if (node?.[edge] === value) { return node as unknown as O; }
 
     return (
@@ -284,20 +284,20 @@ export default class JsonTool {
     ) as O;
   }
 
-  static reducer2delete = (reducer: typeof JsonTool.edge2reduced_create) => lodash.flow([
+  static reducer2delete = (reducer: typeof JsonTool.edge2reduced_newobj) => lodash.flow([
     reducer,
     (x: any) => {
       return undefined;
     }
   ])
 
-  static jpath_v2xdoc = <PO, CI>(jpath: Jpath, v: CI): PO => JsonTool.reduceUp<{}, PO, CI, CI>({}, jpath, v, JsonTool.edge2reduced_create);
+  static jpath_v2xdoc = <PO, CI>(jpath: Jpath, v: CI): PO => JsonTool.reduceUp<{}, PO, CI, CI>({}, jpath, v, JsonTool.edge2reduced_newobj);
   static jpaths2filtered = <I, O>(h: I, jpaths: Jpath[],): O => DictTool.merge_dicts(
     jpaths?.map(jpath => JsonTool.jpath_v2xdoc(jpath, JsonTool.down(h, jpath))),
     DictTool.WritePolicy.dict_no_duplicate_key,
   )
 
-  static reducer2delete_if_empty = (reducer: typeof JsonTool.edge2reduced_create) => lodash.flow([
+  static reducer2delete_if_empty = (reducer: typeof JsonTool.edge2reduced_newobj) => lodash.flow([
     reducer,
     (x: any) => {
       if (x == null) { return undefined; }
@@ -395,6 +395,52 @@ export default class JsonTool {
     return obj_out;
   }
 
+  static node2deepmapped = <PI, PO, CI, CO>(
+    p_in: PI,
+    jpath: Jpath,
+    transducer: CO | ((c: CI) => CO),
+    option?:{
+      ligator?: (node: Object, edge: Jstep, leaf: any,) => any,
+    }
+  ):PO => {
+    const cls = JsonTool;
+    const callname = `JsonTool.node2deepmapped @ ${DateTool.time2iso(new Date())}`;
+
+    const ligator = option?.ligator ?? cls.edge2reduced_newobj;
+
+    // if terminal
+    if (!ArrayTool.bool(jpath)) {
+      return ReactTool.prev2reduced(transducer, p_in as unknown as CI) as unknown as PO;
+    }
+
+    const jstep = jpath[0];
+    
+    const c_in = lodash.get(p_in, jstep); // obj_in might be undefined
+
+    // if List
+    if (ArrayTool.is_array(c_in)) {
+      const c_out = StringTool.is_string(jpath?.[1])
+      
+      const c_out = c_in.map(cc_in => cls.node2deepmapped(cc_in, jpath.slice(1), transducer, option))
+    }
+
+    // else (if Dict)
+    if (DictTool.is_dict(c_in)) {
+      return cls.node2deepmapped(c_in, jpath.slice(1), transducer, option)
+    }
+  }
+
+  static action2deepaction<CI = any, CO = any, PI = any, PO = any,>(
+    action: CO | ((c: CI) => CO),
+    jpath: Jpath,
+    option?:{
+      reducer?: (node: Object, edge: Jstep, leaf: any,) => any,
+    }
+  ): ((obj: PI) => PO) {
+    const reducer = option?.reducer ?? JsonTool.edge2reduced_newobj;
+    return (obj: PI) => JsonTool.reduceUp<PI, PO, CI, CO>(obj, jpath, action, reducer);
+  }
+
   static reduceUp<PI = any, PO = any, CI = any, CO = any>(
     obj_in: PI,
     jpath: Jpath,
@@ -421,21 +467,12 @@ export default class JsonTool {
     return obj_out as PO;
   }
 
-  // static func2func_ancestor<P=any,C=any>(
-  //     func: (c:C) => C,
-  //     jpath: Jpath,
-  //     reducer: (node: Object, edge: Jstep, leaf: any,) => any,
-  // ):((p:P) => P) {
-  //     return (obj:P) => JsonTool.reduceUp(obj, jpath, func, reducer);
-  // }
-
-  static reducer2reducer_ancestor<CI = any, CO = any, PI = any, PO = any,>(
-    action: CO | ((c: CI) => CO),
+  static node2deepactioned = <CI, CO, PI, PO,>(
+    p: PI,
     jpath: Jpath,
-    reducer: (node: Object, edge: Jstep, leaf: any,) => any,
-  ): ((obj: PI) => PO) {
-    return (obj: PI) => JsonTool.reduceUp<PI, PO, CI, CO>(obj, jpath, action, reducer);
-  }
+    action: Parameters<typeof JsonTool.action2deepaction>[0],
+    option?: Lastparam<typeof JsonTool.action2deepaction>,
+  ):PO => JsonTool.action2deepaction(action, jpath, option)(p)
 
   // static jdoc2nullexcluded = TraversileTool.validator2pruner(x => x!=null);
   // static jdoc2nullexcluded(jdoc_in: any) {
