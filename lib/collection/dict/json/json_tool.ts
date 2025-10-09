@@ -395,40 +395,40 @@ export default class JsonTool {
     return obj_out;
   }
 
-  static node2deepmapped = <PI, PO, CI, CO>(
-    p_in: PI,
-    jpath: Jpath,
-    transducer: CO | ((c: CI) => CO),
-    option?:{
-      ligator?: (node: Object, edge: Jstep, leaf: any,) => any,
-    }
-  ):PO => {
-    const cls = JsonTool;
-    const callname = `JsonTool.node2deepmapped @ ${DateTool.time2iso(new Date())}`;
+  // static node2deepmapped = <PI, PO, CI, CO>(
+  //   p_in: PI,
+  //   jpath: Jpath,
+  //   transducer: CO | ((c: CI) => CO),
+  //   option?:{
+  //     ligator?: (node: Object, edge: Jstep, leaf: any,) => any,
+  //   }
+  // ):PO => {
+  //   const cls = JsonTool;
+  //   const callname = `JsonTool.node2deepmapped @ ${DateTool.time2iso(new Date())}`;
 
-    const ligator = option?.ligator ?? cls.edge2reduced_newobj;
+  //   const ligator = option?.ligator ?? cls.edge2reduced_newobj;
 
-    // if terminal
-    if (!ArrayTool.bool(jpath)) {
-      return ReactTool.prev2reduced(transducer, p_in as unknown as CI) as unknown as PO;
-    }
+  //   // if terminal
+  //   if (!ArrayTool.bool(jpath)) {
+  //     return ReactTool.prev2reduced(transducer, p_in as unknown as CI) as unknown as PO;
+  //   }
 
-    const jstep = jpath[0];
+  //   const jstep = jpath[0];
     
-    const c_in = lodash.get(p_in, jstep); // obj_in might be undefined
+  //   const c_in = lodash.get(p_in, jstep); // obj_in might be undefined
 
-    // if List
-    if (ArrayTool.is_array(c_in)) {
-      const c_out = StringTool.is_string(jpath?.[1])
+  //   // if List
+  //   if (ArrayTool.is_array(c_in)) {
+  //     const c_out = StringTool.is_string(jpath?.[1])
       
-      const c_out = c_in.map(cc_in => cls.node2deepmapped(cc_in, jpath.slice(1), transducer, option))
-    }
+  //     const c_out = c_in.map(cc_in => cls.node2deepmapped(cc_in, jpath.slice(1), transducer, option))
+  //   }
 
-    // else (if Dict)
-    if (DictTool.is_dict(c_in)) {
-      return cls.node2deepmapped(c_in, jpath.slice(1), transducer, option)
-    }
-  }
+  //   // else (if Dict)
+  //   if (DictTool.is_dict(c_in)) {
+  //     return cls.node2deepmapped(c_in, jpath.slice(1), transducer, option)
+  //   }
+  // }
 
   static action2deepaction<CI = any, CO = any, PI = any, PO = any,>(
     action: CO | ((c: CI) => CO),

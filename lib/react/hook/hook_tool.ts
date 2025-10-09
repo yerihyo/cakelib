@@ -175,7 +175,7 @@ export class Hooktrack<X>{
     return JsonTool.action2deepaction<Reacthook<X>, O, Hooktrack<X>, { hook: O, timehook: Reacthook<Date> }>(
       f_hook,
       ['hook'],
-      JsonTool.edge2reduced_newobj,
+      {reducer:JsonTool.edge2reduced_newobj},
     );
   }
 
