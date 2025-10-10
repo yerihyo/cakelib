@@ -264,7 +264,7 @@ export default class JsonTool {
     return dict_jpath2jitems(dict_in, []);
   }
 
-  static edge2reduced_inplace = <O, C, P = O>(node: P, edge: Jstep, value: C): O => {
+  static edge2reduced_ooplike = <O, C, P = O>(node: P, edge: Jstep, value: C): O => {
     if (node?.[edge] === value) { return node as unknown as O; }
 
     return (
@@ -274,7 +274,7 @@ export default class JsonTool {
     ) as O;
   }
 
-  static edge2reduced_newobj = <O, C, P = O>(node: P, edge: Jstep, value: C): O => {
+  static edge2reduced_voplike = <O, C, P = O>(node: P, edge: Jstep, value: C): O => {
     if (node?.[edge] === value) { return node as unknown as O; }
 
     return (
@@ -284,20 +284,20 @@ export default class JsonTool {
     ) as O;
   }
 
-  static reducer2delete = (reducer: typeof JsonTool.edge2reduced_newobj) => lodash.flow([
+  static reducer2delete = (reducer: typeof JsonTool.edge2reduced_voplike) => lodash.flow([
     reducer,
     (x: any) => {
       return undefined;
     }
   ])
 
-  static jpath_v2xdoc = <PO, CI>(jpath: Jpath, v: CI): PO => JsonTool.reduceUp<{}, PO, CI, CI>({}, jpath, v, JsonTool.edge2reduced_newobj);
+  static jpath_v2xdoc = <PO, CI>(jpath: Jpath, v: CI): PO => JsonTool.reduceUp<{}, PO, CI, CI>({}, jpath, v, JsonTool.edge2reduced_voplike);
   static jpaths2filtered = <I, O>(h: I, jpaths: Jpath[],): O => DictTool.merge_dicts(
     jpaths?.map(jpath => JsonTool.jpath_v2xdoc(jpath, JsonTool.down(h, jpath))),
     DictTool.WritePolicy.dict_no_duplicate_key,
   )
 
-  static reducer2delete_if_empty = (reducer: typeof JsonTool.edge2reduced_newobj) => lodash.flow([
+  static reducer2delete_if_empty = (reducer: typeof JsonTool.edge2reduced_voplike) => lodash.flow([
     reducer,
     (x: any) => {
       if (x == null) { return undefined; }
@@ -406,7 +406,7 @@ export default class JsonTool {
   //   const cls = JsonTool;
   //   const callname = `JsonTool.node2deepmapped @ ${DateTool.time2iso(new Date())}`;
 
-  //   const ligator = option?.ligator ?? cls.edge2reduced_newobj;
+  //   const ligator = option?.ligator ?? cls.edge2reduced_voplike;
 
   //   // if terminal
   //   if (!ArrayTool.bool(jpath)) {
@@ -437,7 +437,7 @@ export default class JsonTool {
       reducer?: (node: Object, edge: Jstep, leaf: any,) => any,
     }
   ): ((obj: PI) => PO) {
-    const reducer = option?.reducer ?? JsonTool.edge2reduced_newobj;
+    const reducer = option?.reducer ?? JsonTool.edge2reduced_voplike;
     return (obj: PI) => JsonTool.reduceUp<PI, PO, CI, CO>(obj, jpath, action, reducer);
   }
 
