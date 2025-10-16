@@ -43,7 +43,7 @@ export default class SwrTool {
     // keepPreviousData: true,  // very controversial.... key change rare anyway...
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
-    revalidateIfStale: false,
+    revalidateIfStale: true,
   })
   static fallback2conf_staystale = <X>(
     fallbackData:X
@@ -189,6 +189,7 @@ export default class SwrTool {
     if (swr.error) { return false; }
     return swr.data === undefined;
   }
+  static swr2is_loaded = (swr:SWRResponse):boolean => swr == null ? undefined : !swr?.isLoading;
 
   static swr2data<X>(swr: SWRResponse<X, any>): X {
     return swr ? swr.data : undefined;

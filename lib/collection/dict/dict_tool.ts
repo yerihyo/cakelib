@@ -204,7 +204,7 @@ export default class DictTool{
         const self = DictTool;
         // const value2is_valid = (v) => !!v;
         const value2is_valid = v => !NativeTool.is_null_or_undefined(v);
-        return self.invalid_values2excluded(obj, value2is_valid)
+        return DictTool.invalid_values2excluded(obj, value2is_valid)
     }
     static undef_if_false(obj_in){
         return DictTool.bool(obj_in) ? obj_in : undefined;

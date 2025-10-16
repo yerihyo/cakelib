@@ -172,10 +172,10 @@ export class Hooktrack<X>{
   static f_hook2f_hooktrack = <X, O=Reacthook<X>>(
     f_hook: (h:Reacthook<X>) => O,
   ):((th:Hooktrack<X>) => {hook:O, timehook:Reacthook<Date>}) => {
-    return JsonTool.reducer2reducer_ancestor<Reacthook<X>, O, Hooktrack<X>, { hook: O, timehook: Reacthook<Date> }>(
+    return JsonTool.action2deepaction<Reacthook<X>, O, Hooktrack<X>, { hook: O, timehook: Reacthook<Date> }>(
       f_hook,
       ['hook'],
-      JsonTool.edge2reduced_create,
+      {reducer:JsonTool.edge2reduced_voplike},
     );
   }
 
@@ -427,7 +427,7 @@ export default class HookTool{
   static codec2up<PO,PI,C>(hookcodec:Hookcodec<PI,C>, jpath:Jpath,):Hookcodec<PO,C>{
     if(!ArrayTool.bool(jpath)){ return hookcodec as unknown as Hookcodec<PO,C>; }
 
-    const edge2reduced = JsonTool.edge2reduced_create;
+    const edge2reduced = JsonTool.edge2reduced_voplike;
     const po2pi = (po:PO) => JsonTool.down(po, jpath) as PI;
 
     return {
@@ -863,7 +863,7 @@ export default class HookTool{
   static jpath2codec_down = <P,C>(jpath:Jpath):Hookcodec<P,C> => {
     const callname = `HookTool.jpath2codec_down @ ${DateTool.time2iso(new Date())}`;
 
-    const edge2reduced = JsonTool.edge2reduced_create;
+    const edge2reduced = JsonTool.edge2reduced_voplike;
     const decode = (p_prev:P):C => JsonTool.down(p_prev, jpath);
 
     return {
@@ -881,7 +881,7 @@ export default class HookTool{
 
   static jpaths_merger2codec = <P, C>(jpaths:Jpath[], merger:(cs:C[]) => C):Hookcodec<P, C> => {
 
-    const edge2reduced = JsonTool.edge2reduced_create;
+    const edge2reduced = JsonTool.edge2reduced_voplike;
     const decode = (p_prev:P):C => merger(jpaths?.map(jpath => JsonTool.down(p_prev, jpath)));
 
     return {
@@ -943,7 +943,7 @@ export default class HookTool{
   static codec_downeach<P,C>(jpath:(string|number)[]): Hookcodec<P[],C[]>{
     throw new Error("This doesn't work because whole children can be replaced!");
 
-    const edge2reduced = JsonTool.edge2reduced_create;
+    const edge2reduced = JsonTool.edge2reduced_voplike;
     const decode = (ps_prev: P[]):C[] => ps_prev.map(p_prev => JsonTool.down(p_prev, jpath));
     return {
       decode,
