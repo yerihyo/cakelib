@@ -1,7 +1,7 @@
 import CmpTool from '../../../cmp/CmpTool';
 import DateTool from '../../../date/date_tool';
 import FunctionTool from '../../../function/function_tool';
-import NativeTool, { Dictkey, Lastparam, ParamsWithoutfirst } from '../../../native/native_tool';
+import NativeTool, { Dictkey, Omitfirst, Lastparam, ParamsWithoutfirst } from '../../../native/native_tool';
 import NumberTool from '../../../number/number_tool';
 import ReactTool from '../../../react/react_tool';
 import StringTool from '../../../string/string_tool';
@@ -111,24 +111,22 @@ export type Codecobj<P, C> = {
 }
 
 export default class JsonTool {
+/**
+* ref: https://stackoverflow.com/a/16168003/1902064
+*/
+static json2sortedstring = <X>(x:X, ...args:Omitfirst<Parameters<typeof stringify>>) => x == null ? undefined : stringify(x, ...args);
+// static json2sortedstring<X>(x:X):string{
+//     if (x == null) { return undefined; }
+//     return stringify(x);
+// }
 
-  /**
-  * ref: https://stackoverflow.com/a/16168003/1902064
-  */
-  static json2sortedstring: ((x: any) => string) = FunctionTool.func2undef_ifany_nullarg(stringify);
-  // static json2sortedstring<X>(x:X):string{
-  //     if (x == null) { return undefined; }
-  //     return stringify(x);
-  // }
-
-  // static codec_default<X>():[(x:X) => string, (s:string) => X]{
-  //     return [
-  //         x => JsonTool.json2sortedstring<X>(x),
-  //         s => JSON.parse(s) as X,
-  //     ]
-  // }
-  static stringify = (x: any) => x == null ? undefined : JSON.stringify(x)
-  // static parse = FunctionTool.func2skipped(JSON.parse, s => !s);
+// static codec_default<X>():[(x:X) => string, (s:string) => X]{
+//     return [
+//         x => JsonTool.json2sortedstring<X>(x),
+//         s => JSON.parse(s) as X,
+//     ]
+// }
+  static stringify = (x:any) => x == null ? undefined : JSON.stringify(x)
   static parse = <X>(s: string, ...args: ParamsWithoutfirst<typeof JSON.parse>) => s==null ? undefined : (JSON.parse(s, ...args) as X);
 
   static encode = <X>(x: X): string => JsonTool.json2sortedstring(x);
