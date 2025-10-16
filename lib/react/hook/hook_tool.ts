@@ -9,10 +9,10 @@ import JsonTool, { Jpath, Jstep } from '../../collection/dict/json/json_tool';
 import DateTool from '../../date/date_tool';
 import FunctionTool from '../../function/function_tool';
 import StorageTool, { WindoweventTool } from '../../html/storage/StorageTool';
-import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
+import NativeTool, { Dictkey, Lastparam, Pair } from '../../native/native_tool';
 import MathTool from '../../number/math/math_tool';
 import NumberTool from '../../number/number_tool';
-import ReactTool from '../react_tool';
+import ReactTool, { SetStateActionAsync } from '../react_tool';
 import SpanTool from '../../span/span_tool';
 
 
@@ -262,7 +262,7 @@ export default class HookTool{
     }
   }
 
-  static hook2upclockSet = <T>(
+  static hook2upclockSet_deprecated = <T>(
     hook:Reacthook<T>,
     init: () => (T | Promise<T>),
     b:boolean,
@@ -271,6 +271,80 @@ export default class HookTool{
       if(!b){ return; }
 
       Promise.resolve(init()).then(t => hook?.[1]?.(t));
+    }, [b]);
+    return hook;
+  }
+
+  // static hook2upclockSet = <V>(
+  //   hook:Reacthook<V>,
+  //   action: SetStateAction<V>,
+  //   b:boolean,
+  // ):Reacthook<V> => {
+  //   React.useEffect(() => {
+  //     if(!b){ return; }
+
+  //     hook[1](action);
+  //   }, [b]);
+  //   return hook;
+  // }
+
+  static emitter2hookemitter = <V>(
+    f_emit: (v:V) => any|Promise<any>,
+    option?:{
+      f_deps?: (v:V) => Parameters<typeof React.useEffect>[1],
+    }
+  ):((hook:Reacthook<V>) => Reacthook<V>) => {
+    return (hook:Reacthook<V>) => {
+      const f_deps = option?.f_deps ?? ((v:V) => [v]);
+      const deps = f_deps(hook[0])
+      React.useEffect(() => { f_emit(hook[0]); }, deps);
+      return hook; 
+    }
+  }
+  // static hook2emitter_attached = <V, A extends any[]>(
+  //   hook:Reacthook<V>,
+  //   f_emit: (v:V) => any|Promise<any>,
+  //   option?:{
+  //     f_keys?: (v:V) => A,
+  //   }
+  // ):Reacthook<V> => {
+  //   const f_keys = option?.f_keys ?? ((v:V) => [v] as A);
+  //   const keys = f_keys(hook[0])
+  //   React.useEffect(() => { f_emit(hook[0]); }, keys);
+  //   return hook;  
+  // }
+
+  static action_async2hookupdater = <V>(
+    action_async: SetStateActionAsync<V>,
+    deps:Parameters<typeof React.useEffect>[1],
+  ):((hook:Reacthook<V>) => Reacthook<V>) => {
+    return (hook:Reacthook<V>) => {
+      React.useEffect(() => {
+        (async () => {
+            const v_out = await ReactTool.prev2reduced<V,V|Promise<V>>(action_async, hook[0]);
+            hook[1](v_prev => v_prev === v_out ? v_prev : v_out); // no need to check but... for peace of mind
+          })()
+      }, deps);
+
+      return hook;  
+    }
+  }
+
+  // deprecating
+  static hook2upclockset_async = <V>(
+    hook:Reacthook<V>,
+    action_async: SetStateActionAsync<V>,
+    b:boolean,
+  ):Reacthook<V> => {
+    React.useEffect(() => {
+      if(hook == null) return;
+      if(action_async == null) return;
+      if(!b) return;
+
+      (async () => {
+        const v_out = await ReactTool.prev2reduced<V,V|Promise<V>>(action_async, hook[0]);
+        hook[1](v_out);
+      })()
     }, [b]);
     return hook;
   }

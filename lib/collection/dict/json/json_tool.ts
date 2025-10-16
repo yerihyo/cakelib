@@ -1,7 +1,7 @@
 import CmpTool from '../../../cmp/CmpTool';
 import DateTool from '../../../date/date_tool';
 import FunctionTool from '../../../function/function_tool';
-import NativeTool, { Dictkey, ParamsWithoutfirst } from '../../../native/native_tool';
+import NativeTool, { Dictkey, Omitfirst, ParamsWithoutfirst } from '../../../native/native_tool';
 import NumberTool from '../../../number/number_tool';
 import ReactTool from '../../../react/react_tool';
 import StringTool from '../../../string/string_tool';
@@ -115,7 +115,7 @@ export default class JsonTool {
     /**
     * ref: https://stackoverflow.com/a/16168003/1902064
     */
-    static json2sortedstring:((x:any) => string) = FunctionTool.func2undef_ifany_nullarg(stringify);
+    static json2sortedstring = <X>(x:X, ...args:Omitfirst<Parameters<typeof stringify>>) => x == null ? undefined : stringify(x, ...args);
     // static json2sortedstring<X>(x:X):string{
     //     if (x == null) { return undefined; }
     //     return stringify(x);
@@ -199,8 +199,8 @@ export default class JsonTool {
     }
 
     static jstr2hdoc = lodash.flow(
-        JsonTool.parse,
-        JsonTool.jdoc2hdoc,
+        this.parse,
+        this.jdoc2hdoc,
     )
     // static jstr2hdoc = <T>(s: string): T => s != null ? (JsonTool.jdoc2hdoc(JsonTool.parse(s)) as T) : undefined;
 
@@ -223,7 +223,7 @@ export default class JsonTool {
 
         return jdoc_out;
     }
-    static hdoc2jstr = <T>(hdoc: T): string => hdoc != null ? JsonTool.stringify(JsonTool.hdoc2jdoc(hdoc)) : undefined;
+    static hdoc2jstr = <T>(hdoc: T): string => hdoc != null ? this.stringify(this.hdoc2jdoc(hdoc)) : undefined;
 
     // static jstr2hdoc(s: string): any {
     //     const cls = JsonTool;
@@ -284,20 +284,20 @@ export default class JsonTool {
             ) as O;
     }
 
-    static reducer2delete = (reducer:typeof JsonTool.edge2reduced_create) => lodash.flow([
+    static reducer2delete = (reducer:typeof this.edge2reduced_create) => lodash.flow([
         reducer,
         (x:any) => {
             return undefined;
         }
     ])
 
-    static jpath_v2xdoc = <PO,CI>(jpath:Jpath, v:CI):PO => JsonTool.reduceUp<{},PO,CI,CI>({}, jpath, v, JsonTool.edge2reduced_create);
+    static jpath_v2xdoc = <PO,CI>(jpath:Jpath, v:CI):PO => this.reduceUp<{},PO,CI,CI>({}, jpath, v, this.edge2reduced_create);
     static jpaths2filtered = <I,O>(h:I, jpaths:Jpath[], ):O => DictTool.merge_dicts(
-        jpaths?.map(jpath => JsonTool.jpath_v2xdoc(jpath, JsonTool.down(h, jpath))),
+        jpaths?.map(jpath => this.jpath_v2xdoc(jpath, this.down(h, jpath))),
         DictTool.WritePolicy.dict_no_duplicate_key,
     )
 
-    static reducer2delete_if_empty = (reducer:typeof JsonTool.edge2reduced_create) => lodash.flow([
+    static reducer2delete_if_empty = (reducer:typeof this.edge2reduced_create) => lodash.flow([
         reducer,
         (x:any) => {
             if(x == null){ return undefined; }

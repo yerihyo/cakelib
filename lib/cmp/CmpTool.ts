@@ -364,6 +364,32 @@ export default class CmpTool {
     return (x1: X, x2: X) => f_eq(f_key(x1), f_key(x2));
   }
 
+  static f_key2f_ne<X, K=any>(
+    f_key: (x: X) => K,
+    config?: {
+      f_ne?: Bicomparator<K>,
+    }
+  ): (x1: X, x2: X) => boolean {
+    const f_ne = config?.f_ne ?? CmpTool.isTrinotequal;
+    return (x1: X, x2: X) => f_ne(f_key(x1), f_key(x2));
+  }
+
+  static f_eq2f_in<X,>(
+    f_eq: Bicomparator<X>,
+  ): Attenchecker<X> {
+    return (x: X, l: X[]):boolean => {
+      return l?.some(xi => f_eq(x, xi))
+    };
+  }
+
+  static f_eq2f_hookreducer<X,>(
+    f_eq: Bicomparator<X>,
+  ): ((x_prev:X, x_in?:X) => X) {
+    return (x_prev:X, x_in:X):X => {
+      return f_eq(x_prev, x_in) ? x_prev : x_in;
+    };
+  }
+
   static f_key2f_in<X, K=any>(
     f_key: (x: X) => K,
     config?: {
@@ -376,16 +402,6 @@ export default class CmpTool {
       const k = f_key(x);
       return l?.some(xi => f_eq(k,f_key(xi)))
     };
-  }
-
-  static f_key2f_ne<X, K=any>(
-    f_key: (x: X) => K,
-    config?: {
-      f_ne?: Bicomparator<K>,
-    }
-  ): (x1: X, x2: X) => boolean {
-    const f_ne = config?.f_ne ?? CmpTool.isTrinotequal;
-    return (x1: X, x2: X) => f_ne(f_key(x1), f_key(x2));
   }
 
   static f_eq2f_changed = <A>(f_eq: Bicomparator<A>,): Bicomparator<A> => FunctionTool.func2negated3(f_eq);
