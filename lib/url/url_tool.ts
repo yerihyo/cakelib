@@ -9,7 +9,7 @@ import DictTool from '../collection/dict/dict_tool';
 // const assert = require('assert');
 
 export class UrlsearchparamsTool{
-  
+  static codec_identical = () => ({decode: (s:string)=>s, encode: (s:string)=>s});
   static values2imploded = (l: (string|number)[], option?:{delim?:string}) => {
     if(!ArrayTool.bool(l)) return undefined;
 
