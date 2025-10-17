@@ -43,7 +43,7 @@ export default class SwrTool {
     // keepPreviousData: true,  // very controversial.... key change rare anyway...
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
-    revalidateIfStale: true,
+    revalidateIfStale: false,
   })
   static fallback2conf_staystale = <X>(
     fallbackData:X
