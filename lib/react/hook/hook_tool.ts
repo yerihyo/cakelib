@@ -291,7 +291,7 @@ export default class HookTool{
   static emitter2hookemitter = <V>(
     f_emit: (v:V) => any|Promise<any>,
     option?:{
-      f_deps?: (v:V) => Parameters<typeof React.useEffect>[1],
+      f_deps?: (v?:V) => Parameters<typeof React.useEffect>[1],
     }
   ):((hook:Reacthook<V>) => Reacthook<V>) => {
     return (hook:Reacthook<V>) => {
