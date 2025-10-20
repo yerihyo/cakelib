@@ -214,6 +214,7 @@ export default class ArrayTool {
     // return index < 0 ? [...array, item] : array;
   }
 
+  static cap2 = lodash.intersection
   static cap = <T>(arrays: T[][]): T[] => (arrays == null ? undefined : lodash.intersection(...arrays));
   static has_cap = lodash.flow(ArrayTool.cap, ArrayTool.bool);
   
