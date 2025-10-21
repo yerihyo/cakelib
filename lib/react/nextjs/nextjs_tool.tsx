@@ -69,11 +69,13 @@ export default class NextjsTool{
   ):Promise<boolean> => {
     const cls = NextjsTool;
     const callname = `NextjsTool.router2replaceState @ ${DateTool.time2iso(new Date())}`;
+    if(router == null) return undefined;
+    
     // console.log({callname, 'location.href':location.href, url, as, options});
 
     // router.replace(location.href, url, options);
     // router.replace(as, );
-    return router.replace(url, undefined, {shallow:true})
+    return router?.replace(url, undefined, {shallow:true})
     // router.replace(url, as, options);
     // history.replaceState({}, '', as);
   }

@@ -1,4 +1,6 @@
 
+export type SetStateActionAsync<V> = V | Promise<V> | ((v: V) => (V | Promise<V>));
+
 export default class ReactTool{
   static is_serverside():boolean {
     const cls = ReactTool;

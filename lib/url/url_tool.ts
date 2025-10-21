@@ -9,17 +9,22 @@ import DictTool from '../collection/dict/dict_tool';
 // const assert = require('assert');
 
 export class UrlsearchparamsTool{
-  static str2decommad = (s: string):string[] => s?.split(',');
-  static values2commad = (l: (string|number)[]) => {
+  static codec_identical = () => ({decode: (s:string)=>s, encode: (s:string)=>s});
+  static values2imploded = (l: (string|number)[], option?:{delim?:string}) => {
     if(!ArrayTool.bool(l)) return undefined;
 
-    const l_invalid = l?.filter(x => (typeof x === 'string' && x?.includes(',')));
+    const delim = option?.delim ?? ',';
+
+    const l_invalid = l?.filter(x => (typeof x === 'string' && x?.includes(delim)));
     if(ArrayTool.bool(l_invalid)){
-      throw new Error(`List items must not contain a comma. ${l_invalid?.map(x => `'${x}'`)?.join(', ')}`);
+      throw new Error(`List items must not contain a comma. ${l_invalid?.map(x => `'${x}'`)?.join(delim)}`);
     }
 
-    return ArrayTool.sorted(l).join(',');
+    return ArrayTool.sorted(l).join(delim);
   }
+
+  static str2decommad = (s: string):string[] => s?.split(',');
+  static values2commad = (l: (string|number)[]) => UrlsearchparamsTool.values2imploded(l, {delim:','});
   
   static params2string = (params:URLSearchParams):string => params?.toString();
   static parse = (x:string) => (new URLSearchParams(x));
