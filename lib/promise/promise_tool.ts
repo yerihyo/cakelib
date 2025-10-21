@@ -1,5 +1,5 @@
 export default class PromiseTool{
-  static called_serial = <T>(callables: (() => Promise<T>)[]): Promise<T[]> => {
+  static callables2promise_serialized = <T>(callables: (() => Promise<T>)[]): Promise<T[]> => {
     // 초기값: 빈 배열을 resolve하는 프로미스
     // reduce를 사용하여 프로미스 체인을 만듭니다.
     return callables.reduce(
