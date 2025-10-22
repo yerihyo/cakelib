@@ -31,14 +31,32 @@ export default class DateTool {
     return MathTool.plus(MathTool.times(day8, 10000), time4);
   }
 
-  static daytime122day8time4 = (daytime12:number):{day8:number, time4:number} => {
-    if (daytime12 == null) { return undefined; }
+  // static daytime2numeric_pair = (daytime:number, option?:{digitcount?:number}):Pair<number> => {
+  //   if (daytime == null) { return undefined; }
 
-    const floor = FunctionTool.func2undef_ifany_nullarg(Math.floor);
-    const day8 = floor(MathTool.div(daytime12, 10000));
-    const time4 = MathTool.mod(daytime12, 10000);
-    return {day8, time4};
-  }
+  //   const digitcount = option?.digitcount ?? NumberTool.number2digitcount(daytime);
+  //   const divider = 10**(digitcount - 8);
+
+  //   // const floor = FunctionTool.func2undef_ifany_nullarg(Math.floor);
+  //   const day8 = Math.floor(daytime / divider);
+  //   const time = daytime % divider;
+  //   return [day8, time]
+  // }
+
+  // static daytime122day8time4 = (daytime12:number):{day8:number, time4:number} => {
+  //   const cls = DateTool;
+  //   const [day8, time4] = cls.daytime2numeric_pair(daytime12, {digitcount:12});
+  //   return {day8, time4}
+  // }
+
+  // static daytime122day8time4 = (daytime12:number):{day8:number, time4:number} => {
+  //   if (daytime12 == null) { return undefined; }
+
+  //   const floor = FunctionTool.func2undef_ifany_nullarg(Math.floor);
+  //   const day8 = floor(MathTool.div(daytime12, 10000));
+  //   const time4 = MathTool.mod(daytime12, 10000);
+  //   return {day8, time4};
+  // }
 
   static time42minoffset(time4: number): number {
     if (time4 == null) { return undefined; }
