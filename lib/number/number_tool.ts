@@ -166,4 +166,23 @@ export default class NumberTool {
     return bytes.toFixed(dp) + ' ' + units[u];
   }
 
+  static number2digitcount = (v:number):number => {
+    const cls = NumberTool;
+
+    if(v == null) return undefined;
+    if(v === 0) return 1; // 0은 1자리 숫자입니다.
+
+    // 1. 숫자의 절대값 취하기 (음수 부호 제거)
+    const str_realnumber = String(Math.abs(v));
+
+    // 2. 소수점 및 소수점 이하 부분 제거
+    // (소수점이 있는 경우, 정수 부분만 계산)
+    const decimalIndex = str_realnumber.indexOf('.');
+    const str_naturalnumber = decimalIndex !== -1
+      ? str_realnumber.substring(0, decimalIndex)
+      : str_realnumber;
+
+    // 3. 문자열 길이 반환
+    return str_naturalnumber.length;
+  }
 }
