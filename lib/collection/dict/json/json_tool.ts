@@ -139,9 +139,9 @@ static json2sortedstring = <X>(x:X, ...args:Omitfirst<Parameters<typeof stringif
    * // https://stackoverflow.com/a/60333849
    * [Object: null prototype]
    */
-  static nullprototype2native(x: any) {
+  static nullprototype2native = <X>(x: any):X =>{
     const cls = JsonTool;
-    return cls.parse(cls.stringify(x));
+    return cls.parse<X>(cls.stringify(x));
   }
   static down_one = <P, C>(obj: P, jstep: Jstep): C => {
     return obj == null
