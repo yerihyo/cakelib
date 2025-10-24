@@ -617,6 +617,8 @@ export default class ArrayTool {
   }
 
   static splice<T>(array: T[], start: number, deleteCount: number = undefined, ...items: T[]): T[] {
+    if(array == null) return undefined;
+
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice
     const n = ArrayTool.len(array);
 
@@ -652,6 +654,19 @@ export default class ArrayTool {
 
     return [...l_head, ...items, ...l_tail];
   }
+
+  // static transduce = <X>(xs_in:X[],transducer:(x:X) => X[],): X[] => xs_in?.flatMap(x => transducer(x));
+  // static transducer2array_transducer = <X>(
+  //   transducer:(x:X) => X[],
+  // ): (xs_in:X[]) => X[] => {
+  //   return (xs_in:X[]):X[] => {
+  //     return xs_in?.reduce(
+  //       (xs_out:X[], x_in:X) => ArrayTool.push2self(xs_out, ...transducer(x_in)),
+  //       [] as X[],
+  //     );
+  //   }
+  // };
+
   static index2updated<T>(array: T[], index: number, item: T): T[] {
     return ArrayTool.splice(array, index, 1, item);
   }
@@ -998,14 +1013,11 @@ export default class ArrayTool {
 
   static uniq_rearpreferred = ArrayTool.f_array2f_array_backtoforward(ArrayTool.uniq);
 
-  static push2self<T>(items: T[], item: T): T[] {
-    items.push(item);
-    return items;
+  static push2self = <T>(items_self: T[], ...items_in: T[]): T[] => {
+    items_self.push(...items_in);
+    return items_self;
   }
-
-  static append2self<T>(items: T[], item: T): T[] {
-    return ArrayTool.push2self(items, item);
-  }
+  static append2self = ArrayTool.push2self;
 
   // static uniq(items){
   //     // https://stackoverflow.com/a/33121880
