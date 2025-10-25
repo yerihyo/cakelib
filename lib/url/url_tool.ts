@@ -6,6 +6,8 @@ import CsvTool from '../csv/csv_tool';
 import DateTool from '../date/date_tool';
 import { Pair } from '../native/native_tool';
 import DictTool from '../collection/dict/dict_tool';
+import ReactTool from '../react/react_tool';
+import { url } from 'inspector';
 // const assert = require('assert');
 
 export class UrlsearchparamsTool{
@@ -292,11 +294,12 @@ export default class UrlTool{
     return urlstring_out;
   }
 
-  static urlstring2params_upserted = (
+  static urlstring2params_reduced = (
     // urlstring:string,
     urlstring_in:string,
     // params_in?:Record<string,string|string[]>,
-    params_in?:Pair<string>[],
+
+    params_action:Pair<string>[] | ((params_prev:Pair<string>[]) => Pair<string>[]),
     // options?,
   ):string => {
     const cls = UrlTool;
@@ -305,19 +308,20 @@ export default class UrlTool{
     // console.log({callname, params_in});
     
     if(urlstring_in==null){ return undefined; }
-    if(!ArrayTool.bool(params_in)){ return urlstring_in; }
+    if(!params_action){ return urlstring_in; }
 
     const [str_nohash, str_hash] = urlstring_in?.split('#', 2) ?? [];
     const [baseurl, str_params_prev] = str_nohash?.split('?', 2) ?? [];
     
-    const params_prev = UrlsearchparamsTool.parse(str_params_prev || '');
+    const params_prev:URLSearchParams = UrlsearchparamsTool.parse(str_params_prev || '');
+    const pairstr_list = ReactTool.prev2actioned(params_action, Array.from<Pair<string>>(params_prev),);
     
-    const keys_in = new Set(params_in.map(([k,_]) => k));
+    // const keys_in = new Set(params_in.map(([k,_]) => k));
 
-    const str_params_out = new URLSearchParams([
-      ...[...params_prev.entries()].filter(([k, _]) => !keys_in.has(k)),
-      ...params_in.filter(([_,v]) => v != null), // nullable qvalues will be dropped
-    ])?.toString();
+    const keys_null = pairstr_list?.filter(([k,v]) => v == null)?.map(([k,v]) => k);
+    if(ArrayTool.bool(keys_null)){ throw new Error(`Keys cannot be null: ${keys_null?.join(', ')}`); }
+
+    const str_params_out = new URLSearchParams(pairstr_list)?.toString();
 
     const urlstring_out = [
       [
@@ -330,6 +334,33 @@ export default class UrlTool{
     // console.log({callname, urlstring_out, urlstring_in, str_hash, baseurl, str_nohash})
 
     return urlstring_out;
+  }
+
+  static urlstring2params_upserted = (
+    // urlstring:string,
+    urlstring_prev:string,
+    // params_in?:Record<string,string|string[]>,
+    params_in:Pair<string>[],
+    // options?,
+  ):string => {
+    const cls = UrlTool;
+    const callname = `UrlTool.urlstring2params_upserted @ ${DateTool.time2iso(new Date())}`;
+
+    const params_clean = params_in?.filter(([k,v]) => v != null);
+    const keys_clean = params_clean?.map(([k,_]) => k) ?? [];
+    return !ArrayTool.bool(params_clean)
+      ? urlstring_prev
+      : UrlTool.urlstring2params_reduced(
+          urlstring_prev,
+          (params_prev:Pair<string>[]) => {
+            const params_out = [
+              ...params_prev?.filter(([k,_]) => !ArrayTool.in(k, keys_clean)),
+              ...params_clean ?? [],
+            ];
+            // console.log({callname, params_out, params_clean, params_prev, })
+            return params_out;
+          }
+        );
   }
 
   // static urlstring2params_upserted_NOTWORKING_FOR_PATHNAME = (
