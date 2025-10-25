@@ -34,11 +34,11 @@ export default class ReactTool{
   // }
 
   static prev2reduced<I,O>(
-    reducer: O | ((i: I) => O),
+    action: O | ((i: I) => O),
     prev:I,
   ):O{
     const is_function = x => (typeof x === 'function');
-    return is_function(reducer) ? (reducer as ((t: I) => O))(prev) : (reducer as O);
+    return is_function(action) ? (action as ((t: I) => O))(prev) : (action as O);
   }
 
   static prev2actioned = <T>(action: React.SetStateAction<T>, prev: T,): T => ReactTool.prev2reduced(action, prev)
