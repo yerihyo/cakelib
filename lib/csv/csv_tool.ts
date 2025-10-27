@@ -1,6 +1,7 @@
 import DictTool from '../collection/dict/dict_tool';
 import MathTool from '../number/math/math_tool';
 import {stringify} from 'csv-stringify/sync';
+import DateTool from '../date/date_tool';
 
 export default class CsvTool{
   static array2stringify = function(l_in){
@@ -13,6 +14,9 @@ export default class CsvTool{
   }
 
   static str_ll2objs = (data: (string|number)[][]): Record<string,string|number>[] => {
+    const callname = `CsvTool.str_ll2objs @ ${DateTool.time2iso(new Date())}`;
+    // console.log({callname, 'data[0]':data[0]})
+    
     return data == null
       ? undefined
       : MathTool.lt(data?.length, 1)
