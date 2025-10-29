@@ -671,6 +671,13 @@ export default class ArrayTool {
     return ArrayTool.splice(array, index, 1, item);
   }
 
+  static filter2first = <T>(array: T[], filter: (t: T) => boolean): T => {
+    for(const item of array){
+      if(filter(item)) return item;
+    }
+    return undefined;
+  }
+
   static filter2first_updated<T>(
     array: T[],
     filter: (t: T) => boolean,
