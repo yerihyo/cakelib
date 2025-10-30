@@ -42,7 +42,15 @@ export default class SpanTool {
   static span2norm = SpanTool.infinf2nullnull;
 
   static span2istriequal_nullnull = <T>(span:Pair<T>):boolean => ArrayTool.areAllTriequal(SpanTool.span2norm(span), SpanTool.nullnull());
-
+  static span2is_infinf = <T>(span:Pair<T>):boolean => span == null ? undefined : ArrayTool.areAllTriequal(SpanTool.span2norm(span), SpanTool.nullnull());
+  static span2is_bound = <T>(span:Pair<T>):boolean => span == null ? undefined : !SpanTool.span2is_infinf(span);
+  
+  static f_itemeq2f_eq = <T>(f_itemeq:Bicomparator<T>) => ArrayTool.f_bicmp2f_every(f_itemeq);
+  static eq = <X>(x1:Pair<X>, x2:Pair<X>, option?:{f_itemeq:Bicomparator<X>}) => {
+    const f_itemeq = option?.f_itemeq ?? CmpTool.eq_default<X>;
+    return SpanTool.f_itemeq2f_eq(f_itemeq)(x1, x2);
+  }
+  static ne = FunctionTool.func2negated3(SpanTool.eq);
   
   static span2len = <T,>(
     span:Pair<T>,
