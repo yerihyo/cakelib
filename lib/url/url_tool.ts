@@ -2,17 +2,15 @@ import lodash from 'lodash';
 import useSWR, { SWRResponse } from 'swr';
 import CacheTool from '../cache/cache_tool';
 import ArrayTool from '../collection/array/array_tool';
+import DictTool from '../collection/dict/dict_tool';
 import CsvTool from '../csv/csv_tool';
 import DateTool from '../date/date_tool';
 import { Pair } from '../native/native_tool';
-import DictTool from '../collection/dict/dict_tool';
 import ReactTool from '../react/react_tool';
-import { url } from 'inspector';
-import NumberTool from '../number/number_tool';
 // const assert = require('assert');
 
 export class UrlsearchparamsTool{
-  static codec_idfun = () => ({decode: (s:string)=>s, encode: (s:string)=>s});
+  // static codec_idfun = () => ({decode: (s:string)=>s, encode: (s:string)=>s});
   static values2imploded = (l: (string|number)[], option?:{delim?:string}) => {
     if(!ArrayTool.bool(l)) return undefined;
 
@@ -29,12 +27,12 @@ export class UrlsearchparamsTool{
   static str2decommad = (s: string):string[] => s?.split(',');
   static values2commad = (l: (string|number)[]) => UrlsearchparamsTool.values2imploded(l, {delim:','});
 
-  static codec_day8span = () => {
-    return {
-      decode: (s:string):Pair<number> => UrlsearchparamsTool.str2decommad(s)?.map(s => NumberTool.x2number(s)) as Pair<number>,
-      encode: (day8span:Pair<number>):string => UrlsearchparamsTool.values2commad(day8span),
-    }
-  }
+  // static codec_day8span = () => {
+  //   return {
+  //     decode: (s:string):Pair<number> => UrlsearchparamsTool.str2decommad(s)?.map(s => NumberTool.x2number(s)) as Pair<number>,
+  //     encode: (day8span:Pair<number>):string => UrlsearchparamsTool.values2commad(day8span),
+  //   }
+  // }
   
   static params2string = (params:URLSearchParams):string => params?.toString();
   static parse = (x:string) => (new URLSearchParams(x));
