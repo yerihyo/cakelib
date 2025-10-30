@@ -314,7 +314,7 @@ export default class HookTool{
   //   return hook;  
   // }
 
-  static action_async2hookupdater = <V>(
+  static action2hook_lazyupdater = <V>(
     action_async: SetStateActionAsync<V>,
     deps:Parameters<typeof React.useEffect>[1],
   ):((hook:Reacthook<V>) => Reacthook<V>) => {
