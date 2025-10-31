@@ -10,7 +10,7 @@ import ReactTool from '../react/react_tool';
 // const assert = require('assert');
 
 export class UrlsearchparamsTool{
-  // static codec_idfun = () => ({decode: (s:string)=>s, encode: (s:string)=>s});
+  static codec_idfun = () => ({decode: (s:string)=>s, encode: (s:string)=>s});
   static values2imploded = (l: (string|number)[], option?:{delim?:string}) => {
     if(!ArrayTool.bool(l)) return undefined;
 
