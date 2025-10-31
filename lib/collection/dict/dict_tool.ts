@@ -21,6 +21,11 @@ export default class DictTool{
         return obj == null ? undefined : Object.entries(obj) as [K, V][];
     }
 
+    static dict2filter_subtract = <H>(h2:H) => { return (k:Dictkey,v:any) => (!DictTool.in(k, h2) || (h2?.[k] !== v)); };
+    static subtract = <H>(h1:H, h2:H):H => {
+        return DictTool.dict2filtered(h1, DictTool.dict2filter_subtract(h2));
+    }
+
     static size(obj){
         return obj ? Object.keys(obj).length : undefined;
     }

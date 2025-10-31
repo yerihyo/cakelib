@@ -81,6 +81,15 @@ export default class PhonenumberTool{
 }
 
 export class PhonenumberkrTool{
+  static regex_cellphone = () => /^01[016789]-?(\d{3,4})-?\d{4}$/;
+  // static clean2dashed = (clean: string): string => {
+  //   if(clean == null){ return undefined; }
+
+  //   if (clean.length === 11) { return clean.replace(/^(\d{3})(\d{4})(\d{4})$/, '$1-$2-$3'); }
+  //   if (clean.length === 10) { return clean.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3');}
+  //   return clean;
+  // };
+
   static countrycode2is_nonkr = (countrycode:string):boolean => {
     return countrycode && !ArrayTool.in(countrycode, ['+82']);
   }
@@ -123,6 +132,11 @@ export class PhonenumberkrTool{
     return match?.slice(1);
   }
 
+  static dom2dashed = lodash.flow(
+    PhonenumberkrTool.dom2tokens,
+    l => l?.join('-')
+  )
+
   static x2dashed = (x:string):string => {
     const cls = PhonenumberkrTool;
     const callname = `PhonenumberkrTool.x2dashed @ ${DateTool.time2iso(new Date())}`;
@@ -132,7 +146,7 @@ export class PhonenumberkrTool{
     
     const [dom, countrycode] = PhonenumberTool.splitonce_domestic_countrycode(x)
     // const zdom = cls.dom2zdom(dom);
-    const dom_dashed = cls.dom2tokens(dom)?.join('-');
+    const dom_dashed = cls.dom2dashed(dom);
     
     // return countrycode
     //   ? [countrycode, dom]?.filter(x => x!=null)?.join(' ')
