@@ -26,6 +26,8 @@ export type Funcwrapper<O,A extends any[]> = (f:FuncAO<O,A>) => FuncAO<O,A>;
 
 export default class FunctionTool{
 
+  static idfun = <X>(x:X):X => x;
+
   // static f_onetoone2f_manytomany_notnull = <X, A extends any[], R>(
   //     f_onetoone:(x:X, ...args:A) => R,
   // ):((l:X[], ...args:A) => R[]) => {

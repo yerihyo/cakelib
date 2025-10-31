@@ -297,7 +297,7 @@ export default class HookTool{
     return (hook:Reacthook<V>) => {
       const f_deps = option?.f_deps ?? ((v:V) => [v]);
       const deps = f_deps(hook[0])
-      React.useEffect(() => { f_emit(hook[0]); }, deps);
+      React.useEffect(() => { return f_emit(hook[0]); }, deps);
       return hook; 
     }
   }
@@ -314,7 +314,7 @@ export default class HookTool{
   //   return hook;  
   // }
 
-  static action_async2hookupdater = <V>(
+  static action2hook_lazyupdater = <V>(
     action_async: SetStateActionAsync<V>,
     deps:Parameters<typeof React.useEffect>[1],
   ):((hook:Reacthook<V>) => Reacthook<V>) => {
