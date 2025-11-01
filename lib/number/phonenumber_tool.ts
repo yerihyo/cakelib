@@ -106,6 +106,7 @@ export class PhonenumberkrTool{
   static x2dom = lodash.flow(
     PhonenumberTool.splitonce_domestic_countrycode,
     x => x?.[0],
+    PhonenumberTool.x2nodash,
   )
   static x2zdom = lodash.flow(PhonenumberkrTool.x2dom, PhonenumberkrTool.dom2zdom);
 
