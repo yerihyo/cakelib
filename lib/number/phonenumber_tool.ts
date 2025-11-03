@@ -91,6 +91,7 @@ export class PhonenumberkrTool{
   // };
 
   static countrycode_kr = () => '+82';
+  static iso31661alpha2_kr = () => 'KR';
   static countrycode2is_kr = (countrycode:string):boolean => countrycode == null ? undefined : ArrayTool.in(countrycode, ['+82']);
   static countrycode2is_nonkr = (countrycode:string):boolean => countrycode == null ? undefined : !ArrayTool.in(countrycode, ['+82']);
 
