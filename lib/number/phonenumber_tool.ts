@@ -86,9 +86,11 @@ export class PhonenumberkrTool{
   //   return clean;
   // };
 
-  static countrycode2is_nonkr = (countrycode:string):boolean => {
-    return countrycode && !ArrayTool.in(countrycode, ['+82']);
-  }
+  static countrycode_kr = () => '+82';
+  static iso31661alpha2_kr = () => 'KR';
+  static countrycode2is_kr = (countrycode:string):boolean => countrycode == null ? undefined : ArrayTool.in(countrycode, ['+82']);
+  static countrycode2is_nonkr = (countrycode:string):boolean => countrycode == null ? undefined : !ArrayTool.in(countrycode, ['+82']);
+
   static is_zdom = (dom:string):boolean => dom?.startsWith('0');
   static dom2zdom = (dom:string):string => dom == null
     ? undefined
@@ -102,6 +104,7 @@ export class PhonenumberkrTool{
   static x2dom = lodash.flow(
     PhonenumberTool.splitonce_domestic_countrycode,
     x => x?.[0],
+    PhonenumberTool.x2nodash,
   )
   static x2zdom = lodash.flow(PhonenumberkrTool.x2dom, PhonenumberkrTool.dom2zdom);
 
