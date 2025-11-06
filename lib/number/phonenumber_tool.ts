@@ -13,23 +13,6 @@ export default class PhonenumberTool{
     // return v?.replaceAll("\\D+", ""); // not working
   }
 
-  static string2is_cellphonenumber(phonenumber:string):boolean{
-    const cls = PhonenumberTool;
-    const callname = `PhonenumberTool.string2is_cellphonenumber @ ${DateTool.time2iso(new Date())}`;
-
-    const phonenumber_nodash = cls.x2nodash(phonenumber);
-    const dom = PhonenumberkrTool.x2dom(phonenumber_nodash);
-    const zdom = PhonenumberkrTool.dom2zdom(dom);
-    const n = zdom?.length;
-  
-    const is_valid = ArrayTool.all([
-      !!n && n>= 10 && n<=11,
-      zdom?.startsWith('01'),
-    ]);
-    // console.log({callname, phonenumber, phonenumber_nodash, dom, zdom, is_valid, n})
-    return is_valid;
-  }
-
   static regex_countrycode = ():RegExp => {
     // https://stackoverflow.com/a/62192894
     // return /(?:\+|00)(1|7|2[07]|3[0123469]|4[013456789]|5[12345678]|6[0123456]|8[1246]|9[0123458]|(?:2[12345689]|3[578]|42|5[09]|6[789]|8[035789]|9[679])\d)/;
@@ -82,6 +65,19 @@ export default class PhonenumberTool{
 
 export class PhonenumberkrTool{
   static regex_cellphone = () => /^01[016789]-?(\d{3,4})-?\d{4}$/;
+
+  static string2is_cellphonenumber(phonenumber:string):boolean{
+    const cls = PhonenumberTool;
+    const callname = `PhonenumberkrTool.string2is_cellphonenumber @ ${DateTool.time2iso(new Date())}`;
+
+    const phonenumber_nodash = cls.x2nodash(phonenumber);
+    const dom = PhonenumberkrTool.x2dom(phonenumber_nodash);
+    const zdom = PhonenumberkrTool.dom2zdom(dom);
+    // const n = zdom?.length;
+
+    return PhonenumberkrTool.regex_cellphone().test(zdom);
+  }
+  
   // static clean2dashed = (clean: string): string => {
   //   if(clean == null){ return undefined; }
 
