@@ -706,9 +706,8 @@ export default class ArrayTool {
     a.length = j;
     return a;
   }
-  static is_array(array) {
-    return Array.isArray(array);
-  }
+  static is_array = Array.isArray;
+  
   static first<T>(array: T[]): T {
     return ArrayTool.bool(array) ? array[0] : undefined;
   }
