@@ -428,6 +428,47 @@ static json2sortedstring = <X>(x:X, ...args:Omitfirst<Parameters<typeof stringif
   //   }
   // }
 
+  static leafducer2grafter_pinpoint = <TI,TO,NI,NO>(
+    leafducer: (node: NI, jedge: Jstep,) => NO,
+  ):((node: TI, jpath: Jstep[],) => TO) => {
+    const cls = JsonTool;
+
+    const node2is_worthy = (node:any) => {
+      if(ArrayTool.is_array(node)){ return ArrayTool.bool(node); }
+      if(DictTool.is_dict(node)){ return DictTool.bool(node); }
+      throw new Error(`Invalid type: ${typeof node}`);
+    }
+
+    const grafter = (tree_in: TI, jpath_in: Jstep[],):TO => {
+      if (jpath_in.length === 0) { throw new Error(`jpath_in.length:${jpath_in.length}`); }
+      if (jpath_in.length === 1) { return leafducer(tree_in as unknown as NI, jpath_in[0]) as unknown as TO; }
+
+      const [jedge, ...jpath_out] = jpath_in;
+      const child_in = tree_in[jedge]
+      const child_out = grafter(child_in, jpath_out);
+      if(child_in === child_out) return tree_in as unknown as TO;
+
+      const is_child_worthy = node2is_worthy(child_out);
+
+      if(ArrayTool.is_array(tree_in)){
+        if(!NumberTool.is_number(jedge)){ throw new Error(`jedge:${jedge}`); }
+
+        return ArrayTool.splice(tree_in as any[], jedge as number, 1, ...is_child_worthy ? [child_out] : []) as unknown as TO 
+      }
+
+      if(DictTool.is_dict(tree_in)){
+        if(!StringTool.is_string(jedge)){ throw new Error(`jedge:${jedge}`); }
+
+        return {
+          ...DictTool.keys2excluded(tree_in, [jedge,]),
+          ...is_child_worthy ? { [jedge]: child_out } : {},
+        } as TO
+      }
+    }
+    return grafter;
+  }
+
+
   static action2deepaction<CI = any, CO = any, PI = any, PO = any,>(
     action: CO | ((c: CI) => CO),
     jpath: Jpath,
