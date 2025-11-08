@@ -1,15 +1,14 @@
+import stringify from 'json-stable-stringify';
+import lodash from 'lodash';
 import CmpTool from '../../../cmp/CmpTool';
 import DateTool from '../../../date/date_tool';
-import FunctionTool from '../../../function/function_tool';
-import NativeTool, { Dictkey, Omitfirst, Lastparam, ParamsWithoutfirst } from '../../../native/native_tool';
+import NativeTool, { Dictkey, Lastparam, Omitfirst, ParamsWithoutfirst } from '../../../native/native_tool';
 import NumberTool from '../../../number/number_tool';
 import ReactTool from '../../../react/react_tool';
 import StringTool from '../../../string/string_tool';
 import TraversileTool from '../../../traversile/traversile_tool';
 import ArrayTool from '../../array/array_tool';
 import DictTool from '../dict_tool';
-import stringify from 'json-stable-stringify';
-import lodash from 'lodash'
 
 // const assert = require('assert');
 // const lodash = require('lodash');
@@ -17,6 +16,9 @@ import lodash from 'lodash'
 
 export type Jstep = (string | number)
 export type Jpath = Jstep[]
+
+export type Leafducer<PO,PI> = (p_in: PI, jedge: Jstep) => PO
+export type Grafter<RO,RI> = (root_in: RI, jpath: Jstep[],) => RO
 
 export class JpathTool {
   static is_prefix = ArrayTool.f_eq2f_is_prefix(CmpTool.isTriequal);
@@ -427,6 +429,7 @@ static json2sortedstring = <X>(x:X, ...args:Omitfirst<Parameters<typeof stringif
   //     return cls.node2deepmapped(c_in, jpath.slice(1), transducer, option)
   //   }
   // }
+
 
   static action2deepaction<CI = any, CO = any, PI = any, PO = any,>(
     action: CO | ((c: CI) => CO),

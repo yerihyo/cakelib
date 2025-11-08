@@ -19,6 +19,7 @@ export type Omitlast<T extends any[]> = T extends [...infer A, infer LAST] ? A :
 export type ParamsWithoutfirst<F extends (...args: any) => any> = Omitfirst<Parameters<F>>;
 export type ParamsWithoutlast<F extends (...args: any) => any> = Omitlast<Parameters<F>>;
 
+export type StateAction<O,I> = O | ((c_prev: I) => O); // Similar to React.SetStateAction
 // export type Firstfew<T extends any[]> = T extends [infer A, ...infer R] ? A : never;
 
 const time2iso = (d:Date) => d?.toISOString()?.split("T")?.[1];

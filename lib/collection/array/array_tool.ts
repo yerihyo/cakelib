@@ -612,7 +612,7 @@ export default class ArrayTool {
     return array_out;
   }
   static splice2self<T>(array: T[], start: number, deleteCount?: number, ...items: T[]): T[] {
-    array.splice(start, deleteCount, ...items);
+    array?.splice(start, deleteCount, ...items);
     return array;
   }
 
@@ -706,9 +706,8 @@ export default class ArrayTool {
     a.length = j;
     return a;
   }
-  static is_array(array) {
-    return Array.isArray(array);
-  }
+  static is_array = Array.isArray;
+  
   static first<T>(array: T[]): T {
     return ArrayTool.bool(array) ? array[0] : undefined;
   }
@@ -1551,6 +1550,22 @@ export default class ArrayTool {
       const results = await Promise.all(chunks?.map(page => af_batch(page, ...args)));
       return results?.flat()
     }
+  }
+
+  static overwrite_inplace = <T>(l_from: T[], l_to:T[]) => {
+    for(let i = 0; i < l_from.length; i++) {
+      l_to[i] = l_from[i];
+    }
+
+    // 3b. 길이 조정 (Trim):
+    // newArray의 길이로 currentArray의 길이를 맞춥니다.
+    // (newArray가 더 짧을 경우 뒤쪽 요소를 제거)
+    if (l_to.length !== l_from.length) {
+      l_to.splice(l_from.length, l_to.length - l_from.length);
+    }
+    
+    // 수정된 원본 배열을 반환합니다.
+    return l_to;
   }
 }
 
