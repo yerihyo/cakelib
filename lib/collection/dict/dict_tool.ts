@@ -11,9 +11,8 @@ export default class DictTool{
     static keys = <K=Dictkey>(obj:any): K[] => (obj != null ? (Object.keys(obj) as K[]) : undefined);
     static values = <X,H=any>(obj:H):X[] => (obj != null ? Object.values(obj) : undefined);
 
-    static in = (k:Dictkey, obj:any):boolean => (k in (obj ?? {}));
+    static in = (k:Dictkey, obj:any):boolean => obj == null ? undefined : (k in obj);
     static has_key = (h:any, k:Dictkey) => DictTool.in(k,h);
-
 
     static kv2h_or_undef = (k:Dictkey, v:any):Object => v== null ? undefined : {[k]:v};
 
@@ -407,6 +406,23 @@ export default class DictTool{
     }
 
     static path_v2dict = (path:string[], v:any) => ArrayTool.reversed(path)?.reduce((h, edge) => ({[edge]:h}), v);
+
+    static splice = <HO,HI=HO>(h:HI, k:string, option?:{value?:any}):HO => {
+        const is_child_worthy = DictTool.has_key(option, 'value')
+        // const is_child_worthy = defined_value !== undefined // null is valid
+        return {
+            ...DictTool.keys2excluded(h, [k,]),
+            ...is_child_worthy ? { [k]: option?.value } : {},
+        } as HO
+    }
+
+    static splice2self = <HO,HI=HO>(h:HI, k:string, option?:{value?:any}):HO => {
+        const is_child_worthy = DictTool.has_key(option, 'value')
+
+        if (!is_child_worthy) {delete h[k];}
+        else { h[k] = option?.value; } // 업데이트: 새 자식 값(child_out)을 원본 객체(root_in)의 해당 키에 직접 할당합니다.
+        return h as unknown as HO;
+    }
 }
 
 export class CounterTool {

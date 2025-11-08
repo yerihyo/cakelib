@@ -1,15 +1,14 @@
+import stringify from 'json-stable-stringify';
+import lodash from 'lodash';
 import CmpTool from '../../../cmp/CmpTool';
 import DateTool from '../../../date/date_tool';
-import FunctionTool from '../../../function/function_tool';
-import NativeTool, { Dictkey, Omitfirst, Lastparam, ParamsWithoutfirst } from '../../../native/native_tool';
+import NativeTool, { Dictkey, Lastparam, Omitfirst, ParamsWithoutfirst } from '../../../native/native_tool';
 import NumberTool from '../../../number/number_tool';
 import ReactTool from '../../../react/react_tool';
 import StringTool from '../../../string/string_tool';
 import TraversileTool from '../../../traversile/traversile_tool';
 import ArrayTool from '../../array/array_tool';
 import DictTool from '../dict_tool';
-import stringify from 'json-stable-stringify';
-import lodash from 'lodash'
 
 // const assert = require('assert');
 // const lodash = require('lodash');
@@ -17,6 +16,9 @@ import lodash from 'lodash'
 
 export type Jstep = (string | number)
 export type Jpath = Jstep[]
+
+export type Leafducer<PO,PI> = (p_in: PI, jedge: Jstep) => PO
+export type Grafter<RO,RI> = (root_in: RI, jpath: Jstep[],) => RO
 
 export class JpathTool {
   static is_prefix = ArrayTool.f_eq2f_is_prefix(CmpTool.isTriequal);
@@ -427,46 +429,6 @@ static json2sortedstring = <X>(x:X, ...args:Omitfirst<Parameters<typeof stringif
   //     return cls.node2deepmapped(c_in, jpath.slice(1), transducer, option)
   //   }
   // }
-
-  static leafducer2grafter_pinpoint = <TI,TO,NI,NO>(
-    leafducer: (node: NI, jedge: Jstep,) => NO,
-  ):((node: TI, jpath: Jstep[],) => TO) => {
-    const cls = JsonTool;
-
-    const node2is_worthy = (node:any) => {
-      if(ArrayTool.is_array(node)){ return ArrayTool.bool(node); }
-      if(DictTool.is_dict(node)){ return DictTool.bool(node); }
-      throw new Error(`Invalid type: ${typeof node}`);
-    }
-
-    const grafter = (tree_in: TI, jpath_in: Jstep[],):TO => {
-      if (jpath_in.length === 0) { throw new Error(`jpath_in.length:${jpath_in.length}`); }
-      if (jpath_in.length === 1) { return leafducer(tree_in as unknown as NI, jpath_in[0]) as unknown as TO; }
-
-      const [jedge, ...jpath_out] = jpath_in;
-      const child_in = tree_in[jedge]
-      const child_out = grafter(child_in, jpath_out);
-      if(child_in === child_out) return tree_in as unknown as TO;
-
-      const is_child_worthy = node2is_worthy(child_out);
-
-      if(ArrayTool.is_array(tree_in)){
-        if(!NumberTool.is_number(jedge)){ throw new Error(`jedge:${jedge}`); }
-
-        return ArrayTool.splice(tree_in as any[], jedge as number, 1, ...is_child_worthy ? [child_out] : []) as unknown as TO 
-      }
-
-      if(DictTool.is_dict(tree_in)){
-        if(!StringTool.is_string(jedge)){ throw new Error(`jedge:${jedge}`); }
-
-        return {
-          ...DictTool.keys2excluded(tree_in, [jedge,]),
-          ...is_child_worthy ? { [jedge]: child_out } : {},
-        } as TO
-      }
-    }
-    return grafter;
-  }
 
 
   static action2deepaction<CI = any, CO = any, PI = any, PO = any,>(
