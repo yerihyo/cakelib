@@ -297,7 +297,7 @@ export default class HookTool{
     return (hook:Reacthook<V>) => {
       const f_deps = option?.f_deps ?? ((v:V) => [v]);
       const deps = f_deps(hook[0])
-      React.useEffect(() => { return f_emit(hook[0]); }, deps);
+      React.useEffect(() => { f_emit(hook[0]); }, deps);
       return hook; 
     }
   }
