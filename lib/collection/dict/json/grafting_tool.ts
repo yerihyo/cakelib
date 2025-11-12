@@ -62,12 +62,15 @@ export default class GraftingTool {
     },
   ) => {
     const cls = GraftingTool;
+    const callname = `GraftingTool.leafducer2grafter @ ${DateTool.time2iso(new Date())}`;
 
     const mutativity = option?.mutativity ?? 'VOPLIKE';
     const traversality = option?.traversality ?? 'BROADCAST';
     const node2is_worthy = option?.node2is_worthy ?? cls.node2is_worthy_default;
 
-    const grafter = <RI,RO>(root_in: RI, jpath_in: Jstep[],):RO => {
+    const grafter = <RO,RI>(root_in: RI, jpath_in: Jstep[],):RO => {
+      // console.dir({callname, jpath_in, root_in}, {depth:null});
+
       if (jpath_in.length === 0) { throw new Error(`jpath_in.length:${jpath_in.length}`); }
       if (jpath_in.length === 1) { return leafducer(root_in as unknown as LPI, jpath_in[0]) as unknown as RO; }
 
@@ -208,14 +211,14 @@ export default class GraftingTool {
     return grafter;
   }
 
-  static tree2grafted = <RO,RI>(
-    tree:RI,
+  static tree2grafted = <TO,LPO,TI=TO,LPI=LPO>(
+    tree:TI,
     jpath:Jpath,
-    leafducer:Leafducer<RO,RI>,
+    leafducer:Leafducer<LPO,LPI>,
     option?:Lastparam<typeof GraftingTool.action2leafducer>,
-  ):RO => {
+  ):TO => {
     const cls = GraftingTool;
     const grafter = cls.leafducer2grafter(leafducer, option);
-    return grafter(tree, jpath);
+    return grafter<TO,TI>(tree, jpath);
   }
 }
