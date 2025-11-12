@@ -352,6 +352,8 @@ export default class UrlTool{
     const cls = UrlTool;
     const callname = `UrlTool.urlstring2params_upserted @ ${DateTool.time2iso(new Date())}`;
 
+    if(!ArrayTool.bool(params_in)) return urlstring_prev;
+
     const params_clean = params_in?.filter(([k,v]) => v != null);
     const keys_clean = params_clean?.map(([k,_]) => k) ?? [];
     return !ArrayTool.bool(params_clean)
