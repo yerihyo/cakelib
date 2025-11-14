@@ -711,9 +711,9 @@ export default class ArrayTool {
   static first<T>(array: T[]): T {
     return ArrayTool.bool(array) ? array[0] : undefined;
   }
-  static last<T>(array: T[]): T {
-    return ArrayTool.bool(array) ? array[array.length - 1] : undefined;
-  }
+
+  // deprecated. use .at()
+  static last = <T>(array: T[]): T => array?.at(-1);
 
   static unaryslice(n, array) {
     if (!ArrayTool.bool(array)) {
