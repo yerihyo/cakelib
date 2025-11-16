@@ -971,12 +971,15 @@ export default class ArrayTool {
 
   static assert_onekidpolicy = <T>(l: T[]): T[] => ArrayTool.assert_length(l, [0, 1]);
   static l2one = <T>(l: T[], option?:{relaxed?:boolean}): T => {
+    const callname = `ArrayTool.l2one @ ${date2str_time(new Date())}`;
     if(l == null){ return undefined; }
 
     const n = l?.length;
     if(ArrayTool.in(n, [0,1])){ return l?.[0]; }
     
     if(option?.relaxed){ return undefined; }
+
+    console.log({callname, l, });
     throw new Error(`l?.length=${l?.length}`);
   }
   // static l2onlykid_relaxed = <T>(l: T[]): T => (ArrayTool.is_singleton(l) ? l[0] : undefined);
