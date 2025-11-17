@@ -261,4 +261,15 @@ export default class FunctionTool{
       }
     });
   }
+
+  static af2af_chunked = <Y,X>(
+    af:FuncAO<Promise<Y[]>,[X[]]>,
+    chunker:(xs:X[]) => X[][],
+  ) => {
+    return async (xs:X[]):Promise<Y[]> => {
+      const xs_list = chunker(xs);
+      const ys_list = await Promise.all(xs_list?.map(xs_ => af(xs_)))
+      return ys_list?.flat();
+    }
+  }
 }
