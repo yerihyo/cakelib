@@ -453,6 +453,7 @@ export default class SpanTool {
     SpanTool.subtract,
     spans => NativeTool.negate3(SpanTool.bool(spans)),
   )
+  static covers = <X, A extends any[]>(x1:Pair<X>, x2:Pair<X>, ...args:A) => SpanTool.is_covered(x2, x1, ...args);
 
   static subtractSpans = <T>(
     spans1: Pair<T>[],
