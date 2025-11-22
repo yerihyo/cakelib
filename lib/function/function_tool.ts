@@ -272,4 +272,23 @@ export default class FunctionTool{
       return ys_list?.flat();
     }
   }
+
+  static validator2checker = <X, A extends any[]>(validator:FuncAB<[X, ...A]>):FuncAO<X, [X, ...A]> => {
+    const callname = `FunctionTool.validator2checker`;
+    return (x:X,...args:A):X => {
+      if(!validator(x, ...args)){
+        console.error({callname, x})
+        throw new Error(`Invalid value`);
+      }
+      return x;
+    }
+  }
+
+  static value2validator_checked = <X>(
+    x:X,
+    validator:FuncAB<[X]>
+  ):X => {
+    const cls = FunctionTool;
+    return cls.validator2checker(validator)(x);
+  }
 }
