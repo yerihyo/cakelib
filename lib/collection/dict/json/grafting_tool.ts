@@ -174,6 +174,8 @@ export default class GraftingTool {
     const node2is_worthy = option?.node2is_worthy ?? cls.node2is_worthy_default;
 
     const leafducer = <PO,PI>(p_in: PI, jedge: Jstep): PO => {
+      if(p_in == null) return p_in as unknown as PO;
+
       // BROADCAST
       const is_broadcast = cls.node_jedge_traversality2is_broadcast(p_in, jedge, traversality);
       // console.log({callname, is_broadcast, p_in, jedge})
