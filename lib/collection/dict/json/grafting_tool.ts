@@ -72,13 +72,17 @@ export default class GraftingTool {
       // console.dir({callname, jpath_in, root_in}, {depth:null});
 
       if (jpath_in.length === 0) { throw new Error(`jpath_in.length:${jpath_in.length}`); }
-      if (jpath_in.length === 1) { return leafducer(root_in as unknown as LPI, jpath_in[0]) as unknown as RO; }
 
       const is_broadcast = cls.node_jedge_traversality2is_broadcast(root_in, jpath_in[0], traversality);
+      // console.log({callname, root_in, 'jpath_in[0]':jpath_in[0], is_broadcast, traversality});
+
       if(is_broadcast){
         const root_out = (root_in as any[])?.map(item_in => grafter(item_in, jpath_in))?.filter(node2is_worthy);
         return cls.parentpair2merged_broadcast(root_out, root_in as any[], {mutativity}) as RO;
       }
+
+      // after dealing with broadcast... in case of broadcast before last element
+      if (jpath_in.length === 1) { return leafducer(root_in as unknown as LPI, jpath_in[0]) as unknown as RO; }
 
       const [jedge, ...jpath_out] = jpath_in;
       if(!cls.parent_jedge2has_child(root_in, jedge)){
@@ -129,7 +133,10 @@ export default class GraftingTool {
     const {worthy:is_child_worthy, value:c_out} = childinfo_out;
 
     const c_in = p_in?.[jedge];
-    if(c_out as unknown === c_in as unknown) return p_in as unknown as PO;
+    if(ArrayTool.all([
+      is_child_worthy,
+      c_out as unknown === c_in as unknown,
+    ])) return p_in as unknown as PO;
 
     if (ArrayTool.is_array(p_in)) {
       if (!NumberTool.is_number(jedge)) { throw new Error(`jedge:${jedge} must be number for array`); }
@@ -200,6 +207,21 @@ export default class GraftingTool {
 
     return (p_in: PI, jedge: Jstep): PO => {
       return cls.child_parent2merged_pinpoint({worthy:false}, p_in, jedge, {mutativity})
+    };
+  }
+
+  static leafducer_deletenull = <PO,PI=PO>(
+    option?:{mutativity?: Lastparam<typeof GraftingTool.leafducer2grafter>['mutativity']},
+  ):Leafducer<PO,PI> => {
+    const cls = GraftingTool;
+    const callname = `GraftingTool.leafducer_deletenull @ ${DateTool.time2iso(new Date())}`;
+
+    const mutativity = option?.mutativity ?? 'VOPLIKE';
+
+    return (p_in: PI, jedge: Jstep): PO => {
+      // console.log({callname, p_in, jedge})
+      const c_in = p_in?.[jedge];
+      return cls.child_parent2merged_pinpoint({worthy:c_in != null, value:c_in}, p_in, jedge, {mutativity})
     };
   }
 
