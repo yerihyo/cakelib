@@ -1,6 +1,6 @@
 import lodash from 'lodash';
 import CmpTool, { Bicomparator, Comparator, EqualTool, Realigner } from '../../cmp/CmpTool';
-import FunctionTool from '../../function/function_tool';
+import FunctionTool, { FuncAO } from '../../function/function_tool';
 import NativeTool, { Dictkey, Omitfirst, Pair } from '../../native/native_tool';
 import MathTool from '../../number/math/math_tool';
 import DictTool from '../dict/dict_tool';
@@ -833,7 +833,7 @@ export default class ArrayTool {
   //   };
   // };
 
-  static array2dict<K extends Dictkey, V>(items: V[], item2key: (v: V) => K): Record<K, V> {
+  static array2dict = <V, K extends Dictkey>(items: V[], item2key: (v: V) => K): Record<K, V> => {
     const cls = ArrayTool;
     const callname = `ArrayTool.array2dict @ ${date2str_time(new Date())}`;
 
@@ -863,6 +863,13 @@ export default class ArrayTool {
     }, {} as Record<K, V>);
   }
 
+  static array2f_k2v = <V,K extends Dictkey>(...args:Parameters<typeof ArrayTool.array2dict<V,K>>):FuncAO<V,[K]> => {
+    const cls = ArrayTool;
+
+    const dict_k2v = cls.array2dict(...args);
+    return (k: K) => dict_k2v?.[k];
+  }
+
   // static array2dict_alias<K extends Dictkey, V>(
   //     items: V[],
   //     item2aliases: (v: V) => K[],
@@ -873,31 +880,7 @@ export default class ArrayTool {
   //     return DictTool.merge_dicts(kv_list, DictTool.WritePolicy.no_duplicate_key)
   // }
 
-  static Deprecated = class {
-    static array2dict<K extends Dictkey, X, V>(
-      items: X[],
-      item2key: (x: X) => K,
-      item2value?: (x: X) => V
-      // vwrite = undefined,
-    ): Record<K, V> {
-      // assert(vwrite === undefined)  // assuming overwrite
-      if (items === undefined) {
-        return undefined!;
-      }
 
-      // if (item2value === undefined) { item2value = x => (x as unknown as V) }
-
-      const reducer = (h: Record<K, V>, x: X) => {
-        const k: K = item2key(x);
-        // console.log({h, k});
-        assert(!(k in h), `k:${k as string}, h:${JSON.stringify(h)}`);
-        const v: V = item2value ? item2value(x) : (x as unknown as V);
-        h[k] = v;
-        return h;
-      };
-      return items.reduce(reducer, {} as Record<K, V>);
-    }
-  };
 
   static array2dict_item2index<X extends Dictkey>(items: X[]): Record<X, number> {
     if (items == null) {
