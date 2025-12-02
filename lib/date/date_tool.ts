@@ -6,7 +6,7 @@
 import lodash from 'lodash';
 import CmpTool from '../cmp/CmpTool';
 import ArrayTool from '../collection/array/array_tool';
-import FunctionTool from '../function/function_tool';
+import FunctionTool, { FuncAO } from '../function/function_tool';
 import { Pair, Triple } from '../native/native_tool';
 import MathTool from '../number/math/math_tool';
 import NumberTool from '../number/number_tool';
@@ -276,19 +276,25 @@ export default class DateTool {
   static mins2added = (d: Date, mins: number): Date  =>  DateTool.secs2added(d, MathTool.times(mins,60));
   static hours2added = (d: Date, hours: number): Date  =>  DateTool.mins2added(d, MathTool.times(hours,60));
   static days2added = (d: Date, days: number): Date  =>  DateTool.hours2added(d, MathTool.times(days,24));
-  static day82days_added = (day8: number, days: number): number => DateTool.date2day8(DateTool.days2added(DateTool.day82date_midnight(day8), days));
-  static day8days2added = DateTool.day82days_added;
+  static fxx_date2fxx_day8 = <A extends any[]>(f_date:FuncAO<Date, [Date, ...A]>):FuncAO<number, [number, ...A]> => {
+    return (day8_in:number, ...args:A) => {
+      const d_in = DateTool._day82date_midnight(day8_in);
+      const d_out = f_date(d_in, ...args);
+      const day8_out = DateTool._date2day8(d_out);
+      return day8_out;
+    }
+  };
+  static day82days_added = DateTool.fxx_date2fxx_day8<[number]>(DateTool.days2added);
+  // static day8days2added = DateTool.day82days_added;
 
-  static day82epoch = lodash.flow(DateTool.day82date_midnight, DateTool.date2epoch);
-  static day82epochms = lodash.flow(DateTool.day82date_midnight, d => d?.getTime());
-
+  static _day82epoch = lodash.flow(DateTool._day82date_midnight, DateTool.date2epoch);
   static day8span2days = (day8span:Pair<number>):number => {
     const cls = DateTool;
 
     if(day8span[0] == null) return Infinity;
     if(day8span[1] == null) return Infinity;
 
-    const secs = MathTool.sub(cls.day82epoch(day8span[1]), cls.day82epoch(day8span[0]));
+    const secs = MathTool.sub(cls._day82epoch(day8span[1]), cls._day82epoch(day8span[0]));
     return MathTool.div(secs, 86400);
   }
 
@@ -311,7 +317,7 @@ export default class DateTool {
     return s ? (new Date(s)) : undefined;
   }
 
-  static day82date_midnight(v: number): Date {
+  static _day82date_midnight(v: number): Date {
     if (v == null) { return undefined; }
 
     const y = Math.floor(v / 10000);
@@ -320,7 +326,7 @@ export default class DateTool {
     return new Date(y, m, d);
   }
 
-  static date2day8(d: Date): number {
+  static _date2day8(d: Date): number {
     if (d == null) { return undefined; }
 
     return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
