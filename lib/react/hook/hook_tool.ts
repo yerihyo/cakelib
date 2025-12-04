@@ -2154,6 +2154,22 @@ export default class HookTool{
 
   static decode2codec_ll2list = <T>(decode:(ll:T[][]) => T[]) => ({ decode, encode: ArrayTool.one2l<T[]>, });
   static codec_ll2list = <T,>():Hookcodec<T[][], T[]> => ({ decode: ll => ll?.flat(), encode: ArrayTool.one2l<T[]>, });
+
+  static hookencoder_childvalidation = <P,C>(key:string, option?:{child2is_valid?:(c:C) => boolean}):Hookencoder<P,P> => {
+    const child2is_valid = option?.child2is_valid ?? (x => Boolean(x));
+    return (x_in:P) => {
+      return child2is_valid(x_in?.[key]) ? x_in : DictTool.keys2excluded<P>(x_in, [key])
+    }
+  }
+
+  static hookencoder_childrenvalidation = <X>(childvalidators: {key:string, validate:(c:any) => boolean}[]):Hookencoder<X,X> => {
+    const cls = HookTool;
+    return (x_in:X):X => {
+      return childvalidators?.reduce((x, cv) => {
+        return cls.hookencoder_childvalidation<X,any>(cv.key, {child2is_valid: cv.validate})(x);
+      }, x_in)
+    }
+  }
 }
 
 export type Asyncresult = {

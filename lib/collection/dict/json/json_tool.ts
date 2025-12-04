@@ -136,6 +136,7 @@ static json2sortedstring = <X>(x:X, ...args:Omitfirst<Parameters<typeof stringif
   static decode = JsonTool.parse;
   static codecpair = <X>(): Codecpair<X, string> => [JsonTool.encode, JsonTool.decode];
   static codecobj = <X>(): Codecobj<X, string> => ({ encode: JsonTool.encode, decode: JsonTool.decode });
+  static eq = CmpTool.f_key2f_eq(JsonTool.encode)
 
   /**
    * // https://stackoverflow.com/a/60333849
