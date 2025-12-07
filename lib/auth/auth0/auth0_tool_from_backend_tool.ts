@@ -17,7 +17,7 @@ export default class BackendTool{
       return {
         // local: 'http://localhost',  // https://github.com/nodejs/undici/issues/1413
         local: 'http://127.0.0.1:57426',
-        lan: 'http://192.168.0.45:57426',
+        lan: 'http://192.168.0.146:57426',
         dev: `http://backend-dev.service.local`,
         staging: `http://backend-staging.service.local`,
         prod: `http://backend.service.local`,
