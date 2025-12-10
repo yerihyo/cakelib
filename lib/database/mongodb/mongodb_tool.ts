@@ -91,7 +91,7 @@ export default class MongodbTool {
     //   throw new Error(`values_in: ${values_in}, query:${query}`);
     // }
 
-    const values_norm = ArrayTool.sorted(values_in);
+    const values_norm = ArrayTool.sorted(ArrayTool.uniq(values_in));
     // if(!ArrayTool.is_array(values_norm)) throw new Error(`values_norm: ${values_norm}`);
     // if((values_norm as unknown) == 'nIizUPQSY7ShRHcXPJlZZ') throw new Error(`values_norm: ${values_norm}`)
 
