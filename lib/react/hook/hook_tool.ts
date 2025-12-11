@@ -2206,9 +2206,12 @@ export class Asynctracker {
     const asyncstate_hook = HookTool.hook2down<Asyncresult, string>(asyncresult_hook, ['state'])
     // const [state, set_state] = React.useState<string>();
     // const [state, set_state] = statehook;
-    const is_actionable = ArrayTool.any([
-      !!option?.is_actionable_whileinaction,
-      Asynctracker.State.state2is_actionable(asyncstate_hook[0]),
+    const is_actionable = ArrayTool.all([
+      action != null,
+      ArrayTool.any([
+        !!option?.is_actionable_whileinaction,
+        Asynctracker.State.state2is_actionable(asyncstate_hook[0]),
+      ])
     ]);
 
     return {
@@ -2239,6 +2242,7 @@ export class Asynctracker {
     };
   }
 
+  // DEPRECATED
   static async2tracked = <K, T,>(
     action_in: (...args: K[]) => Promise<T>,
     options?: {
