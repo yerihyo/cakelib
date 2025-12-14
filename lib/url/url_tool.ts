@@ -488,6 +488,37 @@ export default class UrlTool{
   // }
 
   static aspath2pathname = (aspath:string):string => aspath?.split('?')?.[0];
+
+  static x2uritype = (x:string) => {
+    if(x == null) return undefined;
+    if (!x || typeof x !== 'string') { throw new Error('Invalid string'); }
+
+    const x_trimmed = x?.trim();
+    if (x_trimmed.length === 0) { throw new Error('Invalid string'); }
+
+    // 1. 절대 URL (Absolute URL) 검사
+    // - http://, https://, ftp:// 와 같은 프로토콜로 시작하거나
+    // - // (프로토콜 상대 URL)로 시작하는 경우
+    const absoluteUrlRegex = /^(?:[a-z]+:)?\/\//i;
+    if (absoluteUrlRegex.test(x_trimmed)) {
+      return 'ABSOLUTE_URL';
+    }
+
+    // 2. 상대 경로 (Relative Path) 검사
+    // - / (루트 기준 상대 경로)
+    // - ./ (현재 디렉토리 기준 상대 경로)
+    // - ../ (상위 디렉토리 기준 상대 경로)
+    // - 파일명 (예: index.html)
+    const relativePathRegex = /^(\.\/|\.\.\/|\/)/;
+    if (relativePathRegex.test(x_trimmed)) { return 'RELATIVE_URLPATH'; }
+    
+    // 3. 단순히 문자열이 파일 이름이나 경로처럼 보이면 상대 경로로 간주
+    // (예: images/logo.png)
+    if (x_trimmed.includes('/') || x_trimmed.includes('.')) { return 'RELATIVE_URLPATH';}
+
+    // 4. 그 외 (단순 텍스트, Unknown 등)
+    throw new Error('Invalid string');
+}
 }
 
 export class MimetypeTool{
