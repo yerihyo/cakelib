@@ -1,4 +1,5 @@
-import FunctionTool from "../function/function_tool";
+import lodash from 'lodash';
+import FunctionTool, { FuncAO } from "../function/function_tool";
 import CmpTool, { Comparator } from "../cmp/CmpTool";
 import ArrayTool from "../collection/array/array_tool"
 import DictTool from "../collection/dict/dict_tool";
@@ -53,6 +54,18 @@ export default class GroupbyTool {
       return h;
     }, {} as Record<K, X[]>);
   }
+
+  static array2f_k2vs = <V,K extends Dictkey = Dictkey>(
+    ...args: Parameters<typeof GroupbyTool.dict_groupby_1step<V,K>>
+  ):FuncAO<V[],[K]> => {
+    const dict_k2vs = GroupbyTool.dict_groupby_1step<V,K>(...args);
+    return dict_k2vs == null ? undefined : ((k:K) => dict_k2vs?.[k]);
+  };
+
+  // static array2f_k2vs = lodash.flow(
+  //   GroupbyTool.dict_groupby_1step,
+  //   (h) => { return (k) => h?.[k]; },
+  // ) // as <V, K extends Dictkey = Dictkey>(...args: Parameters<typeof GroupbyTool.dict_groupby_1step<V, K>>) => FuncAO<V[], [K]>
 
   static Deprecated = class {
     static dict_groupby_1step<K extends Dictkey, X, L>(
@@ -357,6 +370,31 @@ export default class GroupbyTool {
       ?.flat();
   }
 
+}
+
+export class TaxobyTool{
+  static dict_taxoby_1step<V, K extends Dictkey = Dictkey>(
+    vs: V[],
+    item2keys: (v: V, i?: number, array?: V[]) => K[],
+  ): Record<K, V[]> {
+    const self = GroupbyTool;
+    // const {item2key,} = funcdict;
+
+    return DictTool.dict2values_mapped(
+      GroupbyTool.dict_groupby_1step(
+        vs?.flatMap(v => item2keys(v)?.map(k => ({k,v}))),
+        x => x.k
+      ),
+      (_, xs: {k: K, v: V}[]) => xs?.map(x => x.v)
+    )
+  }
+
+  static array2f_k2vs = <V,K extends Dictkey = Dictkey>(
+    ...args: Parameters<typeof TaxobyTool.dict_taxoby_1step<V,K>>
+  ):FuncAO<V[],[K]> => {
+    const dict_k2vs = TaxobyTool.dict_taxoby_1step<V,K>(...args);
+    return dict_k2vs == null ? undefined : ((k:K) => dict_k2vs?.[k]);
+  };
 }
 
 export class Mapinfo<X, Y, A extends any[]=any[],>{
