@@ -867,7 +867,7 @@ export default class ArrayTool {
     const cls = ArrayTool;
 
     const dict_k2v = cls.array2dict(...args);
-    return (k: K) => dict_k2v?.[k];
+    return dict_k2v == null ? undefined : ((k: K) => dict_k2v?.[k]);
   }
 
   // static array2dict_alias<K extends Dictkey, V>(
