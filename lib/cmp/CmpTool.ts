@@ -550,6 +550,8 @@ export class Comparatorkit<T>{
   // min: Aggregator<T>;
 
   static comparator2kit = <T>(comparator:Comparator<T>) => {
+    if(comparator==null) return undefined;
+    
     return {
       gt: CmpTool.f_cmp2f_gt(comparator),
       gte: CmpTool.f_cmp2f_gte(comparator),
