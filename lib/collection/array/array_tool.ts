@@ -28,6 +28,55 @@ export default class ArrayTool {
   //   return (t: T) => ArrayTool.l2one(f_array(ArrayTool.one2l(t)));
   // };
 
+  static shift = <T>(array: T[]): T[] => array?.slice(1);
+  static pop = <T>(array: T[]): T[] => array?.slice(0, -1);
+  static push = <T>(array: T[], item: T,): T[] => array == null ? undefined : [...array, item];
+  static unshift = <T>(array: T[], item: T,): T[] => array == null ? undefined : [item, ...array,];
+  
+  static shift_many = <T>(array: T[], count: number): T[] => {
+    if(array == null) return undefined;
+    if(count<0) throw new Error(`Invalid count: ${count}`);
+
+    return count === 0
+      ? array
+      : array?.length <= count
+        ? []
+        : array?.slice(count);
+  }
+
+  static shift_until = <T>(array: T[], size: number): T[] => {
+    if(array == null) return undefined;
+    if(size<0) throw new Error(`Invalid size: ${size}`);
+
+    return size === 0
+      ? []
+      : array?.length <= size
+        ? array
+        : ArrayTool.shift_many(array, array?.length - size);
+  }
+
+  static pop_until = <T>(array: T[], size: number): T[] => {
+    if(array == null) return undefined;
+    if(size<0) throw new Error(`Invalid size: ${size}`);
+    
+    return size === 0 
+      ? []
+      : array?.length <= size
+        ? array
+        : array?.slice(0, size);
+  }
+  static pop_many = <T>(array: T[], count: number): T[] => {
+    if(array == null) return undefined;
+    if(count<0) throw new Error(`Invalid count: ${count}`);
+
+    return count === 0
+      ? array
+      : array?.length <= count
+        ? []
+        : ArrayTool.pop_until(array, array?.length - count);
+  }
+  
+
   static firstlast = <X>(l:X[]):X[] => {
     if(l==null) return undefined;
     if(l?.length == 0) return l;
