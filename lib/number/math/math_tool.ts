@@ -270,7 +270,7 @@ export default class MathTool {
     const ratiospan = [
       total == 0 ? index/n : (sum_before / total),
       total == 0 ? (index+1)/n : (sum_after / total),
-    ] as Pair<number>;
+    ] as Pair<number>; // uniform prior if total == 0
     // console.log({callname, ratiospan, values,});
     return ratiospan;
   }
