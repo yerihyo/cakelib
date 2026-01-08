@@ -2170,6 +2170,14 @@ export default class HookTool{
       }, x_in)
     }
   }
+
+  static key2encoder_dropemptyarray = <X>(key:string):Hookencoder<X,X> => {
+    return (c_in:X, p_prev?:X):X => {
+      if(c_in?.[key] == null) return c_in;
+      if(ArrayTool.bool(c_in?.[key])) return c_in;
+      return DictTool.keys2excluded<X>(c_in, [key]);
+    }
+  }
 }
 
 export type Asyncresult = {
