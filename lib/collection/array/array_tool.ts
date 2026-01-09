@@ -107,7 +107,7 @@ export default class ArrayTool {
     option?:{is_equal?:(l1:T[], l2:T[]) => boolean,}
   ) => {
 
-    const is_equal = option?.is_equal ?? ArrayTool.listpair2eq_every_nativetri;
+    const is_equal = option?.is_equal ?? ArrayTool.listpair2eq_every_trinative;
     return (l:T[]):T[] => {
       return is_equal(l, f(l)) ? l : f(l)
     }
@@ -153,8 +153,8 @@ export default class ArrayTool {
     };
   }
 
-  static is_triprefix = ArrayTool.f_eq2f_is_prefix(CmpTool.pair2eq_nativetri);
-  static is_biprefix = ArrayTool.f_eq2f_is_prefix(CmpTool.pair2eq_nativebi);
+  static is_triprefix = ArrayTool.f_eq2f_is_prefix(CmpTool.pair2eq_trinative);
+  static is_biprefix = ArrayTool.f_eq2f_is_prefix(CmpTool.pair2eq_binative);
   static is_prefix = FunctionTool.deprecated(ArrayTool.is_triprefix);
 
   static array2comparator_prefer_included<V>(l: V[]): Comparator<V> {
@@ -1218,21 +1218,21 @@ export default class ArrayTool {
         : items.every((v) => f_eq(v, items[0]))
         ;
   };
-  static items2homo_nativebi = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_nativebi);
-  static items2homo_nativetri = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_nativetri);
+  static items2homo_binative = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_binative);
+  static items2homo_trinative = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_trinative);
 
-  static isBihomo = ArrayTool.items2homo_nativebi
-  static isTrihomo = ArrayTool.items2homo_nativetri
+  static isBihomo = ArrayTool.items2homo_binative
+  static isTrihomo = ArrayTool.items2homo_trinative
 
-  static isUniform = ArrayTool.items2homo_nativetri;  // avoid using
-  static areAlike = ArrayTool.items2homo_nativetri;  // avoid using
-  static areAllSame = ArrayTool.items2homo_nativetri;  // avoid using
+  static isUniform = ArrayTool.items2homo_trinative;  // avoid using
+  static areAlike = ArrayTool.items2homo_trinative;  // avoid using
+  static areAllSame = ArrayTool.items2homo_trinative;  // avoid using
 
-  static listpair2eq_every_nativebi = ArrayTool.f_bicmp2f_every(CmpTool.pair2eq_nativebi);
-  static listpair2eq_every_nativetri = ArrayTool.f_bicmp2f_every(CmpTool.pair2eq_nativetri);
+  static listpair2eq_every_binative = ArrayTool.f_bicmp2f_every(CmpTool.pair2eq_binative);
+  static listpair2eq_every_trinative = ArrayTool.f_bicmp2f_every(CmpTool.pair2eq_trinative);
 
-  static areAllBiequal = ArrayTool.listpair2eq_every_nativebi;
-  static areAllTriequal = ArrayTool.listpair2eq_every_nativetri;
+  static areAllBiequal = ArrayTool.listpair2eq_every_binative;
+  static areAllTriequal = ArrayTool.listpair2eq_every_trinative;
 
   static reversed = <T = any>(array: T[]): T[] => (array == null ? undefined : [...array].reverse());
 
@@ -1374,7 +1374,7 @@ export default class ArrayTool {
 
     const colcounts = rows.map((row) => row.length);
     if (option?.strict) {
-      if (!ArrayTool.items2homo_nativetri(colcounts)) {
+      if (!ArrayTool.items2homo_trinative(colcounts)) {
         throw new Error(`${colcounts}`);
       }
     }

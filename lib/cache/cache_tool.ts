@@ -53,7 +53,7 @@ export default class CacheTool {
     // },
   ): ((...args: K[]) => T) {
     // const isEqual = options?.isEqual ?? lodash.isEqual;
-    const f_eq = ArrayTool.listpair2eq_every_nativetri; // CmpTool.isEqual;
+    const f_eq = ArrayTool.listpair2eq_every_trinative; // CmpTool.isEqual;
 
     var prev: any = undefined;
     // const logname = options?.logname;
@@ -283,7 +283,7 @@ export default class CacheTool {
   //   },
   // ): ((ttl:number) => (...args: K[]) => X) {
   //   // const isEqual = options?.isEqual ?? lodash.isEqual;
-  //   const argpair2eq = option?.argpair2eq ?? ArrayTool.listpair2eq_every_nativetri; // CmpTool.isEqual;
+  //   const argpair2eq = option?.argpair2eq ?? ArrayTool.listpair2eq_every_trinative; // CmpTool.isEqual;
 
   //   var h: {args:K[], x:X, created_at:number} = undefined;
 

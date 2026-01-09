@@ -21,7 +21,7 @@ export type Leafducer<PO,PI> = (p_in: PI, jedge: Jstep) => PO
 export type Grafter<RO,RI> = (root_in: RI, jpath: Jstep[],) => RO
 
 export class JpathTool {
-  static is_prefix = ArrayTool.f_eq2f_is_prefix(CmpTool.pair2eq_nativetri);
+  static is_prefix = ArrayTool.f_eq2f_is_prefix(CmpTool.pair2eq_trinative);
 
   static jpath2prefix_stemmed(jpath: Jpath, prefix: Jpath) {
     if (!jpath) { return undefined; }
@@ -31,7 +31,7 @@ export class JpathTool {
   }
 
   // static equals = (l1:Jpath, l2:Jpath):boolean => ArrayTool.equals<Jstep>(l1,l2);
-  static equals = ArrayTool.f_bicmp2f_every<Jstep>(CmpTool.pair2eq_nativebi);
+  static equals = ArrayTool.f_bicmp2f_every<Jstep>(CmpTool.pair2eq_binative);
 
 }
 export class XpathTool {

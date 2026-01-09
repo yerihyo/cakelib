@@ -113,7 +113,7 @@ export default class GraftingTool {
     }
   ) => {
     const mutativity = option?.mutativity ?? 'VOPLIKE';
-    if(ArrayTool.listpair2eq_every_nativetri(p_in as any[], p_out as any[])) return p_in as unknown as O[];
+    if(ArrayTool.listpair2eq_every_trinative(p_in as any[], p_out as any[])) return p_in as unknown as O[];
 
     return mutativity === 'VOPLIKE'
       ? p_out as unknown as O[]

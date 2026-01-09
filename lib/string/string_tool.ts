@@ -101,7 +101,7 @@ export default class StringTool {
   // }
 
   static equalsIgnorecase = (s1: string, s2: string): boolean => {
-    return CmpTool.pair2eq_nativebi(s1?.toLowerCase(), s2?.toLowerCase());
+    return CmpTool.pair2eq_binative(s1?.toLowerCase(), s2?.toLowerCase());
   }
 
   static capitalize0(x: string): string {
