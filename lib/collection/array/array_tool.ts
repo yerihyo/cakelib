@@ -107,7 +107,7 @@ export default class ArrayTool {
     option?:{is_equal?:(l1:T[], l2:T[]) => boolean,}
   ) => {
 
-    const is_equal = option?.is_equal ?? ArrayTool.areAllTriequal;
+    const is_equal = option?.is_equal ?? ArrayTool.listpair2eq_every_nativetri;
     return (l:T[]):T[] => {
       return is_equal(l, f(l)) ? l : f(l)
     }
@@ -1218,14 +1218,17 @@ export default class ArrayTool {
         : items.every((v) => f_eq(v, items[0]))
         ;
   };
-  static isBihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_nativebi);
-  static isTrihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_nativetri);
-  static isUniform = ArrayTool.isTrihomo;  // avoid using
-  static areAlike = ArrayTool.isTrihomo;  // avoid using
-  static areAllSame = ArrayTool.isTrihomo;  // avoid using
+  static items2homo_nativebi = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_nativebi);
+  static items2homo_nativetri = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_nativetri);
+  static isUniform = ArrayTool.items2homo_nativetri;  // avoid using
+  static areAlike = ArrayTool.items2homo_nativetri;  // avoid using
+  static areAllSame = ArrayTool.items2homo_nativetri;  // avoid using
 
-  static areAllBiequal = ArrayTool.f_bicmp2f_every(CmpTool.pair2eq_nativebi);
-  static areAllTriequal = ArrayTool.f_bicmp2f_every(CmpTool.pair2eq_nativetri);
+  static listpair2eq_every_nativebi = ArrayTool.f_bicmp2f_every(CmpTool.pair2eq_nativebi);
+  static listpair2eq_every_nativetri = ArrayTool.f_bicmp2f_every(CmpTool.pair2eq_nativetri);
+
+  static areAllBiequal = ArrayTool.listpair2eq_every_nativebi;
+  static areAllTriequal = ArrayTool.listpair2eq_every_nativetri;
 
   static reversed = <T = any>(array: T[]): T[] => (array == null ? undefined : [...array].reverse());
 
@@ -1367,7 +1370,7 @@ export default class ArrayTool {
 
     const colcounts = rows.map((row) => row.length);
     if (option?.strict) {
-      if (!ArrayTool.isTrihomo(colcounts)) {
+      if (!ArrayTool.items2homo_nativetri(colcounts)) {
         throw new Error(`${colcounts}`);
       }
     }

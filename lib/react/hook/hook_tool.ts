@@ -844,7 +844,7 @@ export default class HookTool{
       index,
       {
         default:[null,null],
-        l2is_nullequiv: (span:Pair<V>) => ArrayTool.areAllBiequal(SpanTool.span2norm(span), SpanTool.nullnull()),
+        l2is_nullequiv: (span:Pair<V>) => ArrayTool.listpair2eq_every_nativebi(SpanTool.span2norm(span), SpanTool.nullnull()),
       }
     ) as Hookcodec<Pair<V>,V>;
 
@@ -949,7 +949,7 @@ export default class HookTool{
       decode,
       encode: (cs_post: C[], ps_prev: P[]):P[] => {
         const cs_prev = decode(ps_prev);
-        if (ArrayTool.areAllTriequal(cs_prev, cs_post)) { return ps_prev; }
+        if (ArrayTool.listpair2eq_every_nativetri(cs_prev, cs_post)) { return ps_prev; }
 
         const ps_post = cs_post?.map((c_post, i) => JsonTool.reduceUp(ps_prev[i] ?? {}, jpath, c_post, edge2reduced) as P);
         return ps_post;
@@ -1100,7 +1100,7 @@ export default class HookTool{
   //       const bools = ps_prev?.map(predicate);
   //       // const cs_prev = ps_prev?.filter((_, i) => bools[i]);
   //       const [cs_prev, cs_prev_excluded] = ArrayTool.bisect_by(ps_prev, (_, i) => bools[i]);
-  //       if (ArrayTool.areAllTriequal(cs_prev, cs_post)) { return ps_prev; }
+  //       if (ArrayTool.listpair2eq_every_nativetri(cs_prev, cs_post)) { return ps_prev; }
 
   //       const f_key = option?.f_key;
   //       if(!f_key){
@@ -1152,10 +1152,10 @@ export default class HookTool{
         const [cs_prev, cs_prev_excluded] = ArrayTool.bisect_by(ps_prev, (p_prev, i) => bools[i]);
         // console.log({
         //   callname, cs_post, ps_prev, bools, cs_prev,
-        //   'ArrayTool.areAllTriequal(cs_prev, cs_post)': ArrayTool.areAllTriequal(cs_prev, cs_post),
+        //   'ArrayTool.listpair2eq_every_nativetri(cs_prev, cs_post)': ArrayTool.listpair2eq_every_nativetri(cs_prev, cs_post),
         // });
 
-        if (ArrayTool.areAllTriequal(cs_prev, cs_post)) { return ps_prev; }
+        if (ArrayTool.listpair2eq_every_nativetri(cs_prev, cs_post)) { return ps_prev; }
 
         const ps_post = [
           ...(cs_prev_excluded ?? []), // things not filtered
@@ -1163,7 +1163,7 @@ export default class HookTool{
         ];
 
         // console.log({callname, cs_post, ps_prev, cs_prev, ps_post});
-        // if(ArrayTool.areAllTriequal(ps_prev, ps_post)){ return ps_prev; }
+        // if(ArrayTool.listpair2eq_every_nativetri(ps_prev, ps_post)){ return ps_prev; }
 
         return ps_post;
       },
