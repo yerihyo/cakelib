@@ -1220,6 +1220,10 @@ export default class ArrayTool {
   };
   static items2homo_nativebi = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_nativebi);
   static items2homo_nativetri = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_nativetri);
+
+  static isBihomo = ArrayTool.items2homo_nativebi
+  static isTrihomo = ArrayTool.items2homo_nativetri
+
   static isUniform = ArrayTool.items2homo_nativetri;  // avoid using
   static areAlike = ArrayTool.items2homo_nativetri;  // avoid using
   static areAllSame = ArrayTool.items2homo_nativetri;  // avoid using
