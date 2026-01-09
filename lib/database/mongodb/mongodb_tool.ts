@@ -52,7 +52,7 @@ export default class MongodbTool {
     if(span === undefined){ return undefined; } // all values
     if(span === null){ return null; } // specifically 'null' only
 
-    if(ArrayTool.areAllTriequal(span, [null,null])){ return {$exists:true}; } // any value
+    if(ArrayTool.listpair2eq_every_trinative(span, [null,null])){ return {$exists:true}; } // any value
 
     const [s, e] = span;
     const qexpr = {
@@ -281,7 +281,7 @@ export default class MongodbTool {
 
           return ArrayTool.all([
             k1 === field_from, // need to generalize later when ${field_from} is suffix of xpath
-            DictTool.is_dict(v1_in) && ArrayTool.areAllTriequal(Object.keys(v1_in), ["$elemMatch"]),
+            DictTool.is_dict(v1_in) && ArrayTool.listpair2eq_every_trinative(Object.keys(v1_in), ["$elemMatch"]),
           ])
             // ? cls.query2prefixed(transducer(v2_in), field_to)
             ? Object.keys(v2_in).map((k3) => cls.query2prefixed({ [k3]: transducer(v2_in?.[k3]) }, field_to) as V)
