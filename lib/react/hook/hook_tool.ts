@@ -413,7 +413,7 @@ export default class HookTool{
     const cls = HookTool;
     const callname = `HookTool.codec_value2index @ ${DateTool.time2iso(new Date())}`;
 
-    const is_equal = option?.is_equal ?? CmpTool.isBiequal;
+    const is_equal = option?.is_equal ?? CmpTool.pair2eq_nativebi;
     const decode = (x:X) => ArrayTool.findIndex(values, x1 => is_equal(x,x1));
     return {
       decode,
@@ -1195,7 +1195,7 @@ export default class HookTool{
       decode,
       encode: (cs: C[], ps_prev: P[]): P[] => {
         const cs_prev = decode(ps_prev);
-        return ArrayTool.f_bicmp2f_every(CmpTool.isTriequal)(cs_prev, cs)
+        return ArrayTool.f_bicmp2f_every(CmpTool.pair2eq_nativetri)(cs_prev, cs)
           ? ps_prev
           : cs?.map((c,i) => codec.encode(c, ps_prev?.[i]))
           ;
@@ -2047,7 +2047,7 @@ export default class HookTool{
     const cls = HookTool;
     const callname = `HookTool.hook2wineventlinked @ ${DateTool.time2iso(new Date())}`;
 
-    const isEqual = option?.isEqual ?? CmpTool.pair2eq_strict;
+    const isEqual = option?.isEqual ?? CmpTool.pair2eq_nativetri;
 
     // listen: event => hook
     const listener = (e:CustomEvent<X>) => {

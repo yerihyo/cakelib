@@ -13,5 +13,5 @@ export default class LodashTool{
     return arrays == null ? undefined : lodash.union<T>(...arrays);
   }
 
-  static isEqualPassfast = BicmpTool.funcs2func_anytrue([CmpTool.pair2eq_strict, lodash.isEqual]);
+  static isEqualPassfast = BicmpTool.funcs2func_anytrue([CmpTool.pair2eq_nativetri, lodash.isEqual]);
 }

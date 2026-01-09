@@ -153,12 +153,12 @@ export default class ArrayTool {
     };
   }
 
-  static is_triprefix = ArrayTool.f_eq2f_is_prefix(CmpTool.isTriequal);
-  static is_biprefix = ArrayTool.f_eq2f_is_prefix(CmpTool.isBiequal);
+  static is_triprefix = ArrayTool.f_eq2f_is_prefix(CmpTool.pair2eq_nativetri);
+  static is_biprefix = ArrayTool.f_eq2f_is_prefix(CmpTool.pair2eq_nativebi);
   static is_prefix = FunctionTool.deprecated(ArrayTool.is_triprefix);
 
   static array2comparator_prefer_included<V>(l: V[]): Comparator<V> {
-    return ArrayTool.bool(l) ? CmpTool.f_key2f_cmp((v: V) => (ArrayTool.in(v, l) ? 0 : 1)) : EqualTool.f_always_equal;
+    return ArrayTool.bool(l) ? CmpTool.f_key2f_cmp((v: V) => (ArrayTool.in(v, l) ? 0 : 1)) : EqualTool.f_cmp_always0;
   }
 
   static size2array(n: number) {
@@ -1218,14 +1218,14 @@ export default class ArrayTool {
         : items.every((v) => f_eq(v, items[0]))
         ;
   };
-  static isBihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.isBiequal);
-  static isTrihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.isTriequal);
+  static isBihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_nativebi);
+  static isTrihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_nativetri);
   static isUniform = ArrayTool.isTrihomo;  // avoid using
   static areAlike = ArrayTool.isTrihomo;  // avoid using
   static areAllSame = ArrayTool.isTrihomo;  // avoid using
 
-  static areAllBiequal = ArrayTool.f_bicmp2f_every(CmpTool.isBiequal);
-  static areAllTriequal = ArrayTool.f_bicmp2f_every(CmpTool.isTriequal);
+  static areAllBiequal = ArrayTool.f_bicmp2f_every(CmpTool.pair2eq_nativebi);
+  static areAllTriequal = ArrayTool.f_bicmp2f_every(CmpTool.pair2eq_nativetri);
 
   static reversed = <T = any>(array: T[]): T[] => (array == null ? undefined : [...array].reverse());
 
