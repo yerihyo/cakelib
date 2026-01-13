@@ -134,3 +134,16 @@ export class GriddisplayTool{
     }
   }
 }
+
+export class AsyncTool{
+  static afilter = async <T>(
+    array: T[],
+    predicate: (item: T, index: number, array: T[]) => Promise<boolean>
+  ): Promise<T[]> => {
+    // 1. Run all predicates in parallel and get an array of Promises<boolean>
+    const resolutions = await Promise.all(array.map(predicate));
+
+    // 2. Synchronously filter the original array based on the resolved booleans
+    return array.filter((_item, index) => resolutions[index]);
+  }
+}
