@@ -3,6 +3,7 @@ import { Pair } from "../../native/native_tool";
 import SignTool from "../sign_tool";
 
 export type Numericbinary = (x1:number, x2:number) => number;
+const time2iso = (d:Date) => d?.toISOString()?.split("T")?.[1];
 
 export default class MathTool {
 
@@ -248,10 +249,12 @@ export default class MathTool {
 
   static values_index2ratiospan = (values:number[], index:number, option?:{total?:number}): Pair<number> => {
     const cls = MathTool;
+    const callname = `MathTool.values_index2ratiospan @ ${time2iso(new Date())}`;
     if(values == null) return undefined;
 
     const total = option?.total ?? MathTool.sum(values);
 
+    const n = values?.length;
     const sum_before = MathTool.sum(values.slice(0,index));
     const sum_after = MathTool.sum(values.slice(0,index+1));
 
@@ -259,10 +262,17 @@ export default class MathTool {
     // Is this really what we want???
     // const maxaccum = Math.max(...cls.values2accumulates(values) ?? []);
 
-    return [
-      MathTool.div_byzeroavoided(sum_before,total),
-      MathTool.div_byzeroavoided(sum_after,total),
-    ];
+    // const ratiospan = [
+    //   MathTool.div_byzeroavoided(sum_before,total),
+    //   MathTool.div_byzeroavoided(sum_after,total),
+    // ] as Pair<number>;
+
+    const ratiospan = [
+      total == 0 ? index/n : (sum_before / total),
+      total == 0 ? (index+1)/n : (sum_after / total),
+    ] as Pair<number>; // uniform prior if total == 0
+    // console.log({callname, ratiospan, values,});
+    return ratiospan;
   }
 
   static values2ratiospans = (values:number[], option?:{total?:number}): Pair<number>[] => {

@@ -52,7 +52,7 @@ export default class MongodbTool {
     if(span === undefined){ return undefined; } // all values
     if(span === null){ return null; } // specifically 'null' only
 
-    if(ArrayTool.areAllTriequal(span, [null,null])){ return {$exists:true}; } // any value
+    if(ArrayTool.listpair2eq_every_trinative(span, [null,null])){ return {$exists:true}; } // any value
 
     const [s, e] = span;
     const qexpr = {
@@ -69,16 +69,18 @@ export default class MongodbTool {
   }
 
   static queries2booled = <T>(op:string, queries:T[],):(T|Record<string,T[]>) => {
+    const cls = MongodbTool;
     return queries == null
       ? undefined
-      : queries.length == 1
-        ? ArrayTool.l2one(queries)
-        : { [op]: queries }
-      ;
+      : queries.length == 0
+        ? cls.query_idnull()
+        : queries.length == 1
+          ? ArrayTool.l2one(queries)
+          : { [op]: queries }
   }
 
-  static queries2or = lodash.partial(MongodbTool.queries2booled<Record<string,any>>, '$or');
-  static queries2and = lodash.partial(MongodbTool.queries2booled<Record<string,any>>, '$and');
+  static queries2or = lodash.partial(MongodbTool.queries2booled, '$or') as <T>(queries:T[]) => (T|{$or:T[]});
+  static queries2and = lodash.partial(MongodbTool.queries2booled, '$and') as <T>(queries:T[]) => (T|{$and:T[]});
 
   static vs2qexpr_in = lodash.partial(MongodbTool.queries2booled, '$in');
   static query_in2norm = <X>(query:{$in:X[]}):(X|{$in:X[]}) => {
@@ -281,7 +283,7 @@ export default class MongodbTool {
 
           return ArrayTool.all([
             k1 === field_from, // need to generalize later when ${field_from} is suffix of xpath
-            DictTool.is_dict(v1_in) && ArrayTool.areAllTriequal(Object.keys(v1_in), ["$elemMatch"]),
+            DictTool.is_dict(v1_in) && ArrayTool.listpair2eq_every_trinative(Object.keys(v1_in), ["$elemMatch"]),
           ])
             // ? cls.query2prefixed(transducer(v2_in), field_to)
             ? Object.keys(v2_in).map((k3) => cls.query2prefixed({ [k3]: transducer(v2_in?.[k3]) }, field_to) as V)

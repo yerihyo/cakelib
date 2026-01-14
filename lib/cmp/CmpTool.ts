@@ -19,15 +19,22 @@ class DateToolLocal {
 }
 
 export default class CmpTool {
-  static f_always_equal = <X>(x1: X, x2: X):number => 0;
-  static pair2cmp_always_eq = CmpTool.f_always_equal;
+  static f_cmp_always0 = <X>(x1: X, x2: X):number => 0;
+  static f_eq_always = <X>(x1: X, x2: X) => true;
+  static f_ne_always = <X>(x1: X, x2: X) => false;
 
-  static isBiequal = <X>(x1: X, x2: X): boolean => (x1 == x2);
-  static isBinotequal = <X>(x1: X, x2: X): boolean => (x1 != x2);
+  static pair2eq_binative = <X>(x1: X, x2: X): boolean => x1 == x2;
+  static pair2ne_binative = <X>(x1: X, x2: X): boolean => (x1 != x2);
+  static isBiequal = CmpTool.pair2eq_binative;
+  static isBinotequal = CmpTool.pair2ne_binative;
 
-  static isTriequal = <X>(x1: X, x2: X): boolean => (x1 === x2);
-  static isTrinotequal = <X>(x1: X, x2: X): boolean => (x1 !== x2);
-  static f_bicmp_alwaysfalse = <X>(x1: X, x2: X) => false;
+  static pair2eq_trinative = <X>(x1: X, x2: X): boolean => (x1 === x2);
+  static pair2ne_trinative = <X>(x1: X, x2: X): boolean => (x1 !== x2);
+
+  static pair2eq_strict = CmpTool.pair2eq_trinative
+  static isTriequal = CmpTool.pair2eq_trinative
+  static isTrinotequal = CmpTool.pair2ne_trinative
+
 
   // static f_eq2f_eq_array = <X>(f_eq:Bicomparator<X>):Bicomparator<X[]> => {
   //   return (l1:X[], l2:X[]) => {
@@ -241,7 +248,8 @@ export default class CmpTool {
   //     return self.pair2cmp_default
   // }
 
-  static pair2eq_strict = <X>(x1: X, x2: X): boolean => x1 === x2;
+  
+  
   static pair2cmp_default<X>(x1: X, x2: X): number {
     if (x1 === x2) { return 0; }
     // if (x1 == null && x2 == null) { return 0; }
@@ -254,6 +262,9 @@ export default class CmpTool {
 
     throw new Error(`x1:${x1}, x2:${x2}`);
   }
+  // static pair2eq_strict = CmpTool.pair2eq_trinative; // <X>(x1: X, x2: X): boolean => x1 === x2;
+  static pair2eq_default = CmpTool.f_cmp2f_eq(CmpTool.pair2cmp_default);
+  static pair2ne_default = CmpTool.f_cmp2f_ne(CmpTool.pair2cmp_default);
 
 
   static cmplist2cmp(cmplist: number[]) {
@@ -360,7 +371,7 @@ export default class CmpTool {
       f_eq?: Bicomparator<K>,
     }
   ): Bicomparator<X> {
-    const f_eq = config?.f_eq ?? CmpTool.isTriequal;
+    const f_eq = config?.f_eq ?? CmpTool.pair2eq_trinative;
     return (x1: X, x2: X) => f_eq(f_key(x1), f_key(x2));
   }
 
@@ -370,7 +381,7 @@ export default class CmpTool {
       f_ne?: Bicomparator<K>,
     }
   ): (x1: X, x2: X) => boolean {
-    const f_ne = config?.f_ne ?? CmpTool.isTrinotequal;
+    const f_ne = config?.f_ne ?? CmpTool.pair2ne_trinative;
     return (x1: X, x2: X) => f_ne(f_key(x1), f_key(x2));
   }
 
@@ -396,7 +407,7 @@ export default class CmpTool {
       f_eq?: Bicomparator<K>,
     }
   ): Attenchecker<X> {
-    const f_eq = config?.f_eq ?? CmpTool.isTriequal;
+    const f_eq = config?.f_eq ?? CmpTool.pair2eq_trinative;
 
     return (x: X, l: X[]):boolean => {
       const k = f_key(x);
@@ -525,7 +536,9 @@ export class BicmpTool {
 }
 
 export class EqualTool {
-  static f_always_equal = <X>(x1: X, x2: X) => 0;
+  static f_cmp_always0 = CmpTool.f_cmp_always0;
+  static f_always_equal = EqualTool.f_cmp_always0
+
   static isLooselyEqual = <X>(x1: X, x2: X): boolean => x1 == x2;
   static isStrictlyEqual = <X>(x1: X, x2: X): boolean => x1 === x2;
 

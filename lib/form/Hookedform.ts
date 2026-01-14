@@ -105,7 +105,7 @@ export default class Hookedform<T>{
         //   xpath,
         //   'cs_post?.map(c => YupTool.xpath2error_up(c, xpath))':cs_post?.map(c => YupTool.xpath2error_up(c, xpath))
         // });
-        return ArrayTool.areAllTriequal(cs_prev, cs_post)
+        return ArrayTool.listpair2eq_every_trinative(cs_prev, cs_post)
           ? ps_prev
           : YupTool.xpath2errors_up(cs_post, xpath);
       }
