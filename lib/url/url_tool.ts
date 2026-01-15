@@ -10,7 +10,7 @@ import ReactTool from '../react/react_tool';
 // const assert = require('assert');
 
 export class UrlsearchparamsTool{
-  static codec_idfun = () => ({decode: (s:string)=>s, encode: (s:string)=>s});
+  // static codec_idfun = () => ({decode: (s:string)=>s, encode: (s:string)=>s});
   static values2imploded = (l: (string|number)[], option?:{delim?:string}) => {
     if(!ArrayTool.bool(l)) return undefined;
 
@@ -37,7 +37,8 @@ export class UrlsearchparamsTool{
   static params2string = (params:URLSearchParams):string => params?.toString();
   static parse = (x:string) => (new URLSearchParams(x));
 
-  static params2obj = (params: URLSearchParams) => Object.fromEntries(params);
+  // URLSearchParams -> ParsedUrlQuery (일반 객체화)
+  static params2obj = (params: URLSearchParams) => Object.fromEntries(params.entries());
   static params_key2string = (params: URLSearchParams, k:string) => params?.get(k);
   static params_key2decommad = lodash.flow(
     UrlsearchparamsTool.params_key2string,
