@@ -128,8 +128,20 @@ export default class SpanTool {
   static comparator2comparator_lb = lodash.flow(AbsoluteOrder.f_cmp2f_cmp_infs2minmax, AbsoluteOrder.f_cmp2f_cmp_nullable2min);
   static comparator2comparator_ub = lodash.flow(AbsoluteOrder.f_cmp2f_cmp_infs2minmax, AbsoluteOrder.f_cmp2f_cmp_nullable2max);
 
-  static pair2cmplb_default = SpanTool.comparator2comparator_lb(CmpTool.pair2cmp_default);
-  static pair2cmpub_default = SpanTool.comparator2comparator_ub(CmpTool.pair2cmp_default);
+  static pair2cmp_lbound = SpanTool.comparator2comparator_lb(CmpTool.pair2cmp_default);
+  static pair2cmp_ubound = SpanTool.comparator2comparator_ub(CmpTool.pair2cmp_default);
+
+  static gt_lbound = CmpTool.f_cmp2f_gt(SpanTool.pair2cmp_lbound);
+  static gt_ubound = CmpTool.f_cmp2f_gt(SpanTool.pair2cmp_ubound);
+
+  static lt_lbound = CmpTool.f_cmp2f_lt(SpanTool.pair2cmp_lbound);
+  static lt_ubound = CmpTool.f_cmp2f_lt(SpanTool.pair2cmp_ubound);
+
+  static min_lbound = CmpTool.f_cmp2f_min(SpanTool.pair2cmp_lbound)
+  static min_ubound = CmpTool.f_cmp2f_min(SpanTool.pair2cmp_ubound)
+
+  static max_lbound = CmpTool.f_cmp2f_max(SpanTool.pair2cmp_lbound)
+  static max_ubound = CmpTool.f_cmp2f_max(SpanTool.pair2cmp_ubound)
 
   static is_between<T>(
     value: T,
@@ -147,8 +159,8 @@ export default class SpanTool {
     if (span.length !== 2) { throw new Error(`span.length: ${span.length}`); }
 
     // const { pair2cmp: pair2cmp_in } = (options || {});
-    const comparator_lb = option?.comparator?.lb ?? SpanTool.pair2cmplb_default;
-    const comparator_ub = option?.comparator?.ub ?? SpanTool.pair2cmpub_default;
+    const comparator_lb = option?.comparator?.lb ?? SpanTool.pair2cmp_lbound;
+    const comparator_ub = option?.comparator?.ub ?? SpanTool.pair2cmp_ubound;
 
     const [s, e] = span;
     const cmp_lb = comparator_lb(s, value);
