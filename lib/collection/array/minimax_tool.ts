@@ -1,5 +1,5 @@
 import { Pair } from "../../native/native_tool";
-import CmpTool, { Comparator } from "../../cmp/CmpTool";
+import CmpTool, { Bicomparator, Comparator } from "../../cmp/CmpTool";
 import DateTool from "../../date/date_tool";
 import ArrayTool from "./array_tool";
 
@@ -73,20 +73,22 @@ export class AbsoluteOrder{
     const {v2is_absmin, v2is_absmax, v2is_abseq} = (functions || {});
 
     const f_cmp_out = (v1: V, v2: V) => {
-
-      const [b1_absmin, b2_absmin] = (v2is_absmin ? [v1, v2].map(v2is_absmin) : [undefined, undefined]);
-      const [b1_absmax, b2_absmax] = (v2is_absmax ? [v1, v2].map(v2is_absmax) : [undefined, undefined]);
-      const [b1_abseq, b2_abseq] = (v2is_abseq ? [v1, v2].map(v2is_abseq) : [undefined, undefined]);
       
-      if(b1_abseq || b2_abseq) { return 0; }
+      if(v2is_abseq){
+        const [b1_abseq, b2_abseq] = [v2is_abseq(v1), v2is_abseq(v2)];
+        if(b1_abseq || b2_abseq) { return 0; }
+      }
 
       if(v2is_absmin){
+        const [b1_absmin, b2_absmin] = [v2is_absmin(v1), v2is_absmin(v2)];
         if (b1_absmin && b2_absmin) { return 0; }
         if (b1_absmin) { return -1; }
         if (b2_absmin) { return 1; }
       }
 
       if(v2is_absmax){
+        const [b1_absmax, b2_absmax] = [v2is_absmax(v1), v2is_absmax(v2)];
+
         if (b1_absmax && b2_absmax) { return 0; }
         if (b1_absmax) { return 1; }
         if (b2_absmax) { return -1; }

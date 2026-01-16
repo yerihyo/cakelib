@@ -136,6 +136,8 @@ export default class MathTool {
 
   static gtzero = (x:number):boolean => MathTool.gt(x, 0);
   static gtezero = (x:number):boolean => MathTool.gte(x, 0);
+  static ltzero = (x:number):boolean => MathTool.lt(x, 0);
+  static ltezero = (x:number):boolean => MathTool.lte(x, 0);
   
 
   static divmod(v: number, d: number): { q: number, r: number } {
