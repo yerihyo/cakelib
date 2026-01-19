@@ -915,8 +915,11 @@ export default class ArrayTool {
   static array2f_k2v = <V,K extends Dictkey>(...args:Parameters<typeof ArrayTool.array2dict<V,K>>):FuncAO<V,[K]> => {
     const cls = ArrayTool;
 
-    const dict_k2v = cls.array2dict(...args);
-    return dict_k2v == null ? undefined : ((k: K) => dict_k2v?.[k]);
+    let dict_k2v:Record<K,V>;
+    return (k: K) => {
+      if(dict_k2v == null){ dict_k2v = cls.array2dict(...args); }
+      return dict_k2v?.[k];
+    }
   }
 
   // static array2dict_alias<K extends Dictkey, V>(
