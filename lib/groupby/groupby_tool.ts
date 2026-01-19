@@ -58,8 +58,11 @@ export default class GroupbyTool {
   static array2f_k2vs = <V,K extends Dictkey = Dictkey>(
     ...args: Parameters<typeof GroupbyTool.dict_groupby_1step<V,K>>
   ):FuncAO<V[],[K]> => {
-    const dict_k2vs = GroupbyTool.dict_groupby_1step<V,K>(...args);
-    return dict_k2vs == null ? undefined : ((k:K) => dict_k2vs?.[k]);
+    let dict_k2vs:Record<K,V[]> = undefined;
+    return (k:K) => {
+      if(dict_k2vs == null){ dict_k2vs = GroupbyTool.dict_groupby_1step<V,K>(...args); } 
+      return dict_k2vs?.[k];
+    }
   };
 
   // static array2f_k2vs = lodash.flow(
