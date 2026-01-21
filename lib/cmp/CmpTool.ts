@@ -504,34 +504,18 @@ export default class CmpTool {
 }
 
 export class BicmpTool {
-  static funcs2func_alltrue<T>(f_bicmps:Bicomparator<T>[]):Bicomparator<T>{
-
-    return (t1: T, t2: T) => {
-      // if(!ArrayTool.bool(f_bicmps)){ return undefined; }
-
-      for (const f_bicmp of f_bicmps) {
-        if(!f_bicmp(t1,t2)){ return false; }
-      }
-      return true;
-    }
+  static f_bicmps2f_bicmp_every = <T>(f_bicmps:Bicomparator<T>[]):Bicomparator<T> => {
+    return (t1: T, t2: T) => f_bicmps?.every(f_bicmp => f_bicmp(t1,t2))
   }
 
-  static funcs2func_anytrue<T>(f_bicmps:Bicomparator<T>[]):Bicomparator<T>{
-    return (t1: T, t2: T) => {
-      // if(!ArrayTool.bool(f_bicmps)){ return undefined; }
-
-      for (const f_bicmp of f_bicmps) {
-        if(f_bicmp(t1,t2)){ return true; }
-      }
-      return false;
-    }
+  static f_bicmps2f_bicmp_some = <T>(f_bicmps:Bicomparator<T>[]):Bicomparator<T> => {
+    return (t1: T, t2: T) => f_bicmps?.some(f_bicmp => f_bicmp(t1,t2))
   }
 
   static pair2gt_default = CmpTool.f_cmp2f_gt(CmpTool.pair2cmp_default);
   static pair2gte_default = CmpTool.f_cmp2f_gte(CmpTool.pair2cmp_default);
   static pair2lt_default = CmpTool.f_cmp2f_lt(CmpTool.pair2cmp_default);
   static pair2lte_default = CmpTool.f_cmp2f_lte(CmpTool.pair2cmp_default);  
-
 
 }
 
