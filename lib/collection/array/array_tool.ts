@@ -947,8 +947,13 @@ export default class ArrayTool {
   static array2f_index<X extends Dictkey>(array: X[]): (x: X) => number {
     const cls = ArrayTool;
 
-    const dict_item2index = cls.array2dict_item2index(array);
-    return (x: X) => dict_item2index?.[x];
+    let dict_item2index:Record<X,number>;
+    return (x: X) => {
+      if(dict_item2index == null){
+        dict_item2index = cls.array2dict_item2index(array);
+      }
+      return dict_item2index?.[x];
+    }
   }
 
   static array2indexcomparator<X extends Dictkey>(
