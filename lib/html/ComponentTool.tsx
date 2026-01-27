@@ -237,6 +237,23 @@ export class WindowTool{
   }
 
   static bufferpx_natural = ():number => 10;
+
+  static is_reload = () => {
+    const navigationEntries = performance.getEntriesByType('navigation');
+    if (navigationEntries.length > 0) {
+      // PerformanceNavigationTiming으로 캐스팅하거나 속성 직접 확인
+      const nav = navigationEntries[0] as unknown as { type: string };
+      return nav.type === 'reload';
+    }
+    
+    // 구형 브라우저 (deprecated 되었으나 fallback으로 사용)
+    if (window.performance && window.performance.navigation) {
+      return window.performance.navigation.type === 1; // 1은 TYPE_RELOAD
+    }
+    
+    return false;
+  }
+
   // static element2top_natural = (
   //   element:HTMLElement,
   //   option?:{
