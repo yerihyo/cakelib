@@ -1,3 +1,4 @@
+import lodash from 'lodash';
 import CmpTool from "../cmp/CmpTool";
 import ArrayTool from "../collection/array/array_tool";
 import DateTool from "../date/date_tool";
@@ -8,6 +9,28 @@ import SpanTool from "../span/span_tool";
 
 export default class StringTool {
 
+  static split = (s:string, delim:string, option?:{maxsplit?:number}):string[] => {
+    const parts:string[] = [];
+    let currentPos = 0;
+
+    const maxsplit = option?.maxsplit
+
+    while (maxsplit == null || parts.length < maxsplit) {
+        const index = s.indexOf(delim, currentPos);
+        if (index === -1) break;
+        
+        parts.push(s.slice(currentPos, index));
+        currentPos = index + delim.length;
+    }
+
+    // 마지막 남은 문자열 전체를 배열에 추가
+    parts.push(s.slice(currentPos));
+    return parts;
+  }
+  static splitntrim = lodash.flow(
+    StringTool.split,
+    l => l?.map(s => s?.trim()),
+  )
 
   static is_english = (s:string):boolean => !!s?.match(/^[\w\-\s]*$/);
   static str2alpha_proportion = (s: string): number => {
