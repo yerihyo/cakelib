@@ -1,6 +1,8 @@
 import lodash from "lodash";
+import CmpTool from "../../cmp/CmpTool";
 import ArrayTool from "../../collection/array/array_tool";
 import DictTool from "../../collection/dict/dict_tool";
+import JsonTool from "../../collection/dict/json/json_tool";
 import DateTool from "../../date/date_tool";
 import { Pair } from "../../native/native_tool";
 
@@ -8,6 +10,9 @@ export default class MongodbTool {
 
   static query_idnull = () => ({'_id':null});
   static obj2id_removed = <T>(t:T):Omit<T,'_id'> => DictTool.keys2excluded(t,['_id'],);
+
+  static eq = CmpTool.f_key2f_eq(JsonTool.encode);
+  static query2is_idnull = (query:any):boolean => MongodbTool.eq(query,MongodbTool.query_idnull())
 
   static value2is_undef = (v:any):boolean => v === undefined;
 
