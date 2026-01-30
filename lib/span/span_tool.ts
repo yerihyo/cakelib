@@ -137,11 +137,11 @@ export default class SpanTool {
   static lt_lbound = CmpTool.f_cmp2f_lt(SpanTool.pair2cmp_lbound);
   static lt_ubound = CmpTool.f_cmp2f_lt(SpanTool.pair2cmp_ubound);
 
-  static min_lbound = CmpTool.f_cmp2f_min(SpanTool.pair2cmp_lbound)
-  static min_ubound = CmpTool.f_cmp2f_min(SpanTool.pair2cmp_ubound)
+  static min_lbound = MinimaxTool.f_cmp2f_min(SpanTool.pair2cmp_lbound)
+  static min_ubound = MinimaxTool.f_cmp2f_min(SpanTool.pair2cmp_ubound)
 
-  static max_lbound = CmpTool.f_cmp2f_max(SpanTool.pair2cmp_lbound)
-  static max_ubound = CmpTool.f_cmp2f_max(SpanTool.pair2cmp_ubound)
+  static max_lbound = MinimaxTool.f_cmp2f_max(SpanTool.pair2cmp_lbound)
+  static max_ubound = MinimaxTool.f_cmp2f_max(SpanTool.pair2cmp_ubound)
 
   static is_between<T>(
     value: T,

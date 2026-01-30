@@ -9,6 +9,7 @@ export type Appraiser<T> = ((t: T) => number);
 export type Comparator<T> = ((t1: T, t2: T) => number);
 export type Bicomparator<T> = ((t1: T, t2: T) => boolean);
 export type Aggregator<T> = ((l:T[]) => T);
+export type PosetAggregator<T> = ((l:T[]) => T[]);
 export type Realigner<T> = ((l:T[]) => T[]);
 export type Indexcomparator<X> = (xi1:[X,number], xi2:[X,number]) => number;
 export type Attenchecker<X> = (x:X, l:X[]) => boolean;
@@ -97,26 +98,6 @@ export default class CmpTool {
 
   static f_cmp2f_eq = <A extends any[]>(f_cmp: (...args:A) => number) => lodash.flow(f_cmp, (c:number) => MathTool.eq(c,0));
   static f_cmp2f_ne = <A extends any[]>(f_cmp: (...args:A) => number) => lodash.flow(f_cmp, (c:number) => MathTool.ne(c,0));
-
-  static f_cmp2f_max = <X,>(f_cmp: Comparator<X>): Aggregator<X> => (l: X[]) => {
-    return l?.reduce(
-      (x0, x1, i) => {
-        if(i === 0) return x1;
-        const cmp = f_cmp(x0,x1);
-
-        if(cmp == null) return undefined;
-        return MathTool.gtezero(cmp) ? x0 : x1;
-      },
-      undefined,
-    );
-  };
-
-  static f_cmp2f_min = <X,>(f_cmp: Comparator<X>): Aggregator<X> => (l: X[]) => {
-    return l?.reduce(
-      (x0, x1, i) => i === 0 ? x1 : (f_cmp(x0,x1)<=0 ? x0 : x1),
-      undefined,
-    );
-  };
 
   static gt_default = CmpTool.f_cmp2f_gt(CmpTool.pair2cmp_default);
   static gte_default = CmpTool.f_cmp2f_gte(CmpTool.pair2cmp_default);
