@@ -4,7 +4,6 @@ import CmpTool, { Aggregator, Bicomparator, Comparator, PosetAggregator } from "
 import DateTool from "../../date/date_tool";
 import ArrayTool from "./array_tool";
 import DictTool from "../dict/dict_tool";
-import MathTool from "@submodule/number/math/math_tool";
 
 export default class MinimaxTool{
   static maxIndex = <X>(array: X[], pair2cmp?: Comparator<X>): number => {
