@@ -73,7 +73,13 @@ export default class SwrTool {
 
   static swrs2are_dataready = (swrs:SWRResponse<any>[]):boolean => swrs?.every(SwrTool.swr2is_data_ready);
   static swrdict2is_dataready = <T>(swrdict:T):boolean => {
-    return Object.values(swrdict).every((swr:SWRResponse<any>) => SwrTool.swr2is_data_ready(swr));
+    const callname = `SwrTool.swrdict2is_dataready @ ${DateTool.time2iso(new Date())}`;
+
+    const dict_k2b = DictTool.dict2values_mapped(swrdict, (_,swr:SWRResponse<any>) => SwrTool.swr2is_data_ready(swr))
+    const is_dataready = ArrayTool.all(Object.values(dict_k2b))
+    // console.log({callname, is_dataready, dict_k2b})
+    return is_dataready
+    // return Object.values(swrdict).map((swr:SWRResponse<any>) => SwrTool.swr2is_data_ready(swr));
   }
   static swrdict2keys_notready = <T>(swrdict:T):Dictkey[] => {
     return DictTool.keys(DictTool.dict2filtered(swrdict, (_,swr) => !SwrTool.swr2is_data_ready(swr)));
@@ -211,6 +217,9 @@ export default class SwrTool {
 
   static swr2is_data_ready(swr:SWRResponse) {
     const cls = SwrTool;
+    const callname = `SwrTool.swr2is_data_ready @ ${DateTool.time2iso(new Date())}`;
+
+    // console.log({callname, swr, 'swr.isValidating':swr.isValidating, 'swr.error':swr.error, 'swr.data':swr.data,})
 
     if (!swr) { return false; }
     if (swr.error) { return false; }

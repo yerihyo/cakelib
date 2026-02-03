@@ -138,6 +138,9 @@ export default class MathTool {
   static gtezero = (x:number):boolean => MathTool.gte(x, 0);
   static ltzero = (x:number):boolean => MathTool.lt(x, 0);
   static ltezero = (x:number):boolean => MathTool.lte(x, 0);
+
+  static eqzero = (x:number):boolean => MathTool.eq(x, 0);
+  static nezero = (x:number):boolean => MathTool.ne(x, 0);
   
 
   static divmod(v: number, d: number): { q: number, r: number } {
