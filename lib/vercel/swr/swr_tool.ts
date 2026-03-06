@@ -73,6 +73,10 @@ export default class SwrTool {
   // }
 
   static swrs2are_dataready = (swrs:SWRResponse<any>[]):boolean => swrs?.every(SwrTool.swr2is_data_ready);
+  static swrdict2keys_notready = <T>(swrdict:T):string[] => {
+    return Object.entries(swrdict).filter(([_,swr]) => !SwrTool.swr2is_data_ready(swr as SWRResponse<any>)).map(([k]) => k);
+  }
+
   static swrdict2is_dataready = <T>(swrdict:T):boolean => {
     const callname = `SwrTool.swrdict2is_dataready @ ${DateTool.time2iso(new Date())}`;
 
