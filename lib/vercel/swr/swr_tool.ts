@@ -7,6 +7,7 @@ import { Dictkey } from '../../native/native_tool';
 import HookTool, { Hookcodec } from "../../react/hook/hook_tool";
 import DictTool from '../../collection/dict/dict_tool';
 import { SWRInfiniteResponse } from 'swr/dist/infinite';
+import FunctionTool from '../../function/function_tool';
 
 const assert = require('assert');
 
@@ -215,6 +216,7 @@ export default class SwrTool {
 
   static swr2is_swrinfinite = (swr:SWRResponse):boolean => swr == null ? undefined : Object.hasOwn(swr, 'size');
 
+  // should change name to has_showabledata
   static swr2is_data_ready(swr:SWRResponse) {
     const cls = SwrTool;
     const callname = `SwrTool.swr2is_data_ready @ ${DateTool.time2iso(new Date())}`;
@@ -232,6 +234,11 @@ export default class SwrTool {
     if (swr.error) { return false; }
     return swr.data !== undefined;
   }
+
+  static swr2has_showabledata_keymatching = FunctionTool.fabs2fab_every([
+    SwrTool.swr2is_data_ready,
+    swr => !swr.isLoading,
+  ])
 
   static swr2useErrorCount = <V,E>(swr:SWRResponse<V, E>):number => {
     const self = SwrTool;
