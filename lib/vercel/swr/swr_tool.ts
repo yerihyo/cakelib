@@ -86,9 +86,6 @@ export default class SwrTool {
     return is_dataready
     // return Object.values(swrdict).map((swr:SWRResponse<any>) => SwrTool.swr2is_data_ready(swr));
   }
-  static swrdict2keys_notready = <T>(swrdict:T):Dictkey[] => {
-    return DictTool.keys(DictTool.dict2filtered(swrdict, (_,swr) => !SwrTool.swr2is_data_ready(swr)));
-  }
 
   static swrdict2isdataready_dict = <T>(swrdict:T):Record<string,boolean> => 
     DictTool.dict2values_mapped(swrdict, (_,swr) => SwrTool.swr2is_data_ready(swr))
