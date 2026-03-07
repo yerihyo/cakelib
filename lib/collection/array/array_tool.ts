@@ -1,6 +1,6 @@
 import lodash from 'lodash';
 import CmpTool, { Bicomparator, Comparator, EqualTool, Realigner } from '../../cmp/CmpTool';
-import FunctionTool from '../../function/function_tool';
+import FunctionTool, { FuncAO } from '../../function/function_tool';
 import NativeTool, { Dictkey, Omitfirst, Pair } from '../../native/native_tool';
 import MathTool from '../../number/math/math_tool';
 import DictTool from '../dict/dict_tool';
@@ -27,6 +27,55 @@ export default class ArrayTool {
   // static f_array2f_only = <T>(f_array: FuncXX<T[]>) => {
   //   return (t: T) => ArrayTool.l2one(f_array(ArrayTool.one2l(t)));
   // };
+
+  static shift = <T>(array: T[]): T[] => array?.slice(1);
+  static pop = <T>(array: T[]): T[] => array?.slice(0, -1);
+  static push = <T>(array: T[], item: T,): T[] => array == null ? undefined : [...array, item];
+  static unshift = <T>(array: T[], item: T,): T[] => array == null ? undefined : [item, ...array,];
+  
+  static shift_many = <T>(array: T[], count: number): T[] => {
+    if(array == null) return undefined;
+    if(count<0) throw new Error(`Invalid count: ${count}`);
+
+    return count === 0
+      ? array
+      : array?.length <= count
+        ? []
+        : array?.slice(count);
+  }
+
+  static shift_until = <T>(array: T[], size: number): T[] => {
+    if(array == null) return undefined;
+    if(size<0) throw new Error(`Invalid size: ${size}`);
+
+    return size === 0
+      ? []
+      : array?.length <= size
+        ? array
+        : ArrayTool.shift_many(array, array?.length - size);
+  }
+
+  static pop_until = <T>(array: T[], size: number): T[] => {
+    if(array == null) return undefined;
+    if(size<0) throw new Error(`Invalid size: ${size}`);
+    
+    return size === 0 
+      ? []
+      : array?.length <= size
+        ? array
+        : array?.slice(0, size);
+  }
+  static pop_many = <T>(array: T[], count: number): T[] => {
+    if(array == null) return undefined;
+    if(count<0) throw new Error(`Invalid count: ${count}`);
+
+    return count === 0
+      ? array
+      : array?.length <= count
+        ? []
+        : ArrayTool.pop_until(array, array?.length - count);
+  }
+  
 
   static firstlast = <X>(l:X[]):X[] => {
     if(l==null) return undefined;
@@ -58,7 +107,7 @@ export default class ArrayTool {
     option?:{is_equal?:(l1:T[], l2:T[]) => boolean,}
   ) => {
 
-    const is_equal = option?.is_equal ?? ArrayTool.areAllTriequal;
+    const is_equal = option?.is_equal ?? ArrayTool.listpair2eq_every_trinative;
     return (l:T[]):T[] => {
       return is_equal(l, f(l)) ? l : f(l)
     }
@@ -104,12 +153,12 @@ export default class ArrayTool {
     };
   }
 
-  static is_triprefix = ArrayTool.f_eq2f_is_prefix(CmpTool.isTriequal);
-  static is_biprefix = ArrayTool.f_eq2f_is_prefix(CmpTool.isBiequal);
+  static is_triprefix = ArrayTool.f_eq2f_is_prefix(CmpTool.pair2eq_trinative);
+  static is_biprefix = ArrayTool.f_eq2f_is_prefix(CmpTool.pair2eq_binative);
   static is_prefix = FunctionTool.deprecated(ArrayTool.is_triprefix);
 
   static array2comparator_prefer_included<V>(l: V[]): Comparator<V> {
-    return ArrayTool.bool(l) ? CmpTool.f_key2f_cmp((v: V) => (ArrayTool.in(v, l) ? 0 : 1)) : EqualTool.f_always_equal;
+    return ArrayTool.bool(l) ? CmpTool.f_key2f_cmp((v: V) => (ArrayTool.in(v, l) ? 0 : 1)) : EqualTool.f_cmp_always0;
   }
 
   static size2array(n: number) {
@@ -833,7 +882,7 @@ export default class ArrayTool {
   //   };
   // };
 
-  static array2dict<K extends Dictkey, V>(items: V[], item2key: (v: V) => K): Record<K, V> {
+  static array2dict = <V, K extends Dictkey>(items: V[], item2key: (v: V) => K): Record<K, V> => {
     const cls = ArrayTool;
     const callname = `ArrayTool.array2dict @ ${date2str_time(new Date())}`;
 
@@ -863,6 +912,16 @@ export default class ArrayTool {
     }, {} as Record<K, V>);
   }
 
+  static array2f_k2v = <V,K extends Dictkey>(...args:Parameters<typeof ArrayTool.array2dict<V,K>>):FuncAO<V,[K]> => {
+    const cls = ArrayTool;
+
+    let dict_k2v:Record<K,V>;
+    return (k: K) => {
+      if(dict_k2v == null){ dict_k2v = cls.array2dict(...args); }
+      return dict_k2v?.[k];
+    }
+  }
+
   // static array2dict_alias<K extends Dictkey, V>(
   //     items: V[],
   //     item2aliases: (v: V) => K[],
@@ -873,31 +932,7 @@ export default class ArrayTool {
   //     return DictTool.merge_dicts(kv_list, DictTool.WritePolicy.no_duplicate_key)
   // }
 
-  static Deprecated = class {
-    static array2dict<K extends Dictkey, X, V>(
-      items: X[],
-      item2key: (x: X) => K,
-      item2value?: (x: X) => V
-      // vwrite = undefined,
-    ): Record<K, V> {
-      // assert(vwrite === undefined)  // assuming overwrite
-      if (items === undefined) {
-        return undefined!;
-      }
 
-      // if (item2value === undefined) { item2value = x => (x as unknown as V) }
-
-      const reducer = (h: Record<K, V>, x: X) => {
-        const k: K = item2key(x);
-        // console.log({h, k});
-        assert(!(k in h), `k:${k as string}, h:${JSON.stringify(h)}`);
-        const v: V = item2value ? item2value(x) : (x as unknown as V);
-        h[k] = v;
-        return h;
-      };
-      return items.reduce(reducer, {} as Record<K, V>);
-    }
-  };
 
   static array2dict_item2index<X extends Dictkey>(items: X[]): Record<X, number> {
     if (items == null) {
@@ -912,8 +947,13 @@ export default class ArrayTool {
   static array2f_index<X extends Dictkey>(array: X[]): (x: X) => number {
     const cls = ArrayTool;
 
-    const dict_item2index = cls.array2dict_item2index(array);
-    return (x: X) => dict_item2index?.[x];
+    let dict_item2index:Record<X,number>;
+    return (x: X) => {
+      if(dict_item2index == null){
+        dict_item2index = cls.array2dict_item2index(array);
+      }
+      return dict_item2index?.[x];
+    }
   }
 
   static array2indexcomparator<X extends Dictkey>(
@@ -1186,14 +1226,21 @@ export default class ArrayTool {
         : items.every((v) => f_eq(v, items[0]))
         ;
   };
-  static isBihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.isBiequal);
-  static isTrihomo = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.isTriequal);
-  static isUniform = ArrayTool.isTrihomo;  // avoid using
-  static areAlike = ArrayTool.isTrihomo;  // avoid using
-  static areAllSame = ArrayTool.isTrihomo;  // avoid using
+  static items2homo_binative = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_binative);
+  static items2homo_trinative = <T,>(items: T[],):boolean => ArrayTool.isHomogeneous(items, CmpTool.pair2eq_trinative);
 
-  static areAllBiequal = ArrayTool.f_bicmp2f_every(CmpTool.isBiequal);
-  static areAllTriequal = ArrayTool.f_bicmp2f_every(CmpTool.isTriequal);
+  static isBihomo = ArrayTool.items2homo_binative
+  static isTrihomo = ArrayTool.items2homo_trinative
+
+  static isUniform = ArrayTool.items2homo_trinative;  // avoid using
+  static areAlike = ArrayTool.items2homo_trinative;  // avoid using
+  static areAllSame = ArrayTool.items2homo_trinative;  // avoid using
+
+  static listpair2eq_every_binative = ArrayTool.f_bicmp2f_every(CmpTool.pair2eq_binative);
+  static listpair2eq_every_trinative = ArrayTool.f_bicmp2f_every(CmpTool.pair2eq_trinative);
+
+  static areAllBiequal = ArrayTool.listpair2eq_every_binative;
+  static areAllTriequal = ArrayTool.listpair2eq_every_trinative;
 
   static reversed = <T = any>(array: T[]): T[] => (array == null ? undefined : [...array].reverse());
 
@@ -1335,7 +1382,7 @@ export default class ArrayTool {
 
     const colcounts = rows.map((row) => row.length);
     if (option?.strict) {
-      if (!ArrayTool.isTrihomo(colcounts)) {
+      if (!ArrayTool.items2homo_trinative(colcounts)) {
         throw new Error(`${colcounts}`);
       }
     }

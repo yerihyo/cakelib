@@ -43,7 +43,7 @@ export class Gridsize{
 
   static useScreenwidth = (): number  => {
     const cls = Gridsize;
-    const callname = `Gridsize.useGridsize @ ${DateTool.time2iso(new Date())}`;
+    const callname = `Gridsize.useScreenwidth @ ${DateTool.time2iso(new Date())}`;
 
     const screenwidth_hook = React.useState<number>();
 

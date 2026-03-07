@@ -9,6 +9,7 @@ export type Appraiser<T> = ((t: T) => number);
 export type Comparator<T> = ((t1: T, t2: T) => number);
 export type Bicomparator<T> = ((t1: T, t2: T) => boolean);
 export type Aggregator<T> = ((l:T[]) => T);
+export type PosetAggregator<T> = ((l:T[]) => T[]);
 export type Realigner<T> = ((l:T[]) => T[]);
 export type Indexcomparator<X> = (xi1:[X,number], xi2:[X,number]) => number;
 export type Attenchecker<X> = (x:X, l:X[]) => boolean;
@@ -19,15 +20,22 @@ class DateToolLocal {
 }
 
 export default class CmpTool {
-  static f_always_equal = <X>(x1: X, x2: X):number => 0;
-  static pair2cmp_always_eq = CmpTool.f_always_equal;
+  static f_cmp_always0 = <X>(x1: X, x2: X):number => 0;
+  static f_eq_always = <X>(x1: X, x2: X) => true;
+  static f_ne_always = <X>(x1: X, x2: X) => false;
 
-  static isBiequal = <X>(x1: X, x2: X): boolean => (x1 == x2);
-  static isBinotequal = <X>(x1: X, x2: X): boolean => (x1 != x2);
+  static pair2eq_binative = <X>(x1: X, x2: X): boolean => x1 == x2;
+  static pair2ne_binative = <X>(x1: X, x2: X): boolean => (x1 != x2);
+  static isBiequal = CmpTool.pair2eq_binative;
+  static isBinotequal = CmpTool.pair2ne_binative;
 
-  static isTriequal = <X>(x1: X, x2: X): boolean => (x1 === x2);
-  static isTrinotequal = <X>(x1: X, x2: X): boolean => (x1 !== x2);
-  static f_bicmp_alwaysfalse = <X>(x1: X, x2: X) => false;
+  static pair2eq_trinative = <X>(x1: X, x2: X): boolean => (x1 === x2);
+  static pair2ne_trinative = <X>(x1: X, x2: X): boolean => (x1 !== x2);
+
+  static pair2eq_strict = CmpTool.pair2eq_trinative
+  static isTriequal = CmpTool.pair2eq_trinative
+  static isTrinotequal = CmpTool.pair2ne_trinative
+
 
   // static f_eq2f_eq_array = <X>(f_eq:Bicomparator<X>):Bicomparator<X[]> => {
   //   return (l1:X[], l2:X[]) => {
@@ -90,26 +98,6 @@ export default class CmpTool {
 
   static f_cmp2f_eq = <A extends any[]>(f_cmp: (...args:A) => number) => lodash.flow(f_cmp, (c:number) => MathTool.eq(c,0));
   static f_cmp2f_ne = <A extends any[]>(f_cmp: (...args:A) => number) => lodash.flow(f_cmp, (c:number) => MathTool.ne(c,0));
-
-  static f_cmp2f_max = <X,>(f_cmp: Comparator<X>): Aggregator<X> => (l: X[]) => {
-    return l?.reduce(
-      (x0, x1, i) => {
-        if(i === 0) return x1;
-        const cmp = f_cmp(x0,x1);
-
-        if(cmp == null) return undefined;
-        return MathTool.gtezero(cmp) ? x0 : x1;
-      },
-      undefined,
-    );
-  };
-
-  static f_cmp2f_min = <X,>(f_cmp: Comparator<X>): Aggregator<X> => (l: X[]) => {
-    return l?.reduce(
-      (x0, x1, i) => i === 0 ? x1 : (f_cmp(x0,x1)<=0 ? x0 : x1),
-      undefined,
-    );
-  };
 
   static gt_default = CmpTool.f_cmp2f_gt(CmpTool.pair2cmp_default);
   static gte_default = CmpTool.f_cmp2f_gte(CmpTool.pair2cmp_default);
@@ -241,7 +229,8 @@ export default class CmpTool {
   //     return self.pair2cmp_default
   // }
 
-  static pair2eq_strict = <X>(x1: X, x2: X): boolean => x1 === x2;
+  
+  
   static pair2cmp_default<X>(x1: X, x2: X): number {
     if (x1 === x2) { return 0; }
     // if (x1 == null && x2 == null) { return 0; }
@@ -254,6 +243,9 @@ export default class CmpTool {
 
     throw new Error(`x1:${x1}, x2:${x2}`);
   }
+  // static pair2eq_strict = CmpTool.pair2eq_trinative; // <X>(x1: X, x2: X): boolean => x1 === x2;
+  static pair2eq_default = CmpTool.f_cmp2f_eq(CmpTool.pair2cmp_default);
+  static pair2ne_default = CmpTool.f_cmp2f_ne(CmpTool.pair2cmp_default);
 
 
   static cmplist2cmp(cmplist: number[]) {
@@ -360,7 +352,7 @@ export default class CmpTool {
       f_eq?: Bicomparator<K>,
     }
   ): Bicomparator<X> {
-    const f_eq = config?.f_eq ?? CmpTool.isTriequal;
+    const f_eq = config?.f_eq ?? CmpTool.pair2eq_trinative;
     return (x1: X, x2: X) => f_eq(f_key(x1), f_key(x2));
   }
 
@@ -370,7 +362,7 @@ export default class CmpTool {
       f_ne?: Bicomparator<K>,
     }
   ): (x1: X, x2: X) => boolean {
-    const f_ne = config?.f_ne ?? CmpTool.isTrinotequal;
+    const f_ne = config?.f_ne ?? CmpTool.pair2ne_trinative;
     return (x1: X, x2: X) => f_ne(f_key(x1), f_key(x2));
   }
 
@@ -396,7 +388,7 @@ export default class CmpTool {
       f_eq?: Bicomparator<K>,
     }
   ): Attenchecker<X> {
-    const f_eq = config?.f_eq ?? CmpTool.isTriequal;
+    const f_eq = config?.f_eq ?? CmpTool.pair2eq_trinative;
 
     return (x: X, l: X[]):boolean => {
       const k = f_key(x);
@@ -493,27 +485,12 @@ export default class CmpTool {
 }
 
 export class BicmpTool {
-  static funcs2func_alltrue<T>(f_bicmps:Bicomparator<T>[]):Bicomparator<T>{
-
-    return (t1: T, t2: T) => {
-      // if(!ArrayTool.bool(f_bicmps)){ return undefined; }
-
-      for (const f_bicmp of f_bicmps) {
-        if(!f_bicmp(t1,t2)){ return false; }
-      }
-      return true;
-    }
+  static f_bicmps2f_bicmp_every = <T>(f_bicmps:Bicomparator<T>[]):Bicomparator<T> => {
+    return (t1: T, t2: T) => f_bicmps?.every(f_bicmp => f_bicmp(t1,t2))
   }
 
-  static funcs2func_anytrue<T>(f_bicmps:Bicomparator<T>[]):Bicomparator<T>{
-    return (t1: T, t2: T) => {
-      // if(!ArrayTool.bool(f_bicmps)){ return undefined; }
-
-      for (const f_bicmp of f_bicmps) {
-        if(f_bicmp(t1,t2)){ return true; }
-      }
-      return false;
-    }
+  static f_bicmps2f_bicmp_some = <T>(f_bicmps:Bicomparator<T>[]):Bicomparator<T> => {
+    return (t1: T, t2: T) => f_bicmps?.some(f_bicmp => f_bicmp(t1,t2))
   }
 
   static pair2gt_default = CmpTool.f_cmp2f_gt(CmpTool.pair2cmp_default);
@@ -521,11 +498,12 @@ export class BicmpTool {
   static pair2lt_default = CmpTool.f_cmp2f_lt(CmpTool.pair2cmp_default);
   static pair2lte_default = CmpTool.f_cmp2f_lte(CmpTool.pair2cmp_default);  
 
-
 }
 
 export class EqualTool {
-  static f_always_equal = <X>(x1: X, x2: X) => 0;
+  static f_cmp_always0 = CmpTool.f_cmp_always0;
+  static f_always_equal = EqualTool.f_cmp_always0
+
   static isLooselyEqual = <X>(x1: X, x2: X): boolean => x1 == x2;
   static isStrictlyEqual = <X>(x1: X, x2: X): boolean => x1 === x2;
 
@@ -550,6 +528,8 @@ export class Comparatorkit<T>{
   // min: Aggregator<T>;
 
   static comparator2kit = <T>(comparator:Comparator<T>) => {
+    if(comparator==null) return undefined;
+    
     return {
       gt: CmpTool.f_cmp2f_gt(comparator),
       gte: CmpTool.f_cmp2f_gte(comparator),

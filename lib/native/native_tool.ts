@@ -6,6 +6,9 @@ export type Pair<T> = [T, T];
 export type Triple<T> = [T, T, T];
 export type Quad<T> = [T, T, T, T];
 
+export type PartialWithReq<X, K extends keyof X> = Partial<X> & Required<Pick<X, K>>
+
+
 type Last<T extends any[]> = T extends [...infer A, infer LAST] ? LAST : T extends [...infer A, (infer LAST)?] ? LAST | undefined : never;
 export type Lastparam<F extends (...args: any) => any> = Last<Parameters<F>>;
 
@@ -132,5 +135,18 @@ export class GriddisplayTool{
     return {
       display: 'grid', gridTemplateColumns: `repeat(auto-fit, minmax(${width}, max-content))`, justifyContent: 'center',
     }
+  }
+}
+
+export class AsyncTool{
+  static afilter = async <T>(
+    array: T[],
+    predicate: (item: T, index: number, array: T[]) => Promise<boolean>
+  ): Promise<T[]> => {
+    // 1. Run all predicates in parallel and get an array of Promises<boolean>
+    const resolutions = await Promise.all(array.map(predicate));
+
+    // 2. Synchronously filter the original array based on the resolved booleans
+    return array.filter((_item, index) => resolutions[index]);
   }
 }

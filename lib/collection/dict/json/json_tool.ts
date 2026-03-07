@@ -21,7 +21,7 @@ export type Leafducer<PO,PI> = (p_in: PI, jedge: Jstep) => PO
 export type Grafter<RO,RI> = (root_in: RI, jpath: Jstep[],) => RO
 
 export class JpathTool {
-  static is_prefix = ArrayTool.f_eq2f_is_prefix(CmpTool.isTriequal);
+  static is_prefix = ArrayTool.f_eq2f_is_prefix(CmpTool.pair2eq_trinative);
 
   static jpath2prefix_stemmed(jpath: Jpath, prefix: Jpath) {
     if (!jpath) { return undefined; }
@@ -31,7 +31,7 @@ export class JpathTool {
   }
 
   // static equals = (l1:Jpath, l2:Jpath):boolean => ArrayTool.equals<Jstep>(l1,l2);
-  static equals = ArrayTool.f_bicmp2f_every<Jstep>(CmpTool.isBiequal);
+  static equals = ArrayTool.f_bicmp2f_every<Jstep>(CmpTool.pair2eq_binative);
 
 }
 export class XpathTool {
@@ -136,6 +136,7 @@ static json2sortedstring = <X>(x:X, ...args:Omitfirst<Parameters<typeof stringif
   static decode = JsonTool.parse;
   static codecpair = <X>(): Codecpair<X, string> => [JsonTool.encode, JsonTool.decode];
   static codecobj = <X>(): Codecobj<X, string> => ({ encode: JsonTool.encode, decode: JsonTool.decode });
+  static eq = CmpTool.f_key2f_eq(JsonTool.encode)
 
   /**
    * // https://stackoverflow.com/a/60333849

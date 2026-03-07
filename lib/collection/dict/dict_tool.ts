@@ -250,9 +250,11 @@ export default class DictTool{
     ): H => {
         if (!h_in) { return undefined; }
 
-        return Object.entries(h_in)
-            .filter(([k, v]) => filter(k, v))
-            .reduce((h, [k, v]) => ({ ...h, [k]: v }), {}) as H;
+        const entries_in = Object.entries(h_in);
+        const entries_filtered = entries_in.filter(([k, v]) => filter(k, v))
+        return entries_in?.length == entries_filtered?.length
+            ? h_in
+            : entries_filtered.reduce((h, [k, v]) => ({ ...h, [k]: v }), {}) as H;
     }
     static keys2filtered = <H>(h_in: H, keys: Dictkey[]): H => DictTool.dict2filtered(h_in, k => keys.includes(k));
     static keys2excluded = <H>(h_in: H, keys: Dictkey[]): H => DictTool.dict2filtered(h_in, k => !keys.includes(k));

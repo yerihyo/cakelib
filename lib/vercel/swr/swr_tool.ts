@@ -7,6 +7,7 @@ import { Dictkey } from '../../native/native_tool';
 import HookTool, { Hookcodec } from "../../react/hook/hook_tool";
 import DictTool from '../../collection/dict/dict_tool';
 import { SWRInfiniteResponse } from 'swr/dist/infinite';
+import FunctionTool from '../../function/function_tool';
 
 const assert = require('assert');
 
@@ -77,7 +78,16 @@ export default class SwrTool {
   }
 
   static swrdict2is_dataready = <T>(swrdict:T):boolean => {
-    return Object.values(swrdict).every((swr:SWRResponse<any>) => SwrTool.swr2is_data_ready(swr));
+    const callname = `SwrTool.swrdict2is_dataready @ ${DateTool.time2iso(new Date())}`;
+
+    const dict_k2b = DictTool.dict2values_mapped(swrdict, (_,swr:SWRResponse<any>) => SwrTool.swr2is_data_ready(swr))
+    const is_dataready = ArrayTool.all(Object.values(dict_k2b))
+    // console.log({callname, is_dataready, dict_k2b})
+    return is_dataready
+    // return Object.values(swrdict).map((swr:SWRResponse<any>) => SwrTool.swr2is_data_ready(swr));
+  }
+  static swrdict2keys_notready = <T>(swrdict:T):Dictkey[] => {
+    return DictTool.keys(DictTool.dict2filtered(swrdict, (_,swr) => !SwrTool.swr2is_data_ready(swr)));
   }
 
   static swrdict2isdataready_dict = <T>(swrdict:T):Record<string,boolean> => 
@@ -210,8 +220,12 @@ export default class SwrTool {
 
   static swr2is_swrinfinite = (swr:SWRResponse):boolean => swr == null ? undefined : Object.hasOwn(swr, 'size');
 
+  // should change name to has_showabledata
   static swr2is_data_ready(swr:SWRResponse) {
     const cls = SwrTool;
+    const callname = `SwrTool.swr2is_data_ready @ ${DateTool.time2iso(new Date())}`;
+
+    // console.log({callname, swr, 'swr.isValidating':swr.isValidating, 'swr.error':swr.error, 'swr.data':swr.data,})
 
     if (!swr) { return false; }
     if (swr.error) { return false; }
@@ -224,6 +238,11 @@ export default class SwrTool {
     if (swr.error) { return false; }
     return swr.data !== undefined;
   }
+
+  static swr2has_showabledata_keymatching = FunctionTool.fabs2fab_every([
+    SwrTool.swr2is_data_ready,
+    swr => !swr.isLoading,
+  ])
 
   static swr2useErrorCount = <V,E>(swr:SWRResponse<V, E>):number => {
     const self = SwrTool;

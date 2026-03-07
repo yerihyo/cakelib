@@ -1,7 +1,9 @@
-import { Pair } from "../../native/native_tool";
-import CmpTool, { Comparator } from "../../cmp/CmpTool";
+import lodash from 'lodash'
+import { Lastparam, Omitlast, Pair } from "../../native/native_tool";
+import CmpTool, { Aggregator, Bicomparator, Comparator, PosetAggregator } from "../../cmp/CmpTool";
 import DateTool from "../../date/date_tool";
 import ArrayTool from "./array_tool";
+import DictTool from "../dict/dict_tool";
 
 export default class MinimaxTool{
   static maxIndex = <X>(array: X[], pair2cmp?: Comparator<X>): number => {
@@ -56,6 +58,61 @@ export default class MinimaxTool{
     MinimaxTool.min(array, pair2cmp),
     MinimaxTool.max(array, pair2cmp),
   ]
+
+  static minimals = <X>(
+    xs_in: X[],
+    option?:{
+      comparator: Comparator<X>
+    }
+  ): X[] => {
+    const cls = MinimaxTool;
+
+    const comparator = option?.comparator ?? CmpTool.pair2cmp_default
+
+    if(xs_in == null) return undefined;
+
+    const minimals: X[] = [];
+
+    for (const x_in of xs_in) {
+      let is_minimal = true;
+      
+      // 현재 결과 집합과 비교하여 최적화 시도
+      for (let i = 0; i < minimals.length; i++) {
+        const x_prev = minimals[i];
+        const cmp = comparator(x_in, x_prev);
+
+        // 후보가 기존 원소에 의해 지배됨 -> 후보 탈락
+        if (cmp > 0) { is_minimal = false; break; } 
+        // 후보가 기존 원소를 지배함 -> 기존 원소 제거
+        if (cmp < 0) { minimals.splice(i, 1); i--; }
+      }
+
+      if (is_minimal){ minimals.push(x_in); }
+    }
+
+    return minimals;
+  }
+  static theminimal = lodash.flow(MinimaxTool.minimals, ArrayTool.l2one);
+
+  static maximals = <X>(
+    xs_in:X[],
+    option?:Lastparam<typeof MinimaxTool.minimals>,
+  ):X[] => {
+    return MinimaxTool.minimals(
+      xs_in,
+      {
+        ...DictTool.keys2excluded(option, ['comparator']),
+        comparator: CmpTool.f_cmp2reversed(option?.comparator ?? CmpTool.pair2cmp_default),
+      }
+    )
+  }
+  static themaximal = lodash.flow(MinimaxTool.maximals, ArrayTool.l2one);
+
+  static f_cmp2f_max = <X,>(f_cmp: Comparator<X>): Aggregator<X> => { return (l:X[]) => MinimaxTool.max(l, f_cmp); };
+  static f_cmp2f_min = <X,>(f_cmp: Comparator<X>): Aggregator<X> => { return (l:X[]) => MinimaxTool.min(l, f_cmp); };
+
+  static f_cmp2f_minimals = <X,>(f_cmp: Comparator<X>): PosetAggregator<X> => { return (l: X[]) => MinimaxTool.minimals(l, {comparator:f_cmp}); };
+  static f_cmp2f_maximals = <X,>(f_cmp: Comparator<X>): PosetAggregator<X> => { return (l: X[]) => MinimaxTool.maximals(l, {comparator:f_cmp}); };
 }
 
 
@@ -73,20 +130,22 @@ export class AbsoluteOrder{
     const {v2is_absmin, v2is_absmax, v2is_abseq} = (functions || {});
 
     const f_cmp_out = (v1: V, v2: V) => {
-
-      const [b1_absmin, b2_absmin] = (v2is_absmin ? [v1, v2].map(v2is_absmin) : [undefined, undefined]);
-      const [b1_absmax, b2_absmax] = (v2is_absmax ? [v1, v2].map(v2is_absmax) : [undefined, undefined]);
-      const [b1_abseq, b2_abseq] = (v2is_abseq ? [v1, v2].map(v2is_abseq) : [undefined, undefined]);
       
-      if(b1_abseq || b2_abseq) { return 0; }
+      if(v2is_abseq){
+        const [b1_abseq, b2_abseq] = [v2is_abseq(v1), v2is_abseq(v2)];
+        if(b1_abseq || b2_abseq) { return 0; }
+      }
 
       if(v2is_absmin){
+        const [b1_absmin, b2_absmin] = [v2is_absmin(v1), v2is_absmin(v2)];
         if (b1_absmin && b2_absmin) { return 0; }
         if (b1_absmin) { return -1; }
         if (b2_absmin) { return 1; }
       }
 
       if(v2is_absmax){
+        const [b1_absmax, b2_absmax] = [v2is_absmax(v1), v2is_absmax(v2)];
+
         if (b1_absmax && b2_absmax) { return 0; }
         if (b1_absmax) { return 1; }
         if (b2_absmax) { return -1; }

@@ -22,5 +22,4 @@ export default class IronsessionTool {
       session
     );
   }
-
 }
