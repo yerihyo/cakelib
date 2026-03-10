@@ -311,6 +311,16 @@ export default class StringTool {
   }
 
   static query2clean = (query:string):string => query?.trim(); // need to remove backspace (\b) character
+
+  // 한글까지 대응 가능한 안전한 인코딩 함수
+  static btoa_safe = (s:string) => {
+    return btoa(
+      encodeURIComponent(s).replace(
+        /%([0-9A-F]{2})/g,
+        (_, p1) => String.fromCharCode(Number('0x' + p1))
+      )
+    );
+  };
 }
 
 
