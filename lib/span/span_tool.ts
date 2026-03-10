@@ -1,5 +1,5 @@
 import lodash from 'lodash';
-import CmpTool, { Appraiser, BicmpTool, Bicomparator, Comparator, Comparatorkit } from '../cmp/CmpTool'
+import CmpTool, { Appraiser, BicmpTool, Bicomparator, Comparator } from '../cmp/CmpTool'
 import ArrayTool from '../collection/array/array_tool'
 import MinimaxTool, { AbsoluteOrder } from '../collection/array/minimax_tool'
 import NativeTool, { Pair } from '../native/native_tool'

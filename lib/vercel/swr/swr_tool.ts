@@ -1,12 +1,10 @@
 import React from 'react';
-import useSWR, { BareFetcher, MutatorCallback, MutatorOptions, SWRConfiguration, SWRResponse } from 'swr';
+import { MutatorCallback, MutatorOptions, SWRConfiguration, SWRResponse } from 'swr';
 import ArrayTool from '../../collection/array/array_tool';
-import JsonTool from '../../collection/dict/json/json_tool';
 import DateTool from '../../date/date_tool';
 import { Dictkey } from '../../native/native_tool';
-import HookTool, { Hookcodec } from "../../react/hook/hook_tool";
+import HookTool from "../../react/hook/hook_tool";
 import DictTool from '../../collection/dict/dict_tool';
-import { SWRInfiniteResponse } from 'swr/dist/infinite';
 import FunctionTool from '../../function/function_tool';
 
 const assert = require('assert');

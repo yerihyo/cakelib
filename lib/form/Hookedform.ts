@@ -1,11 +1,10 @@
 import React from "react";
 import * as Yup from 'yup';
-import { ObjectShape, OptionalObjectSchema } from "yup/lib/object";
 import CmpTool, {Comparator} from "../cmp/CmpTool";
 import ArrayTool from "../collection/array/array_tool";
 import { Jpath, XpathTool } from "../collection/dict/json/json_tool";
 import DateTool from "../date/date_tool";
-import HookTool, { Hookcodec, Reacthook, Reacthooksetter, Reactref } from "../react/hook/hook_tool";
+import HookTool, { Hookcodec, Reacthook, Reactref } from "../react/hook/hook_tool";
 import YupTool from "./yup/yup_tool";
 import { ValidateOptions } from "yup/lib/types";
 import { AbsoluteOrder } from "../collection/array/minimax_tool";
