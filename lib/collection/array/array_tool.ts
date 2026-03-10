@@ -1,7 +1,7 @@
 import lodash from 'lodash';
 import CmpTool, { Bicomparator, Comparator, EqualTool, Realigner } from '../../cmp/CmpTool';
 import FunctionTool, { FuncAO } from '../../function/function_tool';
-import NativeTool, { Dictkey, Omitfirst, Pair } from '../../native/native_tool';
+import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
 import MathTool from '../../number/math/math_tool';
 import DictTool from '../dict/dict_tool';
 

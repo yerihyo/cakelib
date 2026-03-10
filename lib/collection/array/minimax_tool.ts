@@ -1,9 +1,9 @@
-import lodash from 'lodash'
-import { Lastparam, Omitlast, Pair } from "../../native/native_tool";
-import CmpTool, { Aggregator, Bicomparator, Comparator, PosetAggregator } from "../../cmp/CmpTool";
+import lodash from 'lodash';
+import CmpTool, { Aggregator, Comparator, PosetAggregator } from "../../cmp/CmpTool";
 import DateTool from "../../date/date_tool";
-import ArrayTool from "./array_tool";
+import { Lastparam, Pair } from "../../native/native_tool";
 import DictTool from "../dict/dict_tool";
+import ArrayTool from "./array_tool";
 
 export default class MinimaxTool{
   static maxIndex = <X>(array: X[], pair2cmp?: Comparator<X>): number => {
