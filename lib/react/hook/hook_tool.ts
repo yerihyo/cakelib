@@ -1,15 +1,14 @@
 import lodash from 'lodash';
 import React, { Dispatch, MutableRefObject, RefObject, SetStateAction } from 'react';
-import CmpTool, { Bicomparator, Comparator, EqualTool } from '../../cmp/CmpTool';
+import CmpTool, { Bicomparator, EqualTool } from '../../cmp/CmpTool';
 import ArrayTool from '../../collection/array/array_tool';
-import { AbsoluteOrder } from '../../collection/array/minimax_tool';
 import Queue from '../../collection/deque/queue';
 import DictTool from '../../collection/dict/dict_tool';
 import JsonTool, { Jpath, Jstep } from '../../collection/dict/json/json_tool';
 import DateTool from '../../date/date_tool';
 import FunctionTool from '../../function/function_tool';
 import StorageTool, { WindoweventTool } from '../../html/storage/StorageTool';
-import NativeTool, { Dictkey, Lastparam, Pair } from '../../native/native_tool';
+import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
 import MathTool from '../../number/math/math_tool';
 import NumberTool from '../../number/number_tool';
 import ReactTool, { SetStateActionAsync } from '../react_tool';

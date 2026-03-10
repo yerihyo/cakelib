@@ -2,7 +2,6 @@ import StringTool from "../string/string_tool";
 import ArrayTool from "../collection/array/array_tool";
 import DateTool from "../date/date_tool";
 import lodash from "lodash";
-import FunctionTool from "../function/function_tool";
 
 
 export default class PhonenumberTool{

@@ -1,4 +1,4 @@
-import React, { MutableRefObject } from 'react';
+import React from 'react';
 import { nanoid } from 'nanoid';
 
 import DateTool from '../../../date/date_tool';

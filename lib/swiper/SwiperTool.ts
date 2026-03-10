@@ -1,5 +1,4 @@
 import { CSSProperties } from "react";
-import CssTool from "../html/CssTool";
 
 export class CakeaholicSwiper{
   static cssprop_navibutton_shadow = ():CSSProperties => {

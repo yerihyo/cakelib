@@ -1,8 +1,8 @@
 import * as Yup from 'yup';
 import DateTool from '../../date/date_tool';
 import HookTool, { Hookcodec, Reacthooksetter } from '../../react/hook/hook_tool';
-import JsonTool, { Jpath, XpathTool } from '../../collection/dict/json/json_tool';
-import ObjectSchema, { ObjectShape } from 'yup/lib/object';
+import JsonTool, { XpathTool } from '../../collection/dict/json/json_tool';
+import { ObjectShape } from 'yup/lib/object';
 import DictTool from '../../collection/dict/dict_tool';
 import ArrayTool from '../../collection/array/array_tool';
 import lodash from 'lodash';

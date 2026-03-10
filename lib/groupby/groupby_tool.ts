@@ -1,4 +1,3 @@
-import lodash from 'lodash';
 import FunctionTool, { FuncAO } from "../function/function_tool";
 import CmpTool, { Comparator } from "../cmp/CmpTool";
 import ArrayTool from "../collection/array/array_tool"

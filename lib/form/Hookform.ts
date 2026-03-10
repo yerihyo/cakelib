@@ -1,6 +1,5 @@
 import React from "react";
 import * as Yup from 'yup';
-import { ObjectShape, OptionalObjectSchema } from "yup/lib/object";
 import CmpTool, { Comparator } from "../cmp/CmpTool";
 import ArrayTool from "../collection/array/array_tool";
 import { Jpath, JpathTool, XpathTool } from "../collection/dict/json/json_tool";
