@@ -4,7 +4,6 @@ import CmpTool from '../cmp/CmpTool';
 import ArrayTool from '../collection/array/array_tool';
 import { AbsoluteOrder } from '../collection/array/minimax_tool';
 import DateTool from '../date/date_tool';
-import { WindowTool } from '../html/ComponentTool';
 
 export class Gridsize{
   // index:number;

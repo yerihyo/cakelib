@@ -6,7 +6,7 @@
 import lodash from 'lodash';
 import CmpTool from '../cmp/CmpTool';
 import ArrayTool from '../collection/array/array_tool';
-import FunctionTool, { FuncAO } from '../function/function_tool';
+import { FuncAO } from '../function/function_tool';
 import { Pair, Triple } from '../native/native_tool';
 import MathTool from '../number/math/math_tool';
 import NumberTool from '../number/number_tool';
