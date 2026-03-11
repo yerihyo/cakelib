@@ -29,7 +29,7 @@ export default class GraftingTool {
     if(ArrayTool.is_array(parent)){
       if(!NumberTool.is_number(jedge)){ throw new Error(`jedge:${jedge}, parent:${parent}`); }
 
-      return jedge < parent.length;
+      return (jedge as number) < parent.length;
     }
 
     if(DictTool.is_dict(parent)){
