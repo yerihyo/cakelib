@@ -3,19 +3,19 @@ import { Pair } from "../../native/native_tool";
 import JsonTool from "../../collection/dict/json/json_tool";
 import DateTool from "../../date/date_tool";
 
-type Reacthook<T> = [T, React.Dispatch<React.SetStateAction<T>>];
+// type Reacthook<T> = [T, React.Dispatch<React.SetStateAction<T>>];
 
-export class WindoweventTool{
-  static key_value2event = <X,>(eventkey:string, value:X) => {
-    return new CustomEvent(eventkey, { detail: value });
-  }
-  static event2value = <X,>(event:CustomEvent):X => {
-    return event.detail;
-  }
-  static fireEvent = <X,>(eventkey:string, value:X) => {
-    window.dispatchEvent(WindoweventTool.key_value2event(eventkey, value));
-  }
-}
+// export class WindoweventTool{
+//   static key_value2event = <X,>(eventkey:string, value:X) => {
+//     return new CustomEvent(eventkey, { detail: value });
+//   }
+//   static event2value = <X,>(event:CustomEvent):X => {
+//     return event.detail;
+//   }
+//   static fireevent = <X,>(eventkey:string, value:X) => {
+//     window.dispatchEvent(WindoweventTool.key_value2event(eventkey, value));
+//   }
+// }
 export default class StorageTool {
   static key2hdoc = <X>(
     storage:Storage,
@@ -65,10 +65,10 @@ export default class StorageTool {
 
 
   
-  static fireevent_setitem = <X>(key:string, value:X):boolean => {
-    return window.dispatchEvent(WindoweventTool.key_value2event(key, value));
-  }
-  static fireevent_removeitem = (key: string,) => StorageTool.fireevent_setitem(key, undefined)
+  // static fireevent_setitem = <X>(key:string, value:X):boolean => {
+  //   return window.dispatchEvent(WindoweventTool.key_value2event(key, value));
+  // }
+  // static fireevent_removeitem = (key: string,) => StorageTool.fireevent_setitem(key, undefined)
 
   // static setItem2eventfire_attached = (
   //   setItem: (key:string, value:string,) => void,
