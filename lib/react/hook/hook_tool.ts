@@ -7,7 +7,7 @@ import DictTool from '../../collection/dict/dict_tool';
 import JsonTool, { Jpath, Jstep } from '../../collection/dict/json/json_tool';
 import DateTool from '../../date/date_tool';
 import FunctionTool from '../../function/function_tool';
-import StorageTool, { WindoweventTool } from '../../html/storage/StorageTool';
+import StorageTool from '../../html/storage/StorageTool';
 import NativeTool, { Dictkey, Pair } from '../../native/native_tool';
 import MathTool from '../../number/math/math_tool';
 import NumberTool from '../../number/number_tool';
@@ -2038,43 +2038,6 @@ export default class HookTool{
   }
 
 
-  static hook2wineventlinked = <X>(
-    hook_in: Reacthook<X>,
-    eventkey: string,
-    option?: { isEqual?: Bicomparator<X>, },
-  ):Reacthook<X> => {
-    const cls = HookTool;
-    const callname = `HookTool.hook2wineventlinked @ ${DateTool.time2iso(new Date())}`;
-
-    const isEqual = option?.isEqual ?? CmpTool.pair2eq_trinative;
-
-    // listen: event => hook
-    const listener = (e:CustomEvent<X>) => {
-      const x = WindoweventTool.event2value<X>(e);
-      // console.log({callname, x});
-
-      hook_in[1](x_prev => (isEqual(x_prev, x) ? x_prev : x));
-    };
-
-    HookTool.useEffectUpclock(() => {
-      window.addEventListener(eventkey, listener, false);
-      return () => window.removeEventListener(eventkey, listener, false);
-    }, eventkey != null);
-
-    // dispatch: hook => event
-    const hook_out = HookTool.hook2codeced<X,X>(hook_in, {
-      decode:x => x,
-      encode: (c, p_prev) => {
-        if(isEqual(c, p_prev)){ return p_prev; }
-
-        const event = WindoweventTool.key_value2event(eventkey, c);
-        // console.log({callname, eventkey, c, event});
-        window.dispatchEvent(event);
-        return c;
-      }
-    });
-    return hook_out;
-  }
 
   static hook2synced = <T,K>(
     hook_target:Reacthook<T>,
