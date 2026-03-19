@@ -9,7 +9,7 @@ export type Quad<T> = [T, T, T, T];
 export type PartialWithReq<X, K extends keyof X> = Partial<X> & Required<Pick<X, K>>
 
 
-type Last<T extends any[]> = T extends [...infer A, infer LAST] ? LAST : T extends [...infer A, (infer LAST)?] ? LAST | undefined : never;
+export type Last<T extends any[]> = T extends [...infer A, infer LAST] ? LAST : T extends [...infer A, (infer LAST)?] ? LAST | undefined : never;
 export type Lastparam<F extends (...args: any) => any> = Last<Parameters<F>>;
 
 // https://stackoverflow.com/a/63024984
