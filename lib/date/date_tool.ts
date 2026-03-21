@@ -276,6 +276,9 @@ export default class DateTool {
   static mins2added = (d: Date, mins: number): Date  =>  DateTool.secs2added(d, MathTool.times(mins,60));
   static hours2added = (d: Date, hours: number): Date  =>  DateTool.mins2added(d, MathTool.times(hours,60));
   static days2added = (d: Date, days: number): Date  =>  DateTool.hours2added(d, MathTool.times(days,24));
+
+  static date2epochmin = (d: Date): number => d != null ? Math.floor(d.getTime() / 60000) : undefined;
+  static epochmin2date = (epochmin: number): Date => epochmin != null ? new Date(epochmin * 60000) : undefined;
   static fxx_date2fxx_day8 = <A extends any[]>(f_date:FuncAO<Date, [Date, ...A]>):FuncAO<number, [number, ...A]> => {
     return (day8_in:number, ...args:A) => {
       const d_in = DateTool._day82date_midnight(day8_in);
