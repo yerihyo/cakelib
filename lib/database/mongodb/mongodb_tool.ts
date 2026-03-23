@@ -242,29 +242,27 @@ export default class MongodbTool {
     const cls = MongodbTool;
     const callname = `MongodbTool.query2prefixed @ ${DateTool.time2iso(new Date())}`;
 
-    // console.log({callname, query_in, prefix,});
-    const rv = (() => {
-      if (ArrayTool.is_array(query_in)) {
-        return (query_in as any[])?.map(c_in => cls.query2prefixed(c_in, prefix)) as O;
-      } else if (DictTool.is_dict(query_in)) {
-        const keys = Object.keys(query_in);
-        if(!cls.query2is_logical(query_in)){
-          return DictTool.merge_dicts(
-            keys.map(k_ => ({[`${prefix}.${k_}`]: query_in[k_]})),
-            DictTool.WritePolicy.no_duplicate_key,
-          ) as O;
-          // return keys.reduce((h, k_) => ({...h, [`${prefix}.${k_}`]:query_in[k_]}), {}) as O;
-        }
+    if (ArrayTool.is_array(query_in)) {
+      return (query_in as any[])?.map(c_in => cls.query2prefixed(c_in, prefix)) as O;
+    }
 
+    if (DictTool.is_dict(query_in)) {
+      const keys = Object.keys(query_in);
+      if(!cls.query2is_logical(query_in)){
+        return DictTool.merge_dicts(
+          keys.map(k_ => ({[`${prefix}.${k_}`]: query_in[k_]})),
+          DictTool.WritePolicy.no_duplicate_key,
+        ) as O;
+        // return keys.reduce((h, k_) => ({...h, [`${prefix}.${k_}`]:query_in[k_]}), {}) as O;
+      }
+
+      else{
         const op = ArrayTool.l2one(keys);
         return {[op]: cls.query2prefixed(query_in[op], prefix)} as O;
-      } else{
-        return query_in as unknown as O;
       }
-    })();
+    }
 
-    // console.log({callname, query_in, prefix, rv});
-    return rv;
+    return query_in as unknown as O;
   }
 
   static fieldpair2transducer_unwind = <V,>(
