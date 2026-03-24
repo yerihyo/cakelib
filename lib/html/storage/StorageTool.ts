@@ -1,4 +1,3 @@
-import React from "react";
 import { Pair } from "../../native/native_tool";
 import JsonTool from "../../collection/dict/json/json_tool";
 import DateTool from "../../date/date_tool";
