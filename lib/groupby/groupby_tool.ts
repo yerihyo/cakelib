@@ -10,6 +10,42 @@ export type Pack<P, X, K extends Dictkey = Dictkey,> = { key: K, parent: P, entr
 
 export default class GroupbyTool {
 
+  /** Python itertools.groupby와 동일. 연속된 같은 key의 요소를 묶음 */
+  static groupby_consecutive<P, X, K extends Dictkey = Dictkey>(
+    items: X[],
+    funcdict: {
+      item2parent: (item: X) => P,
+      parent2key?: (parent: P) => K,
+    },
+  ): [P, X[]][] {
+    if (!items?.length) return [];
+
+    const { item2parent, parent2key } = funcdict;
+    const item2key = (item: X): K => {
+      const parent = item2parent(item);
+      return parent2key ? parent2key(parent) : (parent as unknown as K);
+    };
+
+    const result: [P, X[]][] = [];
+    let curr_key = item2key(items[0]);
+    let curr_parent = item2parent(items[0]);
+    let curr_group: X[] = [items[0]];
+
+    for (let i = 1; i < items.length; i++) {
+      const key = item2key(items[i]);
+      if (key === curr_key) {
+        curr_group.push(items[i]);
+      } else {
+        result.push([curr_parent, curr_group]);
+        curr_key = key;
+        curr_parent = item2parent(items[i]);
+        curr_group = [items[i]];
+      }
+    }
+    result.push([curr_parent, curr_group]);
+    return result;
+  }
+
   static dict_groupby<X, OTREE, K extends Dictkey,>(
     items: X[],
     f_item2key_list: ((item: X) => K)[],
