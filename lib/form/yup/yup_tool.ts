@@ -71,6 +71,21 @@ export default class YupTool{
   //   return error_out;
   // }
 
+  static errors_xpath2filtered = (
+    errors:Yup.ValidationError[],
+    xpath:string,
+  ):Yup.ValidationError[] => errors?.filter(e => e.path === xpath);
+
+  static errors_xpath2messages = (errors:Yup.ValidationError[], xpath:string):string => {
+    const filtered = YupTool.errors_xpath2filtered(errors, xpath);
+    return ArrayTool.bool(filtered) ? filtered.map(e => e.message).join(" ") : undefined;
+  }
+
+  static errors_xpath2exists = lodash.flow(
+    YupTool.errors_xpath2filtered,
+    ArrayTool.bool,
+  )
+
   static xpath2errors_down(errors:Yup.ValidationError[], xpath:string):Yup.ValidationError[]{
     return errors
       ?.filter(e => XpathTool.is_prefix(xpath, e.path))
