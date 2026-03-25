@@ -23,8 +23,24 @@ export default class DateTool {
   static SATURDAY = {value: 6};
   
   
-  static dows_sun2sat = ():number[] => [DateTool.SUNDAY, DateTool.MONDAY, DateTool.TUESDAY, DateTool.WEDNESDAY, DateTool.THURSDAY, DateTool.FRIDAY, DateTool.SATURDAY].map(x => x.value)
-  static dows_mon2sun = ():number[] => [DateTool.MONDAY, DateTool.TUESDAY, DateTool.WEDNESDAY, DateTool.THURSDAY, DateTool.FRIDAY, DateTool.SATURDAY, DateTool.SUNDAY].map(x => x.value)
+  static dows_sun2sat = ():number[] => [
+    DateTool.SUNDAY.value,
+    DateTool.MONDAY.value,
+    DateTool.TUESDAY.value,
+    DateTool.WEDNESDAY.value,
+    DateTool.THURSDAY.value,
+    DateTool.FRIDAY.value,
+    DateTool.SATURDAY.value,
+  ]
+  static dows_mon2sun = ():number[] => [
+    DateTool.MONDAY.value,
+    DateTool.TUESDAY.value,
+    DateTool.WEDNESDAY.value,
+    DateTool.THURSDAY.value,
+    DateTool.FRIDAY.value,
+    DateTool.SATURDAY.value,
+    DateTool.SUNDAY.value,
+  ]
 
   static secoffset_noon():number{ return 12*60*60; }
 
