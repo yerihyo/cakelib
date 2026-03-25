@@ -13,6 +13,12 @@ export default class SpanTool {
   static zerospan = <T>() => ([] as unknown as Pair<T>);
   static bool = ArrayTool.bool;
 
+  static spans2is_valid = <T>(spans: Pair<T>[]): boolean => {
+    return spans == null
+      ? undefined
+      : MathTool.gtzero(spans?.length) && spans?.[0]?.[0] != null;
+  };
+
   static nullnull = <T>():Pair<T> => [null, null]; // semantically (-inf,inf)
 
   static nullnull2infinf(span: Pair<number>): Pair<number> {

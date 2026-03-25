@@ -47,7 +47,7 @@ export default class FormikTool {
     // const {formik} = props;
 
     const { isValid, errors } = formik; // useFormikContext()
-    
+
     const downcount = HookTool.boolean2downcount(formik.isSubmitting);
 
     React.useEffect(() => {
