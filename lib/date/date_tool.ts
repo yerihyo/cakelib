@@ -352,6 +352,11 @@ export default class DateTool {
     return new Date(y, m, d);
   }
 
+  static day82dow = lodash.flow(
+    DateTool._day82date_midnight,
+    d => d?.getDay(),
+  )
+
   static _date2day8(d: Date): number {
     if (d == null) { return undefined; }
 
