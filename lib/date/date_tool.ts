@@ -52,6 +52,7 @@ export default class DateTool {
   }
 
   static daytime122day8 = (daytime12:number):number => daytime12 != null ? Math.floor(daytime12 / 10000) : undefined;
+  static daytime122time4 = (daytime12:number):number => daytime12 != null ? daytime12 % 10000 : undefined;
 
   // static daytime2numeric_pair = (daytime:number, option?:{digitcount?:number}):Pair<number> => {
   //   if (daytime == null) { return undefined; }
