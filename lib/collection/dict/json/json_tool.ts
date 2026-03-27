@@ -278,11 +278,15 @@ static json2sortedstring = <X>(x:X, ...args:Omitfirst<Parameters<typeof stringif
   static edge2reduced_voplike = <O, C, P = O>(node: P, edge: Jstep, value: C): O => {
     if (node?.[edge] === value) { return node as unknown as O; }
 
-    return (
-      Number.isInteger(edge)
-        ? ArrayTool.splice((node as Object[]) || [], edge as number, 1, value)
-        : { ...node, [edge]: value }
-    ) as O;
+    if(!Number.isInteger(edge)) return { ...node, [edge]: value } as O
+
+    const p_prev = (node as Object[]) || [];
+    const index = edge as number;
+
+    return ArrayTool.splice(p_prev, edge as number, 1, value) as O;
+    // return MathTool.gtezero(index)
+    //   ? ArrayTool.splice(p_prev, edge as number, 1, value) as O
+    //   : [...p_prev, value] as O
   }
 
   static reducer2delete = (reducer: typeof JsonTool.edge2reduced_voplike) => lodash.flow([
