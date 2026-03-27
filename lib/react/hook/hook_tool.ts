@@ -859,10 +859,20 @@ export default class HookTool{
     return HookTool.f_eq2codec(f_eq);
   }
 
-  static jpath2codec_down = <P,C>(jpath:Jpath):Hookcodec<P,C> => {
+  static jpath2encoder_default = <P,C>(jpath:Jpath, option?:{p_init?:P}) => {
+    const edge2reduced = JsonTool.edge2reduced_voplike;
+    const p_init = option?.p_init ?? {};
+    return (c_post:C, p_prev:P) => JsonTool.reduceUp((p_prev ?? p_init) as P, jpath, c_post, edge2reduced);
+  }
+
+  static jpath2codec_down = <P,C>(
+    jpath:Jpath,
+    option?:{encoder?:(c:C, p_prev?:P) => P},
+  ):Hookcodec<P,C> => {
+    const cls = HookTool;
     const callname = `HookTool.jpath2codec_down @ ${DateTool.time2iso(new Date())}`;
 
-    const edge2reduced = JsonTool.edge2reduced_voplike;
+    const encoder = option?.encoder ?? cls.jpath2encoder_default(jpath)
     const decode = (p_prev:P):C => JsonTool.down(p_prev, jpath);
 
     return {
@@ -872,7 +882,7 @@ export default class HookTool{
         // console.log({callname, c_prev, c_post, p_prev,})
         if(c_prev === c_post){ return p_prev; }
         
-        const p_post = JsonTool.reduceUp((p_prev ?? {}) as P, jpath, c_post, edge2reduced);
+        const p_post = encoder(c_post, p_prev);
         return p_post;
       },
     }
@@ -933,10 +943,11 @@ export default class HookTool{
   static hook2down<P,C>(
     p_hook:Reacthook<P>,
     jpath: Jpath,
+    option?: {encoder?: (c:C, p?:P) => P}
   ):Reacthook<C>{
     const cls = HookTool;
 
-    return cls.hook2codeced(p_hook, cls.jpath2codec_down(jpath),)
+    return cls.hook2codeced(p_hook, cls.jpath2codec_down(jpath, option),)
   }
 
   static codec_downeach<P,C>(jpath:(string|number)[]): Hookcodec<P[],C[]>{

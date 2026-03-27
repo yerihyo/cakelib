@@ -24,8 +24,8 @@
       "incremental": true,
       "baseUrl": ".",
       "paths": {
-        "@submodule": ["lib"],
-        "@submodule/*": ["lib/*"]
+        "@cakelib": ["lib"],
+        "@cakelib/*": ["lib/*"]
       },
       "types": [
         // "node",

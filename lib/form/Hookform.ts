@@ -5,6 +5,7 @@ import ArrayTool from "../collection/array/array_tool";
 import { Jpath, JpathTool, XpathTool } from "../collection/dict/json/json_tool";
 import DateTool from "../date/date_tool";
 import HookTool, { Hookcodec, Reacthook } from "../react/hook/hook_tool";
+import ReactTool from "../react/react_tool";
 import YupTool from "./yup/yup_tool";
 import { ValidateOptions } from "yup/lib/types";
 import MathTool from "../number/math/math_tool";
@@ -191,17 +192,56 @@ export default class Hookform<T>{
   static hookform2down = <P,C,>(
     hookform_in: Hookform<P>,
     jpath: Jpath,
+    option?: {encoder?: (c:C, p?:P) => P}
   ):Hookform<C> => {
     const cls = Hookform;
     const callname = `Hookform.jpath2fielddata @ ${DateTool.time2iso(new Date())}`;
 
     return {
-      datahook:HookTool.hook2down<P, C>(hookform_in.datahook, jpath),
+      datahook:HookTool.hook2down<P, C>(hookform_in.datahook, jpath, option),
       fieldinfoshook:HookTool.hook2codeced(hookform_in.fieldinfoshook, Fieldinfo.jpath2hookcodec_down(jpath)),
       errorshook: HookTool.hook2codeced(hookform_in.errorshook, YupTool.xpath2errorhookcodec_down(XpathTool.jpath2xpath(jpath)))
     }
   }
   static hookform2indexed = <V>(hookform_in:Hookform<V[]>, index:number):Hookform<V> => Hookform.hookform2down(hookform_in, [index]);
+
+  static hook_vs2v_jpath = <V, X>(
+    hook_in: Reacthook<X[]>,
+    index2hookcodec_down: (index: number) => Hookcodec<X[], X[]>,
+    data: V[],
+    filter: (v: V) => boolean,
+  ): Reacthook<X[]> => {
+    const index = data?.findIndex(filter);
+    return [
+      MathTool.gtezero(index) ? index2hookcodec_down(index).decode(hook_in[0]) : [],
+      (action) => {
+        hook_in[1]((p_prev) => {
+          const idx = data?.findIndex(filter);
+          if (!MathTool.gtezero(idx)) return p_prev;
+
+          const codec = index2hookcodec_down(idx);
+          const c_prev = codec.decode(p_prev);
+          const c_post = ReactTool.prev2reduced(action, c_prev);
+          return c_prev === c_post ? p_prev : codec.encode(c_post, p_prev);
+        });
+      },
+    ];
+  };
+
+  static hookform_vs2v = <V>(hookform_in:Hookform<V[]>, filter:(v:V) => boolean):Hookform<V> => {
+    const codec = HookTool.filter2codec_vs2v<V>(filter);
+    const data = hookform_in?.datahook[0];
+
+    return {
+      datahook: HookTool.hook2codeced(hookform_in.datahook, codec),
+      fieldinfoshook: Hookform.hook_vs2v_jpath<V, Fieldinfo>(
+        hookform_in.fieldinfoshook, (i) => Fieldinfo.jpath2hookcodec_down([i]), data, filter,
+      ),
+      errorshook: Hookform.hook_vs2v_jpath<V, Yup.ValidationError>(
+        hookform_in.errorshook, (i) => YupTool.xpath2errorhookcodec_down(XpathTool.jpath2xpath([i])), data, filter,
+      ),
+    };
+  }
 
   static datahook2hookform = <T,>(
     datahook:Reacthook<T>,
