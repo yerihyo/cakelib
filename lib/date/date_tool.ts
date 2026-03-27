@@ -107,6 +107,15 @@ export default class DateTool {
   //   return Math.floor(time4 / 100) + (time4 % 100);
   // }
 
+  static hhmm2time4(hhmm: string): number {
+    if (hhmm == null) { return undefined; }
+
+    const [h, m] = hhmm.split(":").map(Number);
+    if (isNaN(h) || isNaN(m)) { return undefined; }
+    
+    return h * 100 + m;
+  }
+
   static time42hhmm(time4: number) {
     const hh = Math.floor(time4 / 100);
     const mm = NumberTool.pad(time4 % 100, 2);
