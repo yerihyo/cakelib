@@ -203,9 +203,8 @@ export default class Hookform<T>{
       errorshook: HookTool.hook2codeced(hookform_in.errorshook, YupTool.xpath2errorhookcodec_down(XpathTool.jpath2xpath(jpath)))
     }
   }
-  static hookform2indexed = <V>(hookform_in:Hookform<V[]>, index:number):Hookform<V> => Hookform.hookform2down(hookform_in, [index]);
 
-  static hook_vs2v_jpath = <V, X>(
+  static flathook_vs2v = <V, X>(
     hook_in: Reacthook<X[]>,
     index2hookcodec_down: (index: number) => Hookcodec<X[], X[]>,
     data: V[],
@@ -234,14 +233,16 @@ export default class Hookform<T>{
 
     return {
       datahook: HookTool.hook2codeced(hookform_in.datahook, codec),
-      fieldinfoshook: Hookform.hook_vs2v_jpath<V, Fieldinfo>(
+      fieldinfoshook: Hookform.flathook_vs2v<V, Fieldinfo>(
         hookform_in.fieldinfoshook, (i) => Fieldinfo.jpath2hookcodec_down([i]), data, filter,
       ),
-      errorshook: Hookform.hook_vs2v_jpath<V, Yup.ValidationError>(
+      errorshook: Hookform.flathook_vs2v<V, Yup.ValidationError>(
         hookform_in.errorshook, (i) => YupTool.xpath2errorhookcodec_down(XpathTool.jpath2xpath([i])), data, filter,
       ),
     };
   }
+
+  static hookform2indexed = <V>(hookform_in:Hookform<V[]>, index:number):Hookform<V> => Hookform.hookform2down(hookform_in, [index]);
 
   static datahook2hookform = <T,>(
     datahook:Reacthook<T>,
