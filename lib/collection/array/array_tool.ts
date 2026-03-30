@@ -13,7 +13,7 @@ export type ArrayElement<A> = A extends readonly (infer T)[] ? T : never
 
 // export type Bestsinfo<T> = {indexes:number[], values:T[]};
 // export type Bestinfo<T> = {index:number, value:T};
-export type Indexeditem<T> = {index:number, value:T};
+export type Choseninfo<T> = {index:number, value:T};
 
 function date2str_time(d: Date) {
   return (d).toISOString().split("T")[1];
@@ -289,14 +289,14 @@ export default class ArrayTool {
     return (i1: number, i2: number) => comparator(array[i1], array[i2]);
   }
 
-  static minindexeds = <T>(
+  static mininfos = <T>(
     items: T[],
     options?: {
       comparator?: Comparator<T>;
     }
-  ): Indexeditem<T>[] => {
+  ): Choseninfo<T>[] => {
     const cls = ArrayTool;
-    const callname = `ArrayTool.minindexeds @ ${date2str_time(new Date())}`;
+    const callname = `ArrayTool.mininfos @ ${date2str_time(new Date())}`;
 
     if (!ArrayTool.bool(items)) return undefined;
 
@@ -321,21 +321,21 @@ export default class ArrayTool {
     return indexes?.map(i => ({value:items?.[i], index:i}));
     // return {indexes, values:indexes?.map(i => items?.[i])};
   }
-  static minindexes = lodash.flow(ArrayTool.minindexeds, l => l?.map(x => x?.index));
-  static mins = lodash.flow(ArrayTool.minindexeds, l => l?.map(x => x?.value));
+  static minindexes = lodash.flow(ArrayTool.mininfos, l => l?.map(x => x?.index));
+  static mins = lodash.flow(ArrayTool.mininfos, l => l?.map(x => x?.value));
 
-  static minindexed = lodash.flow(ArrayTool.minindexeds, l => l?.[0]);
-  // static minindexed = lodash.flow(ArrayTool.minindexeds, h => !h ? undefined : ({index:h.indexes[0], value:h.values[0]}));
-  static minindex = lodash.flow(ArrayTool.minindexed, h => h?.index);
-  static min = lodash.flow(ArrayTool.minindexed, h => h?.value);
+  static mininfo0 = lodash.flow(ArrayTool.mininfos, l => l?.[0]);
+  // static mininfo0 = lodash.flow(ArrayTool.mininfos, h => !h ? undefined : ({index:h.indexes[0], value:h.values[0]}));
+  static minindex = lodash.flow(ArrayTool.mininfo0, h => h?.index);
+  static min = lodash.flow(ArrayTool.mininfo0, h => h?.value);
 
-  static maxindexeds = <T>(
+  static maxinfos = <T>(
     array: T[],
-    options?: Parameters<typeof ArrayTool.minindexeds<T>>[1],
-  ): Indexeditem<T>[] => {
+    options?: Parameters<typeof ArrayTool.mininfos<T>>[1],
+  ): Choseninfo<T>[] => {
     return array == null
       ? undefined
-      : ArrayTool.minindexeds<T>(
+      : ArrayTool.mininfos<T>(
       array,
       {
         ...options,
@@ -343,14 +343,14 @@ export default class ArrayTool {
       },
     );
   }
-  static maxindexes = lodash.flow(ArrayTool.maxindexeds, l => l?.map(x => x?.index));
-  static maxs = lodash.flow(ArrayTool.maxindexeds, l => l?.map(x => x?.value));
+  static maxindexes = lodash.flow(ArrayTool.maxinfos, l => l?.map(x => x?.index));
+  static maxs = lodash.flow(ArrayTool.maxinfos, l => l?.map(x => x?.value));
 
-  static maxindexed = lodash.flow(ArrayTool.maxindexeds, l => l?.[0]);
+  static maxinfo0 = lodash.flow(ArrayTool.maxinfos, l => l?.[0]);
     
-  // static maxindexed = lodash.flow(ArrayTool.maxindexeds, h => !h ? undefined : ({index:h.indexes[0], value:h.values[0]}));
-  static maxindex = lodash.flow(ArrayTool.maxindexed, h => h?.index);
-  static max = lodash.flow(ArrayTool.maxindexed, h => h?.value);
+  // static maxinfo0 = lodash.flow(ArrayTool.maxinfos, h => !h ? undefined : ({index:h.indexes[0], value:h.values[0]}));
+  static maxindex = lodash.flow(ArrayTool.maxinfo0, h => h?.index);
+  static max = lodash.flow(ArrayTool.maxinfo0, h => h?.value);
 
   static array2pivot_aligned<X, K extends Dictkey = Dictkey>(items: X[], pivots: K[], item2pivot: (t: X) => K): X[] {
     if (pivots == null) {
