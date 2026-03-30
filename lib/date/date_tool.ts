@@ -93,6 +93,14 @@ export default class DateTool {
   static minoffset2time4(minoffset: number): number {
     return minoffset == null ? undefined : Math.floor(minoffset / 60) * 100 + (minoffset % 60);
   }
+  
+  static time42mins_added = (time4:number, mins:number) => {
+    return lodash.flow(
+      DateTool.time42minoffset,
+      minoffset_ => MathTool.add(minoffset_, mins),
+      DateTool.minoffset2time4,
+    )(time4)
+  }
 
   static fXX_minoffset2fXX_time4 = (f_minoffset: (minoffset: number) => number): ((time4: number) => number) => {
     return lodash.flow(
