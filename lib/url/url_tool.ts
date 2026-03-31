@@ -243,7 +243,7 @@ export default class UrlTool{
 
   static urlstring2paramkeys_dropped = (
     urlstring: string,
-    paramkeys?: string[],
+    paramkeys: string[],
   ): string => {
     const cls = UrlTool;
     const callname = `UrlTool.urlstring2paramkeys_dropped @ ${DateTool.time2iso(new Date())}`;
