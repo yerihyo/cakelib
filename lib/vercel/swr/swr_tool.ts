@@ -247,6 +247,13 @@ export default class SwrTool {
     swr => !swr.isLoading,
   ])
 
+  static swr2is_data_settled(swr:SWRResponse):boolean {
+    return ArrayTool.all([
+      SwrTool.swr2is_data_ready(swr),
+      !swr.isValidating,
+    ]);
+  }
+
   static swr2useErrorCount = <V,E>(swr:SWRResponse<V, E>):number => {
     const self = SwrTool;
 
