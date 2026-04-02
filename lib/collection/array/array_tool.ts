@@ -1617,6 +1617,25 @@ export default class ArrayTool {
     // 수정된 원본 배열을 반환합니다.
     return l_to;
   }
+
+
+  static listpair2eq_setlike:Bicomparator<string[]> = (list1:string[], list2:string[]):boolean => {
+    if(list1 == null) return undefined; 
+    if(list2 == null) return undefined; 
+    if (list1.length !== list2.length) return false;
+
+    const dict_s2count = list1.reduce((acc, s1) => {
+      acc[s1] = (acc[s1] ?? 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // 2. list2와 대조 - O(n)
+    return list2.every(s2 => {
+      if (!dict_s2count[s2]) return false;
+      dict_s2count[s2]--;
+      return true;
+    });
+  };
 }
 
 export class PairTool {
