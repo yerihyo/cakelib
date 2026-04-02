@@ -286,7 +286,7 @@ export default class SwrTool {
   }
   static swr_state2cmp = (swr:SWRResponse, state:string) => Swrstate.pair2cmp(SwrTool.swr2state(swr), state);
   static swr_state2gte = CmpTool.f_cmp2f_gte(SwrTool.swr_state2cmp,)
-  static swr2gte_validating_hasdata = (swr:SWRResponse) => SwrTool.swr_state2cmp(swr, Swrstate.VALIDATING_HASDATA.value)
+  static swr2gte_validating_hasdata = (swr:SWRResponse) => SwrTool.swr_state2gte(swr, Swrstate.VALIDATING_HASDATA.value)
   static swr2is_data_ready = SwrTool.swr2gte_validating_hasdata;
 
   // should change name to has_showabledata
