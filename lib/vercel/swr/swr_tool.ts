@@ -223,6 +223,12 @@ export default class SwrTool {
 
   static swr2is_swrinfinite = (swr:SWRResponse):boolean => swr == null ? undefined : Object.hasOwn(swr, 'size');
 
+  static swr2is_validated = (swr:SWRResponse) => {
+    if (swr == null) return undefined;
+    if (swr.error) return false;
+    if (swr.isValidating) return false;
+    return true;
+  }
   // should change name to has_showabledata
   static swr2is_data_ready(swr:SWRResponse) {
     const cls = SwrTool;
