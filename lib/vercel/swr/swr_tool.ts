@@ -263,13 +263,8 @@ export default class SwrTool {
   static swr2state = (swr:SWRResponse):string => {
     if(swr == null) return undefined;
     if(swr.error) return Swrstate.ERRONEOUS.value;
-    if(swr.isLoading){
-      return swr.data == null
-        ? Swrstate.LOADING_NODATA.value
-        : Swrstate.LOADING_HASDATA.value;
-    }
 
-    const is_data_nulllike = ArrayTool.any([
+    const is_data_yetinit = ArrayTool.any([
       swr.data === undefined,
       ArrayTool.all([
         SwrTool.swr2is_swrinfinite(swr,),
@@ -277,9 +272,15 @@ export default class SwrTool {
       ])
     ]);
 
+    if(swr.isLoading){
+      return is_data_yetinit
+        ? Swrstate.LOADING_NODATA.value
+        : Swrstate.LOADING_HASDATA.value;
+    }
+
     return !swr.isValidating
       ? Swrstate.VALIDATED.value
-      : is_data_nulllike
+      : is_data_yetinit
         ? Swrstate.VALIDATING_NODATA.value
         : Swrstate.VALIDATING_HASDATA.value
   }
