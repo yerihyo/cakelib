@@ -6,6 +6,7 @@ import { Dictkey } from '../../native/native_tool';
 import HookTool, { Hookcodec } from "../../react/hook/hook_tool";
 import DictTool from '../../collection/dict/dict_tool';
 import FunctionTool from '../../function/function_tool';
+import CmpTool from '../../cmp/CmpTool';
 
 const assert = require('assert');
 
@@ -35,8 +36,37 @@ export class Swrinfo<TT>{
   }
 }
 
-export default class SwrTool {
+export class Swrstate{
+  value: string;
 
+  static ERRONEOUS:Swrstate = {value:"ERRONEOUS"};
+  static LOADING_NODATA:Swrstate = {value:"LOADING_NODATA"};
+  static VALIDATING_NODATA:Swrstate = {value:"VALIDATING_NODATA"};
+  static VALIDATING_HASDATA:Swrstate = {value:"VALIDATING_HASDATA"};
+  static LOADING_HASDATA:Swrstate = {value:"LOADING_HASDATA"};
+  static VALIDATED:Swrstate = {value:"VALIDATED"};
+
+  static list = () => [
+    Swrstate.ERRONEOUS,
+    Swrstate.LOADING_NODATA,
+    Swrstate.VALIDATING_NODATA,
+    Swrstate.VALIDATING_HASDATA,
+    Swrstate.LOADING_HASDATA,
+    Swrstate.VALIDATED,
+  ]
+  static values = () => Swrstate.list()?.map(x => x.value);
+  static value2obj = ArrayTool.array2f_k2v(Swrstate.list(), x => x.value);
+  static value2index = ArrayTool.array2f_index(Swrstate.values());
+  static pair2cmp = CmpTool.f_key2f_cmp<string>(value => Swrstate.value2index(value));
+  
+  static gt = CmpTool.f_cmp2f_gt(Swrstate.pair2cmp);
+  static gte = CmpTool.f_cmp2f_gte(Swrstate.pair2cmp);
+  static lt = CmpTool.f_cmp2f_lt(Swrstate.pair2cmp);
+  static lte = CmpTool.f_cmp2f_lte(Swrstate.pair2cmp);
+
+}
+
+export default class SwrTool {
   static x2fallback_data = <X>(x:X):{fallbackData?:X} => (x!=null ? { fallbackData: x } : undefined);
   static conf_staystale = ():Pick<SWRConfiguration, 'revalidateIfStale'|'revalidateOnFocus'|'revalidateOnReconnect'> => ({
     // keepPreviousData: true,  // very controversial.... key change rare anyway...
@@ -229,8 +259,37 @@ export default class SwrTool {
     if (swr.isValidating) return false;
     return true;
   }
+
+  static swr2state = (swr:SWRResponse):string => {
+    if(swr == null) return undefined;
+    if(swr.error) return Swrstate.ERRONEOUS.value;
+    if(swr.isLoading){
+      return swr.data == null
+        ? Swrstate.LOADING_NODATA.value
+        : Swrstate.LOADING_HASDATA.value;
+    }
+
+    const is_data_nulllike = ArrayTool.any([
+      swr.data === undefined,
+      ArrayTool.all([
+        SwrTool.swr2is_swrinfinite(swr,),
+        swr.data == null
+      ])
+    ]);
+
+    return !swr.isValidating
+      ? Swrstate.VALIDATED.value
+      : is_data_nulllike
+        ? Swrstate.VALIDATING_NODATA.value
+        : Swrstate.VALIDATING_HASDATA.value
+  }
+  static swr_state2cmp = (swr:SWRResponse, state:string) => Swrstate.pair2cmp(SwrTool.swr2state(swr), state);
+  static swr_state2gte = CmpTool.f_cmp2f_gte(SwrTool.swr_state2cmp,)
+  static swr2gte_validating_hasdata = (swr:SWRResponse) => SwrTool.swr_state2cmp(swr, Swrstate.VALIDATING_HASDATA.value)
+  static swr2is_data_ready = SwrTool.swr2gte_validating_hasdata;
+
   // should change name to has_showabledata
-  static swr2is_data_ready(swr:SWRResponse) {
+  static swr2is_data_ready_original = (swr:SWRResponse):boolean => {
     const cls = SwrTool;
     const callname = `SwrTool.swr2is_data_ready @ ${DateTool.time2iso(new Date())}`;
 
