@@ -1188,6 +1188,10 @@ export default class HookTool{
     ]);
   }
 
+  static hook_filter2one = <V>(hook: Reacthook<V[]>, predicate:(v:V) => boolean):Reacthook<V> => {
+    return HookTool.hook2codeced(hook, HookTool.filter2codec_vs2v(predicate))
+  }
+
 
   static kv2codec_vs2v = <X,V=any>(k:string, v:V):Hookcodec<X[],X> => {
     const cls = HookTool;
