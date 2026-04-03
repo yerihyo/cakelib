@@ -3,6 +3,7 @@ import CmpTool from "../../cmp/CmpTool";
 import ArrayTool from "../../collection/array/array_tool";
 import DictTool from "../../collection/dict/dict_tool";
 import JsonTool from "../../collection/dict/json/json_tool";
+import TreeTool, { Treetraverse } from "../../tree/tree_tool";
 import DateTool from "../../date/date_tool";
 import { Pair } from "../../native/native_tool";
 
@@ -229,6 +230,41 @@ export default class MongodbTool {
         };
       }),
     };
+  }
+
+  
+  static doc_jpath2proj1 = <O=any, I=O>(doc: I, jpath: string[]): O => {
+    return TreeTool.doc_path2transduced<O, I>(
+      doc,
+      jpath,
+      TreeTool.f_traverse2f_transduce_inclusive(Treetraverse.policy_mongoprojlike())
+    )
+  }
+
+  static doc_jpath2proj0 = <O=any, I=O>(doc: I, jpath: string[]): O => {
+    return TreeTool.doc_path2transduced<O, I>(
+      doc,
+      jpath,
+      TreeTool.f_traverse2f_transduce_exclusive(Treetraverse.policy_mongoprojlike()),
+    )
+  }
+
+  static doc_projection2filtered = <I, O=I>(doc: I, projection: Record<string, number>): O => {
+    if (doc == null) return doc as any;
+
+    const entries = Object.entries(projection);
+
+    const jpaths_inc = entries.filter(([, v]) => Boolean(v)).map(([xpath]) => xpath.split('.')); // truthy → inclusion
+    const doc_incdone = ArrayTool.bool(jpaths_inc)
+      ? jpaths_inc.reduce((h, jpath) => lodash.merge(h, MongodbTool.doc_jpath2proj1(doc, jpath)), {})
+      : doc as any;
+
+    const jpaths_exc = entries.filter(([, v]) => !Boolean(v)).map(([xpath]) => xpath.split('.')); // falsy → exclusion
+    const doc_excdone = (ArrayTool.bool(jpaths_exc)
+      ? jpaths_exc.reduce((h, jpath) => MongodbTool.doc_jpath2proj0(h, jpath), doc_incdone)
+      : doc_incdone) as O;
+
+    return doc_excdone;
   }
 
   static ops_logical = () => ['$and','$or','$nor','$not'];
