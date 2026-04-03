@@ -233,7 +233,7 @@ export default class MongodbTool {
   }
 
   
-  static doc_jpath2picked = <O=any, I=O>(doc: I, jpath: string[]): O => {
+  static doc_jpath2proj1 = <O=any, I=O>(doc: I, jpath: string[]): O => {
     return TreeTool.doc_path2transduced<O, I>(
       doc,
       jpath,
@@ -241,7 +241,7 @@ export default class MongodbTool {
     )
   }
 
-  static doc_jpath2excluded = <O=any, I=O>(doc: I, jpath: string[]): O => {
+  static doc_jpath2proj0 = <O=any, I=O>(doc: I, jpath: string[]): O => {
     return TreeTool.doc_path2transduced<O, I>(
       doc,
       jpath,
@@ -256,12 +256,12 @@ export default class MongodbTool {
 
     const jpaths_inc = entries.filter(([, v]) => v === 1).map(([xpath]) => xpath.split('.')); // no number allowed
     const doc_incdone = ArrayTool.bool(jpaths_inc)
-      ? jpaths_inc.reduce((h, jpath) => lodash.merge(h, MongodbTool.doc_jpath2picked(doc, jpath)), {})
+      ? jpaths_inc.reduce((h, jpath) => lodash.merge(h, MongodbTool.doc_jpath2proj1(doc, jpath)), {})
       : doc as any;
 
     const jpaths_exc = entries.filter(([, v]) => v === 0).map(([xpath]) => xpath.split('.')); // no number allowed
     const doc_excdone = (ArrayTool.bool(jpaths_exc)
-      ? jpaths_exc.reduce((h, jpath) => MongodbTool.doc_jpath2excluded(h, jpath), doc_incdone)
+      ? jpaths_exc.reduce((h, jpath) => MongodbTool.doc_jpath2proj0(h, jpath), doc_incdone)
       : doc_incdone) as O;
 
     return doc_excdone;
