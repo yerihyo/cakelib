@@ -254,12 +254,12 @@ export default class MongodbTool {
 
     const entries = Object.entries(projection);
 
-    const jpaths_inc = entries.filter(([, v]) => v === 1).map(([xpath]) => xpath.split('.')); // no number allowed
+    const jpaths_inc = entries.filter(([, v]) => Boolean(v)).map(([xpath]) => xpath.split('.')); // truthy → inclusion
     const doc_incdone = ArrayTool.bool(jpaths_inc)
       ? jpaths_inc.reduce((h, jpath) => lodash.merge(h, MongodbTool.doc_jpath2proj1(doc, jpath)), {})
       : doc as any;
 
-    const jpaths_exc = entries.filter(([, v]) => v === 0).map(([xpath]) => xpath.split('.')); // no number allowed
+    const jpaths_exc = entries.filter(([, v]) => !Boolean(v)).map(([xpath]) => xpath.split('.')); // falsy → exclusion
     const doc_excdone = (ArrayTool.bool(jpaths_exc)
       ? jpaths_exc.reduce((h, jpath) => MongodbTool.doc_jpath2proj0(h, jpath), doc_incdone)
       : doc_incdone) as O;
