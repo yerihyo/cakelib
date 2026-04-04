@@ -278,7 +278,7 @@ static json2sortedstring = <X>(x:X, ...args:Omitfirst<Parameters<typeof stringif
   static edge2reduced_voplike = <O, C, P = O>(node: P, edge: Jstep, value: C): O => {
     if (node?.[edge] === value) { return node as unknown as O; }
 
-    if(!Number.isInteger(edge)) return { ...node, [edge]: value } as O
+    if(!Number.isInteger(edge)) return { ...DictTool.keys2excluded(node, [edge]), [edge]: value } as O
 
     const p_prev = (node as Object[]) || [];
     const index = edge as number;
