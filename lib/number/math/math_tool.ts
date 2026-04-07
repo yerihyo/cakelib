@@ -122,6 +122,8 @@ export default class MathTool {
     return array?.reduce((a, b) => a * b, 1);
   }
 
+  static ceil = (v:number) => v == null ? undefined : Math.ceil(v);
+  
   static pair2cmp(v1:number, v2:number):number{
     if(v1 === v2){ return 0; }
     if(v1 == null || v2 == null){ return undefined; }
