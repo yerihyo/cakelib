@@ -1244,6 +1244,15 @@ export default class ArrayTool {
 
   static reversed = <T = any>(array: T[]): T[] => (array == null ? undefined : [...array].reverse());
 
+  static areSetequal = <X>(l1:X[], l2:X[]):boolean => {
+    if(l1 == null) return undefined;
+    if(l2 == null) return undefined;
+
+    if (l1.length !== l2.length) return false;
+    const set2 = new Set(l2);
+    return l1.every(item => set2.has(item));
+  };
+
   // static array_valuedict2sorted<X extends Dictkey>(items: X[], valuedict: Record<X, number>) {
   //     const lookup = (h: Record<X, number>, k: X) => (k in h) ? h[k] : 0;
 
