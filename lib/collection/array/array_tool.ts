@@ -289,6 +289,107 @@ export default class ArrayTool {
     return (i1: number, i2: number) => comparator(array[i1], array[i2]);
   }
 
+  /**
+   * 가장 작은 k개의 원소를 반환.
+   * include_ties=true(기본값): 동점(tie)인 원소를 모두 포함 (결과 > k개 가능).
+   * include_ties=false: 정확히 k개만 반환.
+   * O(n + k log k): quickselect로 k개를 선택한 뒤 결과만 정렬.
+   */
+  static bottomk_infos = <T>(
+    items: T[],
+    k: number,
+    options?: {
+      comparator?: Comparator<T>;
+      include_ties?: boolean;
+    }
+  ): Choseninfo<T>[] => {
+    if (!ArrayTool.bool(items)) return undefined;
+    if (k <= 0) return [];
+
+    const comparator = options?.comparator ?? CmpTool.pair2cmp_default;
+    const include_ties = options?.include_ties;
+    const cmp_info = CmpTool.f_cmps2f_cmp([
+      CmpTool.f_key2f_cmp((info: Choseninfo<T>) => info.value, comparator),
+      CmpTool.f_key2f_cmp((info: Choseninfo<T>) => info.index),
+    ]);
+
+    const infos: Choseninfo<T>[] = items.map((value, index) => ({value, index}));
+    if (k >= infos.length) {
+      infos.sort(cmp_info);
+      return infos;
+    }
+
+    // quickselect: k-1번째 위치에 k번째로 작은 원소를 배치
+    const partition = (lo: number, hi: number): number => {
+      const pivotIdx = lo + Math.floor(Math.random() * (hi - lo + 1));
+      [infos[pivotIdx], infos[hi]] = [infos[hi], infos[pivotIdx]];
+      const pivot = infos[hi];
+      let i = lo;
+      for (let j = lo; j < hi; j++) {
+        if (cmp_info(infos[j], pivot) < 0) {
+          [infos[i], infos[j]] = [infos[j], infos[i]];
+          i++;
+        }
+      }
+      [infos[i], infos[hi]] = [infos[hi], infos[i]];
+      return i;
+    };
+
+    let lo = 0, hi = infos.length - 1;
+    while (lo < hi) {
+      const p = partition(lo, hi);
+      if (p === k - 1) break;
+      if (p < k - 1) lo = p + 1;
+      else hi = p - 1;
+    }
+
+    const result = infos.slice(0, k);
+
+    if (include_ties) {
+      // 동점인 원소를 k 이후에서 추가 수집
+      const pivotValue = infos[k - 1].value;
+      for (let i = k; i < infos.length; i++) {
+        if (comparator(infos[i].value, pivotValue) === 0) {
+          result.push(infos[i]);
+        }
+      }
+    }
+
+    result.sort(cmp_info);
+    return result;
+  }
+
+  static bottomk = <T>(
+    items: T[],
+    k: number,
+    options?: Parameters<typeof ArrayTool.bottomk_infos<T>>[2],
+  ): T[] => ArrayTool.bottomk_infos(items, k, options)?.map(x => x.value);
+
+  static topk_infos = <T>(
+    items: T[],
+    k: number,
+    options?: Parameters<typeof ArrayTool.bottomk_infos<T>>[2],
+  ): Choseninfo<T>[] => {
+    return items == null
+      ? undefined
+      : ArrayTool.bottomk_infos<T>(items, k, {
+        ...options,
+        comparator: CmpTool.f_cmp2reversed<T>(options?.comparator ?? CmpTool.pair2cmp_default),
+      });
+  }
+
+  static topk = <T>(
+    items: T[],
+    k: number,
+    options?: Parameters<typeof ArrayTool.bottomk_infos<T>>[2],
+  ): T[] => ArrayTool.topk_infos(items, k, options)?.map(x => x.value);
+
+
+  static mininfos_quickselect = <T>(
+    items: T[],
+    options?: { comparator?: Comparator<T> },
+  ): Choseninfo<T>[] => ArrayTool.bottomk_infos(items, 1, options);
+
   static mininfos = <T>(
     items: T[],
     options?: {
@@ -1369,7 +1470,7 @@ export default class ArrayTool {
   static sorted_stable<V>(items_in: V[], comparator: (v1: V, v2: V) => number = CmpTool.pair2cmp_default): V[] {
     const n = ArrayTool.len(items_in);
 
-    const indexes2cmp_stable = (i1, i2) => {
+    const indexes2cmp_info = (i1, i2) => {
       const x1 = items_in[i1];
       const x2 = items_in[i2];
       const cmp = comparator(x1, x2);
@@ -1379,7 +1480,7 @@ export default class ArrayTool {
       return i1 - i2;
     };
 
-    const indexes_sorted = ArrayTool.range(0, n).sort(indexes2cmp_stable);
+    const indexes_sorted = ArrayTool.range(0, n).sort(indexes2cmp_info);
 
     const items_out = indexes_sorted.map((i) => items_in[i]);
     return items_out;
