@@ -59,6 +59,12 @@ export default class MinimaxTool{
     MinimaxTool.max(array, pair2cmp),
   ]
 
+  /**
+   * Pareto minimals (비지배 집합)를 반환.
+   * min()은 전순서에서 최솟값 하나를 반환하지만,
+   * minimals()는 반순서(partial order)에서 어떤 원소에도 지배당하지 않는 모든 원소를 반환.
+   * comparator 반환값: < 0 → x가 y를 지배, > 0 → y가 x를 지배, 0 → 비교 불가(incomparable)
+   */
   static minimals = <X>(
     xs_in: X[],
     option?:{
