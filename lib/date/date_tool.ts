@@ -54,6 +54,19 @@ export default class DateTool {
   static daytime122day8 = (daytime12:number):number => daytime12 != null ? Math.floor(daytime12 / 10000) : undefined;
   static daytime122time4 = (daytime12:number):number => daytime12 != null ? daytime12 % 10000 : undefined;
 
+  // ─── yearmonth (YYYYMM) helpers ────────────────────────────────
+  static yearmonth2year = (yearmonth: number): number => Math.floor((yearmonth ?? 0) / 100);
+  static yearmonth2month = (yearmonth: number): number => (yearmonth ?? 0) % 100;
+  static year_month2yearmonth = (year: number, month: number): number => year * 100 + month;
+  static yearmonth2monthcount = (yearmonth: number): number =>
+    DateTool.yearmonth2year(yearmonth) * 12 + (DateTool.yearmonth2month(yearmonth) - 1);
+  static monthcount2yearmonth = (monthcount: number): number =>
+    Math.floor(monthcount / 12) * 100 + (monthcount % 12) + 1;
+  static yearmonth2months_added = (yearmonth: number, months: number): number =>
+    DateTool.monthcount2yearmonth(DateTool.yearmonth2monthcount(yearmonth) + months);
+  /** YYYYMM + day-of-month → YYYYMMDD */
+  static yearmonth_dom2day8 = (yearmonth: number, dom: number): number => yearmonth * 100 + dom;
+
   // static daytime2numeric_pair = (daytime:number, option?:{digitcount?:number}):Pair<number> => {
   //   if (daytime == null) { return undefined; }
 
