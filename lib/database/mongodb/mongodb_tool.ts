@@ -70,6 +70,19 @@ export default class MongodbTool {
     return qexpr;
   }
 
+  /**
+   * doc 의 span 필드(예: day8span = [start, end] inclusive)가 주어진 query span [s, e) 와 겹치는 docs 를 찾는 query dict.
+   * 사용 예: `MongodbTool.span2qdict_overlapping("day8span", [20260401, 20260501])`
+   *   → { "day8span.0": { $lt: 20260501 }, "day8span.1": { $gte: 20260401 } }
+   */
+  static span2qdict_overlapping<T>(field: string, span: Pair<T>): Record<string, any> {
+    const [s, e] = span ?? [];
+    return {
+      ...(e != null ? { [`${field}.0`]: { '$lt': e } } : {}),
+      ...(s != null ? { [`${field}.1`]: { '$gte': s } } : {}),
+    };
+  }
+
   static key_value2body_setunset<T,>(key:string, value:T){
     return (value != null ? { '$set': { [key]:value, } } : { '$unset': { [key]: 1, } });
   }
