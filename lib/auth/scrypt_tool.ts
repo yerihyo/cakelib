@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import { promisify } from "util";
 
 export interface ScryptParams {
   ln: number; // log2(N), N = 2^ln
@@ -34,12 +33,20 @@ export interface ScryptParsedHash {
  *   - async (이벤트 루프 미차단)
  */
 export default class ScryptTool {
-  private static scrypt_async = promisify(crypto.scrypt) as (
+  // Native Promise wrap. import 시점에 crypto.scrypt 를 참조하지 않도록 함수 호출 시점에만 lookup.
+  // (브라우저 번들에서는 crypto.scrypt 가 없지만 호출되지 않으면 안전)
+  private static scrypt_async = (
     password: string | Buffer,
     salt: string | Buffer,
     keylen: number,
-    options?: crypto.ScryptOptions,
-  ) => Promise<Buffer>;
+    options: crypto.ScryptOptions,
+  ): Promise<Buffer> =>
+    new Promise((resolve, reject) => {
+      crypto.scrypt(password, salt, keylen, options, (err, derived) => {
+        if (err) reject(err);
+        else resolve(derived);
+      });
+    });
 
   static is_phc = (value: string, algo: string = "scrypt"): boolean => {
     if (value == null) return false;
