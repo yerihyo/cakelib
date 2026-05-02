@@ -127,6 +127,49 @@ export default class YupTool{
     ]);
   }
 
+  // /**
+  //  * indexes (예: [0, 2, 5]) 의 element 들에 대한 ValidationError 만 통과시키며 path 의 첫 array index 를
+  //  * 압축된 새 인덱스 (0, 1, 2) 로 remap. encode 시 새 index 를 원본 index 로 복원, 통과 안 한 errors 는 자동 보존.
+  //  * (Hookform.hookform2filtered 에서 활용)
+  //  */
+  // static indexes2errorhookcodec_indexed = (
+  //   indexes: number[],
+  // ): Hookcodec<Yup.ValidationError[], Yup.ValidationError[]> => {
+  //   const old2new = new Map<number, number>(indexes.map((i_old, i_new) => [i_old, i_new]));
+
+  //   const path2parts = (path: string): { idx0: number; rest: string } | undefined => {
+  //     const m = path?.match(/^\[(\d+)\](.*)$/);
+  //     if (!m) return undefined;
+  //     return { idx0: parseInt(m[1]), rest: m[2] };
+  //   };
+
+  //   const error_pathRewritten = (e: Yup.ValidationError, new_path: string): Yup.ValidationError =>
+  //     Object.assign(Object.create(Object.getPrototypeOf(e)), e, { path: new_path });
+
+  //   return HookTool.codecs2piped([
+  //     HookTool.listcodec_filter_n_extend<Yup.ValidationError>((e) => {
+  //       const parts = path2parts(e?.path);
+  //       return parts != null && old2new.has(parts.idx0);
+  //     }),
+  //     {
+  //       decode: (ps: Yup.ValidationError[]) => ps?.map((e) => {
+  //         const parts = path2parts(e?.path);
+  //         if (parts == null) return e;
+  //         const new_idx = old2new.get(parts.idx0);
+  //         if (new_idx == null) return e;
+  //         return error_pathRewritten(e, `[${new_idx}]${parts.rest}`);
+  //       }),
+  //       encode: (cs: Yup.ValidationError[]) => cs?.map((e) => {
+  //         const parts = path2parts(e?.path);
+  //         if (parts == null) return e;
+  //         const old_idx = indexes[parts.idx0];
+  //         if (old_idx == null) return e;
+  //         return error_pathRewritten(e, `[${old_idx}]${parts.rest}`);
+  //       }),
+  //     } as Hookcodec<Yup.ValidationError[], Yup.ValidationError[]>,
+  //   ]);
+  // }
+
   // static xpath2errors_filterdown(errors:Yup.ValidationError[], xpath:string):Yup.ValidationError[]{
   //   const cls = YupTool;
 

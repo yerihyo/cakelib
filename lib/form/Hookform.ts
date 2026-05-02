@@ -55,6 +55,44 @@ export class Fieldinfo<T extends HTMLElement=HTMLElement>{
     ]);
   }
 
+  // /**
+  //  * indexes (예: [0, 2, 5]) 의 element 들만 통과시키며 jpath[0] 의 array index 를 압축된 새 인덱스 (0, 1, 2) 로 remap.
+  //  * encode 시 새 jpath[0] 를 원본 index 로 복원, 통과 안 한 fieldinfo 는 자동 보존.
+  //  * (Hookform.hookform2filtered 에서 활용)
+  //  */
+  // static indexes2hookcodec_indexed = (
+  //   indexes: number[],
+  // ): Hookcodec<Fieldinfo[], Fieldinfo[]> => {
+  //   const old2new = new Map<number, number>(indexes.map((i_old, i_new) => [i_old, i_new]));
+
+  //   // jpath 가 root (null/[]) 또는 첫 element 가 array index 가 아니면 그대로 통과.
+  //   // array index 인 경우만 indexes 기반 filter + remap.
+  //   const jpath2idx0 = (jpath: Jpath): number | undefined => {
+  //     if (jpath == null) return undefined;
+  //     const idx0 = jpath[0];
+  //     return typeof idx0 === 'number' ? idx0 : undefined;
+  //   };
+
+  //   return HookTool.codecs2piped([
+  //     HookTool.listcodec_filter_n_extend<Fieldinfo>((f: Fieldinfo) => {
+  //       const idx0 = jpath2idx0(f?.jpath);
+  //       return idx0 == null ? true : old2new.has(idx0);
+  //     }),
+  //     {
+  //       decode: (ps: Fieldinfo[]) => ps?.map(p => {
+  //         const idx0 = jpath2idx0(p?.jpath);
+  //         if (idx0 == null) return p;
+  //         return { ref: p.ref, jpath: [old2new.get(idx0), ...p.jpath.slice(1)] } as Fieldinfo;
+  //       }),
+  //       encode: (cs: Fieldinfo[]) => cs?.map(c => {
+  //         const idx0 = jpath2idx0(c?.jpath);
+  //         if (idx0 == null) return c;
+  //         return { ref: c.ref, jpath: [indexes[idx0], ...c.jpath.slice(1)] } as Fieldinfo;
+  //       }),
+  //     } as Hookcodec<Fieldinfo[], Fieldinfo[]>,
+  //   ]);
+  // };
+
   static fieldinfo2xpath = (fieldinfo:Fieldinfo):string => XpathTool.jpath2xpath(fieldinfo?.jpath);
   static fieldinfos2xpath_comparator = (
     fieldinfos:Fieldinfo[],
@@ -243,6 +281,34 @@ export default class Hookform<T>{
   }
 
   static hookform2indexed = <V>(hookform_in:Hookform<V[]>, index:number):Hookform<V> => Hookform.hookform2down(hookform_in, [index]);
+
+  // /**
+  //  * Hookform<V[]> → Hookform<V[]>: predicate 통과한 element 만 노출.
+  //  * - datahook: listcodec_filter_n_extend (encode 시 통과 못한 element 보존, 단 끝으로 밀림)
+  //  * - fieldinfoshook/errorshook: indexes 기반 indexed codec — 통과한 element 의 array index 를 압축/복원하면서 통과 안 한 메타도 자동 보존
+  //  */
+  // static hookform2filtered = <V>(hookform_in: Hookform<V[]>, predicate: (v: V) => boolean): Hookform<V[]> => {
+  //   const data = hookform_in?.datahook[0] ?? [];
+  //   const indexes_passed = ArrayTool.findIndexes(data, predicate);
+
+  //   return {
+  //     datahook: HookTool.hook2codeced(hookform_in.datahook, HookTool.listcodec_filter_n_extend<V>(predicate)),
+  //     fieldinfoshook: HookTool.hook2codeced(hookform_in.fieldinfoshook, Fieldinfo.indexes2hookcodec_indexed(indexes_passed)),
+  //     errorshook: HookTool.hook2codeced(hookform_in.errorshook, YupTool.indexes2errorhookcodec_indexed(indexes_passed)),
+  //   };
+  // };
+
+  // /**
+  //  * Hookform<P[]> → Hookform<C[]>: 각 element 의 jpath 로 down. 예: Hookform<{body:X}[]> → Hookform<X[]> (jpath=['body']).
+  //  * fieldinfo/error 의 path 처리는 단순 pass-through (array index 다음 단계는 caller schema 가 처리).
+  //  */
+  // static hookform2downeach = <P, C>(hookform_in: Hookform<P[]>, jpath: Jpath): Hookform<C[]> => {
+  //   return {
+  //     datahook: HookTool.hook2codeced(hookform_in.datahook, HookTool.codec_downeach<P, C>(jpath)),
+  //     fieldinfoshook: hookform_in.fieldinfoshook as any,
+  //     errorshook: hookform_in.errorshook as any,
+  //   };
+  // };
 
   static datahook2hookform = <T,>(
     datahook:Reacthook<T>,

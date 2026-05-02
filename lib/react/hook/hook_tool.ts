@@ -1188,6 +1188,30 @@ export default class HookTool{
     ]);
   }
 
+  // /**
+  //  * 주어진 indexes 위치의 element 들만 노출 (decode), encode 시 원래 위치에 in-place 로 반영.
+  //  * listcodec_filter_n_extend 와 달리 통과 안 한 element 의 위치를 보존 (splice 방식).
+  //  *
+  //  * decode: indexes.map(i => ps[i])
+  //  * encode: ps_prev 의 복사본에서 indexes[i] 위치를 cs_post[i] 로 교체
+  //  *
+  //  * cs_post.length 가 indexes.length 와 같다는 가정. 다르면 indexes 길이만큼만 처리됨.
+  //  */
+  // static indexes2listcodec_indexed = <V>(indexes: number[]): Hookcodec<V[], V[]> => {
+  //   return {
+  //     decode: (ps: V[]): V[] => (indexes ?? []).map((i) => ps?.[i]),
+  //     encode: (cs_post: V[], ps_prev: V[]): V[] => {
+  //       const ps_out = [...(ps_prev ?? [])];
+  //       (indexes ?? []).forEach((src_idx, dst_idx) => {
+  //         if (cs_post != null && dst_idx < cs_post.length) {
+  //           ps_out[src_idx] = cs_post[dst_idx];
+  //         }
+  //       });
+  //       return ps_out;
+  //     },
+  //   };
+  // };
+
   static hook_filter2one = <V>(hook: Reacthook<V[]>, predicate:(v:V) => boolean):Reacthook<V> => {
     return HookTool.hook2codeced(hook, HookTool.filter2codec_vs2v(predicate))
   }
