@@ -94,6 +94,13 @@ export default class ArrayTool {
 
     return i >= 0 ? i : undefined;
   };
+
+  static findIndexes = <X>(l:X[], predicate: (x: X, i?: number, l?: X[]) => boolean): number[] => {
+    return l.reduce((indexes, x, i) => {
+      if (predicate(x,i,l)) indexes.push(i);
+      return indexes;
+    }, []);
+  }
   
   static f2f_map = FunctionTool.f112fnn;
   // static f2f_map = <I,O>(
