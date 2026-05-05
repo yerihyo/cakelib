@@ -37,4 +37,12 @@ export default class FileTool {
         ArrayTool.in(extension?.toLowerCase(), ['svg',]),
       ]);
   }
+
+  static file2dataurl = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
 }
