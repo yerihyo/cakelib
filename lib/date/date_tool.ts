@@ -343,6 +343,26 @@ export default class DateTool {
   static day82days_added = DateTool.fxx_date2fxx_day8<[number]>(DateTool.days2added);
   // static day8days2added = DateTool.day82days_added;
 
+  /**
+   * half-open day8span [from, to) → from..to-1 의 day8 list.
+   * day8span 자체가 falsy 면 undefined 반환. endpoint 가 null/undefined/Infinity 면 throw.
+   */
+  static day8span2day8s = (day8span: Pair<number>): number[] => {
+    if (!day8span) return undefined;
+    const [d_from, d_to] = day8span;
+    if (!Number.isFinite(d_from) || !Number.isFinite(d_to)) {
+      throw new Error(`DateTool.day8span2day8s: endpoint 가 finite 가 아님 — ${JSON.stringify(day8span)}`);
+    }
+    const out: number[] = [];
+    let cur = d_from;
+    while (cur < d_to) {
+      out.push(cur);
+      cur = DateTool.day82days_added(cur, 1);
+    }
+    return out;
+  };
+
+
   static _day82epoch = lodash.flow(DateTool._day82date_midnight, DateTool.date2epoch);
   static day8span2days = (day8span:Pair<number>):number => {
     const cls = DateTool;
