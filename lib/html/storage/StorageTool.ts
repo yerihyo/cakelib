@@ -20,7 +20,7 @@ export default class StorageTool {
     storage:Storage,
     storagekey: string,
   ): X => {
-    return storagekey == null
+    return (storage == null || storagekey == null)
       ? undefined
       : JsonTool.jstr2hdoc(storage.getItem(storagekey)) as X;
   }
@@ -38,6 +38,7 @@ export default class StorageTool {
     const cls = StorageTool;
     const callname = `StorageTool.updateItem @ ${DateTool.time2iso(new Date())}`;
 
+    if (storage == null) { return; }
     s == null
       ? storage.removeItem(k)
       : storage.setItem(k, s);
