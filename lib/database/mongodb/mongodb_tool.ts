@@ -112,13 +112,13 @@ export default class MongodbTool {
     //   throw new Error(`values_in: ${values_in}, query:${query}`);
     // }
 
-    const values_norm = ArrayTool.sorted(ArrayTool.uniq(values_in));
+    const values_norm = ArrayTool.sorted(ArrayTool.uniq(values_in)) as X[];
     // if(!ArrayTool.is_array(values_norm)) throw new Error(`values_norm: ${values_norm}`);
     // if((values_norm as unknown) == 'nIizUPQSY7ShRHcXPJlZZ') throw new Error(`values_norm: ${values_norm}`)
 
-    const query_out = query == null
+    const query_out: X | {$in: X[]} = query == null
       ? undefined
-      : values_norm?.length == 1 
+      : values_norm?.length == 1
         ? ArrayTool.l2one(values_norm)
         : {$in: values_norm};
 
