@@ -6,6 +6,7 @@
 import lodash from 'lodash';
 import CmpTool from '../cmp/CmpTool';
 import ArrayTool from '../collection/array/array_tool';
+import MinimaxTool from '../collection/array/minimax_tool';
 import { FuncAO } from '../function/function_tool';
 import { Pair, Triple } from '../native/native_tool';
 import MathTool from '../number/math/math_tool';
@@ -66,6 +67,36 @@ export default class DateTool {
     DateTool.monthcount2yearmonth(DateTool.yearmonth2monthcount(yearmonth) + months);
   /** YYYYMM + day-of-month → YYYYMMDD */
   static yearmonth_dom2day8 = (yearmonth: number, dom: number): number => yearmonth * 100 + dom;
+
+  /** md4 = month*100 + dom (예: 4월 16일 → 416, 12월 5일 → 1205) */
+  static md42exploded = (md4: number): { month: number; dom: number } | undefined => {
+    if (md4 == null) return undefined;
+    return { month: Math.floor(md4 / 100), dom: md4 % 100 };
+  };
+  static md42month = (md4: number): number | undefined => DateTool.md42exploded(md4)?.month;
+  static md42dom = (md4: number): number | undefined => DateTool.md42exploded(md4)?.dom;
+
+  /**
+   * md4 (월/일 4자리) 를 pivot 기준 "가장 가까운 년도" 의 day8 로 변환.
+   * 예: pivot=2027/1/1, md4=1231 → 2026/12/31 (1일 전이라 가장 가까움)
+   */
+  static md42day8_closest = (md4: number, option?:{date_pivot: Date}): number | undefined => {
+    if(md4 == null) return undefined;
+    const date_pivot = option?.date_pivot ?? new Date();
+
+    const exploded = DateTool.md42exploded(md4);
+    if (!exploded) return undefined;
+
+    const { month, dom } = exploded;
+    if (month < 1 || month > 12 || dom < 1 || dom > 31) return undefined;
+    const y0 = date_pivot.getFullYear();
+    const candidates = [y0 - 1, y0, y0 + 1].map((y) => new Date(y, month - 1, dom));
+    const closest = MinimaxTool.min(
+      candidates,
+      CmpTool.f_key2f_cmp<Date>((d) => Math.abs(d.getTime() - date_pivot.getTime())),
+    );
+    return DateTool._date2day8(closest);
+  };
 
   // static daytime2numeric_pair = (daytime:number, option?:{digitcount?:number}):Pair<number> => {
   //   if (daytime == null) { return undefined; }
