@@ -1,9 +1,10 @@
 import lodash from 'lodash';
 import CmpTool, { Aggregator, Comparator, PosetAggregator } from "../../cmp/CmpTool";
-import DateTool from "../../date/date_tool";
 import { Lastparam, Pair } from "../../native/native_tool";
 import DictTool from "../dict/dict_tool";
 import ArrayTool from "./array_tool";
+
+const time2iso = (d:Date) => d?.toISOString()?.split("T")?.[1];
 
 export default class MinimaxTool{
   static maxIndex = <X>(array: X[], pair2cmp?: Comparator<X>): number => {
@@ -16,7 +17,7 @@ export default class MinimaxTool{
     return array.reduce((iMax, x, i, l) => (f_cmp(x, l[iMax]) > 0 ? i : iMax), 0);
   }
   static minIndex = <X>(array: X[], pair2cmp: Comparator<X> = undefined): number => {
-    const callname = `MinimaxTool.minIndex @ ${DateTool.time2iso(new Date())}`;
+    const callname = `MinimaxTool.minIndex @ ${time2iso(new Date())}`;
 
     if (!ArrayTool.bool(array)) { return undefined; }
 
@@ -131,7 +132,7 @@ export class AbsoluteOrder{
       v2is_abseq?: (v: V) => boolean,
     },
   ): (v1: V, v2: V) => number {
-    const callname = `AbsoluteOrder.f_cmp2f_cmp_abs @ ${DateTool.time2iso(new Date())}`;
+    const callname = `AbsoluteOrder.f_cmp2f_cmp_abs @ ${time2iso(new Date())}`;
 
     const {v2is_absmin, v2is_absmax, v2is_abseq} = (functions || {});
 
