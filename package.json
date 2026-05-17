@@ -30,7 +30,6 @@
     "@mui/x-date-pickers": "^5.0.0-beta.4",
     "amazon-s3-uri": "^0.1.1",
     "csv-stringify": "^6.5.0",
-    "formik": "^2.4.6",
     "hangul-js": "^0.2.6",
     "iron-session": "^8.0.1",
     "lodash": "^4.17.21",
