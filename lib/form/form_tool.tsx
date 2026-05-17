@@ -1,7 +1,5 @@
 import React from 'react';
-import { Form } from "semantic-ui-react";
 import ArrayTool from '../collection/array/array_tool';
-import DateTool from "../date/date_tool";
 
 export default class FormTool{
   
@@ -15,55 +13,46 @@ export default class FormTool{
 
   static GrowingInput = (props: {
     value?: string,
-    // onChange?: (x:string) => void,
-    [k: string]: any,  // https://stackoverflow.com/a/50288327/1902064
+    [k: string]: any,
   }) => {
-    const callname = `FormTool.GrowingInput @ ${DateTool.time2iso(new Date())}`;
+    const {value, onChange, transparent, fluid, ...rest} = props;
 
-    const {value, onChange, ...rest} = props;
-    // const [text, setText] = React.useState<string>(text_in || '');
-
-    // console.log({callname, event:'onLoad', text_in, text});
-    // React.useEffect(() => setText(text_in || ''), [text_in]);
-
-    return (<>
-      <Form.Input 
-        value={value}
-        style={{ color: 'inherit', display: 'inline-block', width: FormTool.text2width(value), }}
-        // onChange={e => {
-        //   console.log({ callname, event:'onChange', 'e.target.value': e.target.value, })
-        //   onChange(e.target.value);
-        //   // onChange && onChange(e);
-        // }}
+    return (
+      <input
+        type='text'
+        value={value ?? ''}
         {...rest}
+        style={{
+          color: 'inherit', display: 'inline-block', width: FormTool.text2width(value),
+          border: 'none', outline: 'none', backgroundColor: 'transparent',
+          ...(rest?.style ?? {}),
+        }}
       />
-    </>);
+    );
   };
 
   static GrowingInputOld = (props: {
     value?: string,
-    [k: string]: any,  // https://stackoverflow.com/a/50288327/1902064
+    [k: string]: any,
   }) => {
-    const callname = `FormTool.GrowingInputOld @ ${DateTool.time2iso(new Date())}`;
-
-    const {value:text_in, ...rest} = props;
+    const {value:text_in, transparent, fluid, ...rest} = props;
     const [text, setText] = React.useState<string>(text_in || '');
 
-    // console.log({callname, event:'onLoad', text_in, text});
     React.useEffect(() => setText(text_in || ''), [text_in]);
 
-    return (<>
-      <Form.Input 
+    return (
+      <input
+        type='text'
         value={text}
-        style={{ color: 'inherit', display: 'inline-block', width: FormTool.text2width(text), }}
-        onChange={e => {
-          // console.log({ callname, event:'onChange', 'e.target.value': e.target.value, })
-          setText(''+e.target.value);
-          // onChange && onChange(e);
-        }}
+        onChange={e => { setText('' + e.target.value); }}
         {...rest}
+        style={{
+          color: 'inherit', display: 'inline-block', width: FormTool.text2width(text),
+          border: 'none', outline: 'none', backgroundColor: 'transparent',
+          ...(rest?.style ?? {}),
+        }}
       />
-    </>);
+    );
   };
 
   // static GrowingInputNew = (props:{

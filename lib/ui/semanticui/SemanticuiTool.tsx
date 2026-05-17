@@ -1,6 +1,5 @@
 import React from "react";
 import { CSSProperties } from "react";
-import { Input } from "semantic-ui-react";
 import HookTool, { Hookcodec, Reacthook } from "../../react/hook/hook_tool";
 import DateTool from "../../date/date_tool";
 
@@ -32,24 +31,23 @@ export default class SemanticuiTool{
     // console.log({callname, exvalue});
     React.useEffect(() => { set_invalue(exvalue); }, [exvalue]);
     
-    return (<>
-      <Input
-        style={{ width: '5ch', textAlign: 'right', }}
-        fluid transparent
-
-        value={invalue}
-        onChange={(e, { value }) => {
-          set_invalue(value);
-        }}
+    return (
+      <input
+        type='text'
+        value={invalue ?? ''}
+        onChange={(e) => { set_invalue(e.target.value); }}
         onBlur={() => {
-          // console.log({callname, invalue})
           HookTool.setter2codeced(set_invalue, hookcodec)(invalue);
           set_exvalue(invalue);
-          // set_invalue(exvalue);
         }}
         {...(rest ?? {})}
+        style={{
+          width: '5ch', textAlign: 'right',
+          border: 'none', outline: 'none', backgroundColor: 'transparent',
+          ...(rest?.style ?? {}),
+        }}
       />
-    </>)
+    )
   }
 }
 
