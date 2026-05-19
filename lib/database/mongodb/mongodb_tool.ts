@@ -74,13 +74,24 @@ export default class MongodbTool {
    * doc 의 span 필드(예: day8span = [start, end] inclusive)가 주어진 query span [s, e) 와 겹치는 docs 를 찾는 query dict.
    * 사용 예: `MongodbTool.span2qdict_overlapping("day8span", [20260401, 20260501])`
    *   → { "day8span.0": { $lt: 20260501 }, "day8span.1": { $gte: 20260401 } }
+   * field 가 빈 문자열이면 prefix 없이 `{ "0": ..., "1": ... }` 반환 ($elemMatch 내부에서 사용).
    */
   static span2qdict_overlapping<T>(field: string, span: Pair<T>): Record<string, any> {
     const [s, e] = span ?? [];
+    const prefix = field ? `${field}.` : "";
     return {
-      ...(e != null ? { [`${field}.0`]: { '$lt': e } } : {}),
-      ...(s != null ? { [`${field}.1`]: { '$gte': s } } : {}),
+      ...(e != null ? { [`${prefix}0`]: { '$lt': e } } : {}),
+      ...(s != null ? { [`${prefix}1`]: { '$gte': s } } : {}),
     };
+  }
+
+  /**
+   * doc 의 spans 필드 (예: day8spans = Pair<number>[]) 중 어떤 span 이라도 query span [s, e) 와 겹치는 docs 를 찾는 query dict.
+   * 사용 예: `MongodbTool.spans2qdict_overlapping("day8spans", [20260401, 20260501])`
+   *   → { "day8spans": { $elemMatch: { "0": { $lt: 20260501 }, "1": { $gte: 20260401 } } } }
+   */
+  static spans2qdict_overlapping<T>(field: string, span: Pair<T>): Record<string, any> {
+    return { [field]: { '$elemMatch': MongodbTool.span2qdict_overlapping("", span) } };
   }
 
   static key_value2body_setunset<T,>(key:string, value:T){
