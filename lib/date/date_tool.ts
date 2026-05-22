@@ -68,6 +68,12 @@ export default class DateTool {
   /** YYYYMM + day-of-month → YYYYMMDD */
   static yearmonth_dom2day8 = (yearmonth: number, dom: number): number => yearmonth * 100 + dom;
 
+  /** YYYYMM → half-open day8 span [그 달 1일, 다음 달 1일) */
+  static yearmonth2day8span = (yearmonth: number): Pair<number> => [
+    DateTool.yearmonth_dom2day8(yearmonth, 1),
+    DateTool.yearmonth_dom2day8(DateTool.yearmonth2months_added(yearmonth, 1), 1),
+  ];
+
   /** md4 = month*100 + dom (예: 4월 16일 → 416, 12월 5일 → 1205) */
   static md42exploded = (md4: number): { month: number; dom: number }  => {
     if (md4 == null) return undefined;
