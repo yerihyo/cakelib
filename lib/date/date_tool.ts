@@ -69,18 +69,18 @@ export default class DateTool {
   static yearmonth_dom2day8 = (yearmonth: number, dom: number): number => yearmonth * 100 + dom;
 
   /** md4 = month*100 + dom (예: 4월 16일 → 416, 12월 5일 → 1205) */
-  static md42exploded = (md4: number): { month: number; dom: number } | undefined => {
+  static md42exploded = (md4: number): { month: number; dom: number }  => {
     if (md4 == null) return undefined;
     return { month: Math.floor(md4 / 100), dom: md4 % 100 };
   };
-  static md42month = (md4: number): number | undefined => DateTool.md42exploded(md4)?.month;
-  static md42dom = (md4: number): number | undefined => DateTool.md42exploded(md4)?.dom;
+  static md42month = (md4: number): number  => DateTool.md42exploded(md4)?.month;
+  static md42dom = (md4: number): number  => DateTool.md42exploded(md4)?.dom;
 
   /**
    * md4 (월/일 4자리) 를 pivot 기준 "가장 가까운 년도" 의 day8 로 변환.
    * 예: pivot=2027/1/1, md4=1231 → 2026/12/31 (1일 전이라 가장 가까움)
    */
-  static md42day8_closest = (md4: number, option?:{date_pivot: Date}): number | undefined => {
+  static md42day8_closest = (md4: number, option?:{date_pivot: Date}): number  => {
     if(md4 == null) return undefined;
     const date_pivot = option?.date_pivot ?? new Date();
 
