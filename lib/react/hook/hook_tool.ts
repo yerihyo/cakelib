@@ -2181,9 +2181,11 @@ export default class HookTool{
   }
 }
 
-export type Asyncresult = {
+export type Asyncresult<T=any> = {
   state:string;
   errormessage?:any;
+  /** action 의 마지막 성공 return 값 — DONE 상태일 때만 의미 있음. UI 에서 직접 참조 가능 */
+  result?:T;
 }
 export class Asynctracker {
   static State = class {
@@ -2200,19 +2202,19 @@ export class Asynctracker {
 
   static afunc_statehook2conn = <T=any, P extends any[]=any[]>(
     action:(...args:P) => (T|Promise<T>),
-    asyncresult_hook:Reacthook<Asyncresult>,
+    asyncresult_hook:Reacthook<Asyncresult<T>>,
     option?:{
       is_actionable_whileinaction?:boolean,
       neverending_inaction?:boolean,
     }
   ):({
-    hook:Reacthook<Asyncresult>,
+    hook:Reacthook<Asyncresult<T>>,
     action:(...args:P) => Promise<T>,
   }) => {
     const cls = Asynctracker;
     const callname = `Asynctracker.afunc_statehook2conn @ ${DateTool.time2iso(new Date())}`;
 
-    const asyncstate_hook = HookTool.hook2down<Asyncresult, string>(asyncresult_hook, ['state'])
+    const asyncstate_hook = HookTool.hook2down<Asyncresult<T>, string>(asyncresult_hook, ['state'])
     // const [state, set_state] = React.useState<string>();
     // const [state, set_state] = statehook;
     const is_actionable = ArrayTool.all([
@@ -2237,7 +2239,8 @@ export class Asynctracker {
             // console.log({callname, t})
 
             if (!option?.neverending_inaction) {
-              asyncstate_hook[1](cls.State.DONE);
+              // DONE 으로 마킹하면서 result 도 함께 저장 — UI 에서 hook[0]?.result 로 직접 참조
+              asyncresult_hook[1]({state: cls.State.DONE, result: t});
             }
             return t;
           })
