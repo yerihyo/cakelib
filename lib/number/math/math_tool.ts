@@ -251,7 +251,10 @@ export default class MathTool {
   }
 
   static values2accumulates = (values: number[]): number[] => {
-    return values?.map((_, i) => MathTool.sum(values.slice(0, i + 1)));
+    return values?.reduce<number[]>((acc, v) => {
+      acc.push((acc[acc.length - 1] ?? 0) + v);
+      return acc;
+    }, []);
   }
 
   static values_index2ratiospan = (values:number[], index:number, option?:{total?:number}): Pair<number> => {
