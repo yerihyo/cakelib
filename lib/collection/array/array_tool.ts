@@ -18,6 +18,12 @@ export type Choseninfo<T> = {index:number, value:T};
 function date2str_time(d: Date) {
   return (d).toISOString().split("T")[1];
 }
+
+export class Familyinfo<P>{
+  index:number
+  parent:P
+}
+
 export default class ArrayTool {
   static one2l = <V>(v: V): V[] => (v == null ? (v as unknown as V[]) : [v]);
   // static only2list = <V>(v: V): V[] => (v == null ? undefined : [v]);
@@ -1028,6 +1034,32 @@ export default class ArrayTool {
       if(dict_k2v == null){ dict_k2v = cls.array2dict(...args); }
       return dict_k2v?.[k];
     }
+  }
+
+  /**
+   * parents 가 children 의 key 목록을 가질 때, child key → parent lookup 생성.
+   * 예) brand 가 departments 를 가짐 → dept_key 로 brand 역방향 lookup.
+   * 첫 호출 시 dict 1회 build (O(N_parents × N_children_per_parent)), 그 이후 O(1).
+   */
+  static array2f_childkey2familyinfo = <P, CK extends Dictkey,>(
+    parents:P[],
+    f_parent2child_keys: (p: P) => CK[],
+  ) => {
+    if(parents == null) return undefined;
+
+    let dict_childkey2familyinfo: Record<CK, Familyinfo<P>>;
+
+    return (child_key: CK) => {
+      if (dict_childkey2familyinfo == null) {
+        dict_childkey2familyinfo = Object.fromEntries(
+          parents?.flatMap((p) => {
+            // const parent_key = f_parent2parent_key(p);
+            return f_parent2child_keys(p)?.map((ck,i) => [ck, {index:i, parent:p}]) ?? [];
+          })
+        ) as Record<CK, Familyinfo<P>>;
+      }
+      return dict_childkey2familyinfo?.[child_key];
+    };
   }
 
   // static array2dict_alias<K extends Dictkey, V>(
