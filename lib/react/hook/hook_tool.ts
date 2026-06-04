@@ -196,7 +196,70 @@ export class Hooktrack<X>{
   // }
 }
 
+/**
+ * 스크롤 가능한 container 의 현 위치 단계 (phase).
+ * - NONE: container 가 content 보다 커서 scroll 자체 불가 (overflow 없음)
+ * - START: 위에 닿음 + 아래쪽으로 더 스크롤 가능 (위쪽 sticky shadow 불필요, 아래쪽 sticky shadow 필요)
+ * - END: 아래에 닿음 + 위쪽으로 더 스크롤 가능 (반대)
+ * - MIDDLE: 양쪽 다 더 스크롤 가능 (위/아래 sticky shadow 모두 필요)
+ */
+export type Scrollphase = 'NONE' | 'START' | 'MIDDLE' | 'END';
+
 export default class HookTool{
+  /**
+   * Scrollable container 의 현 phase 를 알려주는 hook.
+   * `ref` 를 scrollable element 에 부착하면 scroll / resize 에 반응해서 status / at_top / at_bottom 이 갱신됨.
+   *
+   * 사용처: sticky footer 의 위쪽 shadow toggle, sticky header 의 아래쪽 shadow toggle 등.
+   *
+   * @param threshold pixel 단위 허용 오차. scrollHeight 와 scrollTop+clientHeight 가 이 안쪽이면 끝 도달로 간주. (기본 1px)
+   * @returns
+   *   - ref: scrollable element 에 부착
+   *   - status: 'NONE' | 'START' | 'MIDDLE' | 'END'
+   *   - at_top: 위쪽 끝에 닿았는지
+   *   - at_bottom: 아래쪽 끝에 닿았는지
+   *   (at_top && at_bottom = overflow 없음 = status 'NONE')
+   */
+  static useScrollphase = (
+    threshold: number = 1,
+  ): {
+    ref: React.RefObject<HTMLDivElement>;
+    status: Scrollphase;
+    at_top: boolean;
+    at_bottom: boolean;
+  } => {
+    const ref = React.useRef<HTMLDivElement>(null);
+    const [at_top, set_at_top] = React.useState<boolean>(true);
+    const [at_bottom, set_at_bottom] = React.useState<boolean>(true);
+
+    React.useEffect(() => {
+      const el = ref.current;
+      if (!el) return;
+      const check = () => {
+        const top_dist = el.scrollTop;
+        const bottom_dist = el.scrollHeight - el.scrollTop - el.clientHeight;
+        set_at_top(top_dist <= threshold);
+        set_at_bottom(bottom_dist <= threshold);
+      };
+      check();
+      el.addEventListener('scroll', check, { passive: true });
+      const ro = new ResizeObserver(check);
+      ro.observe(el);
+      return () => {
+        el.removeEventListener('scroll', check);
+        ro.disconnect();
+      };
+    }, [threshold]);
+
+    const status: Scrollphase =
+      at_top && at_bottom ? 'NONE'
+      : at_top ? 'START'
+      : at_bottom ? 'END'
+      : 'MIDDLE';
+
+    return { ref, status, at_top, at_bottom };
+  }
+
   static hookdict2hook = <X>(hookdict:Record<string,Reacthook<any>>):Reacthook<X> => {
     const x = DictTool.merge_dicts(
       DictTool.entries(hookdict).map(([k,v]) => ({k:v?.[0]})),
