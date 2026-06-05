@@ -46,4 +46,8 @@ export default class RegexTool{
 
   static string2is_email = (x:string):boolean => RegexTool.pattern_email().test(x);
   // return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(x);
+
+  // 사용자 입력을 regex literal 로 안전하게 박을 때. ex) mongo $regex 에 그대로 쓰지 말고 escape.
+  static str2escaped = (s: string): string =>
+    s == null ? undefined : s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
