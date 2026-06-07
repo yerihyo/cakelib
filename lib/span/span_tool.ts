@@ -134,6 +134,24 @@ export default class SpanTool {
   static comparator2comparator_lb = lodash.flow(AbsoluteOrder.f_cmp2f_cmp_infs2minmax, AbsoluteOrder.f_cmp2f_cmp_nullable2min);
   static comparator2comparator_ub = lodash.flow(AbsoluteOrder.f_cmp2f_cmp_infs2minmax, AbsoluteOrder.f_cmp2f_cmp_nullable2max);
 
+  /**
+   * 값 X 의 comparator → Pair<X> (span) comparator. null 처리 포함.
+   *   - span[0] (start) null = -∞ → 시작 미지정은 가장 이른 가능성.
+   *   - span[1] (end)   null = +∞ → 종료 미지정은 가장 늦은 가능성.
+   * 비교 순서: start 먼저, tie 시 end 로.
+   */
+  static comparator2comparator_span = <X>(comparator: Comparator<X>): Comparator<Pair<X>> => {
+    const cmp_lb = SpanTool.comparator2comparator_lb(comparator);
+    const cmp_ub = SpanTool.comparator2comparator_ub(comparator);
+    return (a: Pair<X>, b: Pair<X>) => {
+      const cmp_start = cmp_lb(a?.[0], b?.[0]);
+      if (cmp_start !== 0) return cmp_start;
+      return cmp_ub(a?.[1], b?.[1]);
+    };
+  }
+
+  static comparator_natural = <X>() => SpanTool.comparator2comparator_span(CmpTool.pair2cmp_default<X>);
+
   static pair2cmp_lbound = SpanTool.comparator2comparator_lb(CmpTool.pair2cmp_default);
   static pair2cmp_ubound = SpanTool.comparator2comparator_ub(CmpTool.pair2cmp_default);
 
