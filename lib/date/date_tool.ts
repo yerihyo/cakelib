@@ -353,7 +353,7 @@ export default class DateTool {
   static millisecs2added = function (d: Date, millisecs: number): Date {
     const callname = `DateTool.millisecs2added @ ${DateTool.time2iso(new Date())}`;
 
-    if (d == null) { return undefined; }
+    if (d == null) { return d; }
     if (millisecs == null) { return undefined; }
     // if (millisecs == Infinity){ return Infinity; }
     // console.log({callname, d});
@@ -378,6 +378,7 @@ export default class DateTool {
     }
   };
   static day82days_added = DateTool.fxx_date2fxx_day8<[number]>(DateTool.days2added);
+  static day82span_1day = (day8:number):Pair<number> => [day8, DateTool.day82days_added(day8, 1)];
   // static day8days2added = DateTool.day82days_added;
 
   /**

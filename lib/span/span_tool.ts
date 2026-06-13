@@ -690,6 +690,33 @@ export default class SpanTool {
   static pair2cmp_default = SpanTool.f_cmp_pivot2f_cmp_span(CmpTool.pair2cmp_default);
   static pair2cmp_number = SpanTool.f_cmp_pivot2f_cmp_span(MathTool.sub);
 
+  /**
+   * pivot 과의 cmp 결과 (음/0/양) 를 정렬 우선순위 comparator 로 변환.
+   * 정책:
+   *   - cmp 0 (preferred / pivot overlap) → 최우선
+   *   - cmp > 0 (pivot 보다 뒤) → 그 다음
+   *   - cmp < 0 (pivot 보다 앞) → 마지막
+   * 같은 카테고리 내에선 |cmp| 작은 것 우선 (pivot 에 가까운 것).
+   *
+   * 예: tenure 중 today 와 overlap (active) 최우선, 없으면 soonest future, 그것도 없으면 most recent past.
+   *   const cmp = SpanTool.f_cmp2f_cmp_inpreferred<Tenure>(
+   *     (t) => SpanTool.pair2cmp_default(t.day8span, SpanTool.pivot2unitimpulse(today_day8))
+   *   );
+   *   ArrayTool.sorted(tenures, cmp)[0]
+   */
+  static f_cmp2f_cmp_inpreferred = <X>(
+    f_cmp_pivot: (x: X) => number,
+  ): Comparator<X> => {
+    const cmp2inpref = (cmp: number): number => cmp === 0 ? 0 : cmp > 0 ? 1 : 2;
+    return CmpTool.f_key2f_cmp(
+      x => {
+        const cmp_x = f_cmp_pivot(x);
+        return [cmp2inpref(cmp_x), Math.abs(cmp_x)];
+      },
+      CmpTool.f_cmp2f_cmp_tuple(CmpTool.pair2cmp_default),
+    );
+  }
+
   static pivot2unitimpulse = (pivot:number,):Pair<number> => {
     return [pivot,pivot + Number.EPSILON];
   }
