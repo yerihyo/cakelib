@@ -378,7 +378,7 @@ export default class DateTool {
     }
   };
   static day82days_added = DateTool.fxx_date2fxx_day8<[number]>(DateTool.days2added);
-  static day82span_impulse = (day8:number):Pair<number> => [day8, DateTool.day82days_added(day8, 1)];
+  static day82span_1day = (day8:number):Pair<number> => [day8, DateTool.day82days_added(day8, 1)];
   // static day8days2added = DateTool.day82days_added;
 
   /**
