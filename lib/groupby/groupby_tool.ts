@@ -105,6 +105,25 @@ export default class GroupbyTool {
   //   (h) => { return (k) => h?.[k]; },
   // ) // as <V, K extends Dictkey = Dictkey>(...args: Parameters<typeof GroupbyTool.dict_groupby_1step<V, K>>) => FuncAO<V[], [K]>
 
+  /** key → 그 그룹에서의 0-based 순번 (없으면 undefined). keys 자체가 원소 key (원본 객체 불필요).
+   *  keys 순서가 곧 그룹 내 순번이므로 정렬해서 넘긴다. */
+  static array2f_k2groupindex = <K extends Dictkey = Dictkey, GK extends Dictkey = Dictkey>(
+    keys: K[],
+    k2groupkey: (k: K) => GK,
+  ): FuncAO<number, [K]> => {
+    if (keys == null) return undefined;
+    
+    let dict_k2index: Record<K, number> = undefined;
+    return (k: K) => {
+      if (dict_k2index == null) {
+        dict_k2index = DictTool.merge_dicts_noduplicatekey(
+          Object.values(GroupbyTool.dict_groupby_1step(keys, k2groupkey)).flatMap((ks: K[]) => ks.map((k, i) => ({ [k]: i }))),
+        );
+      }
+      return dict_k2index?.[k];
+    };
+  };
+
   static Deprecated = class {
     static dict_groupby_1step<K extends Dictkey, X, L>(
       items: X[],
