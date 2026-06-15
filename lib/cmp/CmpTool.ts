@@ -99,6 +99,25 @@ export default class CmpTool {
   static f_cmp2f_eq = <A extends any[]>(f_cmp: (...args:A) => number) => lodash.flow(f_cmp, (c:number) => MathTool.eq(c,0));
   static f_cmp2f_ne = <A extends any[]>(f_cmp: (...args:A) => number) => lodash.flow(f_cmp, (c:number) => MathTool.ne(c,0));
 
+  // 실제 차분 보존 (Math.abs(cmp) 가 의미 있는 distance 가 되어야 할 때 사용).
+  static pair2cmp_numeric = (v1:number, v2:number): number => {
+    if (v1 == null || v2 == null) return undefined;
+    return v1 - v2;
+  }
+
+  // sign 만 반환 (-1/0/+1). Math.abs(cmp) 가 distance 로 쓰이는 곳에서는 pair2cmp_numeric 사용.
+  static pair2cmp_signonly = <X>(x1: X, x2: X): number => {
+    if (x1 === x2) { return 0; }
+    // if (x1 == null && x2 == null) { return 0; }
+    if (x1 == null || x2 == null) { return undefined; }
+
+    if (x1 < x2) { return -1; }
+    if (x1 > x2) { return 1; }
+
+    return undefined;
+  }
+  static pair2cmp_default = CmpTool.pair2cmp_signonly;
+
   static gt_default = CmpTool.f_cmp2f_gt(CmpTool.pair2cmp_default);
   static gte_default = CmpTool.f_cmp2f_gte(CmpTool.pair2cmp_default);
   static lt_default = CmpTool.f_cmp2f_lt(CmpTool.pair2cmp_default);
@@ -229,20 +248,6 @@ export default class CmpTool {
   //     return self.pair2cmp_default
   // }
 
-  
-  
-  static pair2cmp_default<X>(x1: X, x2: X): number {
-    if (x1 === x2) { return 0; }
-    // if (x1 == null && x2 == null) { return 0; }
-    if (x1 == null || x2 == null) { return undefined; }
-
-    if (x1 < x2) { return -1; }
-    if (x1 > x2) { return 1; }
-
-    return undefined;
-
-    throw new Error(`x1:${x1}, x2:${x2}`);
-  }
   // static pair2eq_strict = CmpTool.pair2eq_trinative; // <X>(x1: X, x2: X): boolean => x1 === x2;
   static pair2eq_default = CmpTool.f_cmp2f_eq(CmpTool.pair2cmp_default);
   static pair2ne_default = CmpTool.f_cmp2f_ne(CmpTool.pair2cmp_default);

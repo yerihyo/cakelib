@@ -688,7 +688,7 @@ export default class SpanTool {
     }
   }
   static pair2cmp_default = SpanTool.f_cmp_pivot2f_cmp_span(CmpTool.pair2cmp_default);
-  static pair2cmp_number = SpanTool.f_cmp_pivot2f_cmp_span(MathTool.sub);
+  static pair2cmp_numeric = SpanTool.f_cmp_pivot2f_cmp_span(CmpTool.pair2cmp_numeric);
 
   /**
    * pivot 과의 cmp 결과 (음/0/양) 를 정렬 우선순위 comparator 로 변환.
