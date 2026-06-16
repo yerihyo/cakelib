@@ -47,6 +47,15 @@ export class UrlsearchparamsTool{
 }
 
 
+// URL query 의 dict type.
+// - Qprim — 권장 (string/number/boolean/null/undefined): encodeURIComponent 에 그대로 들어가 안전.
+// - Qprim[] — multi-value 지원.
+// - object — 합치/fallthrough caller 호환. encodeURIComponent(String(obj)) → "[object Object]" 가 query 에 들어가므로
+//   nested object 는 caller 가 직접 stringify (JSON 등) 해서 보내는 것을 강력 권장.
+export type Qprim = string | number | boolean | null | undefined;
+export type Qvalue = Qprim | Qprim[];
+export type Qparams = Record<string, Qvalue | object>;
+
 export default class UrlTool{
   static parse = (s:string):URL => { return new URL(s); }
   /**
@@ -184,50 +193,54 @@ export default class UrlTool{
     return kv_list.join('&');
   }
 
-  static hash2qstring(h:Record<string,number|string|string[]>, options?:{collection?:'CSV'|'MULTI'}) {
+  // URL query 로 변환. value 는 primitive 또는 array of primitive. nested object 는 caller 가 직접 stringify.
+  static hash2qstring = (
+    h: Qparams,
+    options?: { collection?: 'CSV' | 'MULTI' },
+  ): string => {
     const {collection:collection_in} = (options || {});
 
     const collection = collection_in ?? 'CSV';
 
-    const key_values2kv_list = function (k, values, collection) {
-      if (collection === "CSV") {
-        // console.log({"stringify([values])":stringify([values])})
-        const v = CsvTool.array2stringify(values)
-        return [[k, v]]
-      }
-      else if (collection === "MULTI") {
-        const kv_list = values.map(v => [k, v])
-        return kv_list
-      } else {
-        throw new Error(`Invalid collection : ${collection}`)
-      }
+    const key_values2kv_list = (k:string, values:any[],) => {
+      if (collection === "CSV") return [[k, CsvTool.array2stringify(values)]];
+      if (collection === "MULTI") return values.map(v => [k, v]);
+      throw new Error(`Invalid collection : ${collection}`)
     }
     
-
-    const l_out = [];
-
-    for (const k in h) {
-      const isArray = Array.isArray(h[k])
-      const kv_list = isArray ? key_values2kv_list(k, h[k], collection) : [[k,h[k]]]
-      // const k = key  // isArray ? `${key}[]` : key
-
-      Array.prototype.forEach.call(kv_list,
-        kv => l_out.push(encodeURIComponent(kv[0]) + '=' + encodeURIComponent(kv[1]))
-      )  
-    }
-
-    // console.log({kv_list})
-
-    return l_out.join('&');
+    return DictTool.entries(h)
+      ?.flatMap(([k, v]) => Array.isArray(v) ? key_values2kv_list(k, v,) : [[k, v]])
+      ?.map(([k, v]) => `${encodeURIComponent(String(k))}=${encodeURIComponent(String(v))}`)
+      ?.join('&');
   }
 
-  static params2appended = function(url:string, params:any, options?):string{
-    const cls = UrlTool;
+  // URL query parameter 의 truthy/falsy 판정. case-insensitive.
+  //   nullish (undefined/null/빈 문자열/인식 못 한 값) → undefined
+  //   truthy : "1", "true", "yes", "on", "y", "t" → true
+  //   falsy  : "0", "false", "no", "off", "n", "f" → false
+  // string[] (multi-value query) 도 받음 — 첫 값으로 판정.
+  static str2truthy = (v?: string | string[] | null): boolean | null => {
+    if (v == null) return undefined;
 
-    if(url==null){ return undefined; }
-    if(!params){ return url; }
+    const s = Array.isArray(v) ? v[0] : v;
+    if (s == null) return undefined;
     
-    const querystring = cls.hash2qstring(params, options)
+    const norm = String(s).trim().toLowerCase();
+    if (norm === "") return undefined;
+    if (["1", "true", "yes", "on", "y", "t"].includes(norm)) return true;
+    if (["0", "false", "no", "off", "n", "f"].includes(norm)) return false;
+
+    return undefined;
+  };
+
+  static params2appended = (
+    url: string,
+    ...args: Parameters<typeof UrlTool.hash2qstring>
+  ): string => {
+    if(url==null){ return undefined; }
+    if(!args[0]){ return url; }
+
+    const querystring = UrlTool.hash2qstring(...args);
     return querystring ? `${url}?${querystring}` : url
   }
 
