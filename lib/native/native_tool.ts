@@ -2,9 +2,12 @@ import { CSSProperties } from "react";
 
 export type Dictkey = string|number|symbol;
 export type PotentialPromise<T> = T | Promise<T>
+export type Solo<T> = [T];
 export type Pair<T> = [T, T];
 export type Triple<T> = [T, T, T];
 export type Quad<T> = [T, T, T, T];
+
+export type Len12<T> = Solo<T> | Pair<T>
 
 export type PartialWithReq<X, K extends keyof X> = Partial<X> & Required<Pick<X, K>>
 

@@ -2,7 +2,7 @@ import lodash from 'lodash';
 import CmpTool, { Appraiser, BicmpTool, Bicomparator, Comparator } from '../cmp/CmpTool'
 import ArrayTool from '../collection/array/array_tool'
 import MinimaxTool, { AbsoluteOrder } from '../collection/array/minimax_tool'
-import NativeTool, { Pair } from '../native/native_tool'
+import NativeTool, { Len12, Pair } from '../native/native_tool'
 import SignTool from '../number/sign_tool'
 import MathTool from '../number/math/math_tool'
 import FunctionTool from '../function/function_tool';
@@ -862,6 +862,17 @@ export default class SpanTool {
   static span_period2length = (span:Pair<number>, period:number) => (span?.[1]-span?.[0] + period) % period;
 }
 
+export class Len12Tool{
+  static span2startend = <T>(span:Len12<T>):Pair<T> => {
+    return span == null ? undefined : [span[0], span?.at(-1)];
+  }
+  /** Len12<T>[] → Pair<T>[]. single-element `[d]` 는 `[d, d]` 로 확장. null 항목은 drop. */
+  static spans2pairs = <T>(spans:Len12<T>[]):Pair<T>[] => {
+    return (spans ?? [])
+      .map((s) => Len12Tool.span2startend(s))
+      .filter((p): p is Pair<T> => p != null);
+  };
+}
 export class SpansTool {
   static bool = <T>(spans:Pair<T>[]):boolean => spans?.some(span => SpanTool.bool(span));
   static norm = <T>(
