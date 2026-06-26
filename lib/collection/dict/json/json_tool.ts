@@ -210,12 +210,10 @@ static json2sortedstring = <X>(x:X, ...args:Omitfirst<Parameters<typeof stringif
 
     const f_node = (x: any) => {
       if (DateTool.is_date(x)) {
-        return x.toISOString();
-        // try{ return x.toISOString(); }
-        // catch(e){
-        //     console.error({callname, x, e});
-        //     return undefined;
-        // }
+        // Invalid Date 의 toISOString() 은 RangeError 를 던진다. 반면 표준 JSON(JSON.stringify→Date.toJSON())은
+        // 이 경우 throw 없이 null 을 내므로, 여기서도 같은 정책으로 맞춘다(유효하지 않으면 undefined → 키 생략).
+        // (1차 방어는 애초에 Invalid Date 를 데이터에 안 넣는 것 — 이건 표준 동작 복원용 안전망)
+        return Number.isNaN(x.getTime()) ? undefined : x.toISOString();
       }
 
       return x;

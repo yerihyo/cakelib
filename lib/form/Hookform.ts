@@ -220,6 +220,13 @@ export default class Hookform<T>{
     });
   }
 
+  // hookform 의 현재 값을 validator 로 검증해 errorshook 에 반영. onBlur 등 "검증 시점"에 호출.
+  // codec_validate(on-change codec)/validator2handled(scroll+throw) 와 달리, 성공 시 에러를 비우고(reward early) scroll/throw 가 없다.
+  static hookform2validated = <X>(
+    hookform: Hookform<X>,
+    validator: (v: X) => void | Promise<void>,
+  ) => YupTool.schema2validated(() => validator(hookform.datahook[0]), hookform.errorshook[1]);
+
   static hookform2datahook_codeced = <X>(hookform:Hookform<X>, hookcodec:Hookcodec<X,X>,):Hookform<X> => {
     return {
       ...hookform,
