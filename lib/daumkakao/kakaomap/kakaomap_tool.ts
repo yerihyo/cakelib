@@ -28,7 +28,10 @@ export default class KakaomapTool{
     return ref;
   }
 
-  static latlon2url(latlon:Pair<number>){
-    return `https://map.kakao.com/link/map/나폴레옹과자점,${latlon[0]},${latlon[1]}`;
+  static latlon2url(latlon:Pair<number>, name:string){
+    return `https://map.kakao.com/link/map/${name},${latlon[0]},${latlon[1]}`;
   }
+
+  static placeid2url = (placeid:string):string =>
+    placeid == null ? undefined : `https://place.map.kakao.com/${placeid}`;
 }
