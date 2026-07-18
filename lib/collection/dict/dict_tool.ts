@@ -28,8 +28,11 @@ export default class DictTool{
     static size(obj){
         return obj ? Object.keys(obj).length : undefined;
     }
-    static is_empty = function(obj){
-        return Object.keys(obj).length === 0;
+    // null 은 null 로 전파한다(undefined). 구현 v1(is_empty)은 Object.keys(null) 에서 TypeError 로 죽었고,
+    //   이름도 null 을 empty 로 읽히게 해 오해를 줬다. "size 가 0" 이라는 서술이면 null 에 true 가 아닌 게 자연스럽다.
+    static is_size0 = (obj):boolean => {
+        const size = DictTool.size(obj);
+        return size == null ? undefined : size === 0;
     }
 
     static dict2key_mutated<V,K1 extends Dictkey=Dictkey,K2 extends Dictkey=Dictkey>(
@@ -151,7 +154,7 @@ export default class DictTool{
 
     static bool(h){
         if(!h){ return false }
-        if(DictTool.is_empty(h)){ return false }
+        if(DictTool.is_size0(h)){ return false }
         return true
     }
 
@@ -183,7 +186,7 @@ export default class DictTool{
         if(Array.isArray(obj)){ return obj; }
 
         const keys = Object.keys(obj);
-        if(ArrayTool.is_empty(keys)){ return obj; }
+        if(ArrayTool.is_length0(keys)){ return obj; }
         
         const is_object = (v:any) => typeof v === "object";
         

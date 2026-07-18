@@ -216,8 +216,14 @@ export default class ArrayTool {
   // }
 
   static join = (delim: string, array: string[]): string => (array ? array.join(delim) : undefined);
-  static is_empty = <T>(array: T[]): boolean => (array == null ? undefined : array.length === 0);
-  static bool = <T>(array: T[]): boolean => (array == null ? undefined : !ArrayTool.is_empty(array));
+  // null 은 null 로 전파한다(undefined). "length 가 0" 이라는 서술이라 null 에 대해 true 가 아닌 게 자연스럽다.
+  static is_length0 = <T>(array: T[]): boolean => (array == null ? undefined : array.length === 0);
+  /**
+   * @deprecated is_length0 를 쓸 것. null 일 때 true 가 아니라 undefined 를 반환하는데 "empty" 라는 이름은
+   *   null 도 empty 로 읽히게 해서 오해를 준다. 한 사이클 뒤 제거 예정.
+   */
+  static is_empty = <T>(array: T[]): boolean => ArrayTool.is_length0(array);
+  static bool = <T>(array: T[]): boolean => (array == null ? undefined : !ArrayTool.is_length0(array));
   static itemgetter = (i: number) => (l: any[]) => l[i];
   static all = <T>(array: T[], option?:{item2bool?:(t:T) => boolean},): boolean => array?.every(option?.item2bool ?? (x => !!x));
   static all_n_gtzero = <T>(
