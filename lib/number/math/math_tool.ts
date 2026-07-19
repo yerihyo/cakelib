@@ -27,6 +27,12 @@ export default class MathTool {
   static minus = MathTool.binary2nullableskippped((x1, x2) => x1 - x2);
   static sub = MathTool.minus;
 
+  // -0 을 0 으로 정규화한다. JS 는 IEEE 754 라 0 에 부호가 있어서 -(0), -1*0, Math.round(-0.2) 가 -0 을 만든다.
+  //   String/JSON 표시에는 티가 안 나지만(둘 다 "0") Object.is / jest toStrictEqual / Map key 에서 0 과 갈린다.
+  //   그래서 눈으로는 못 잡고 비교 단계에서야 드러난다.
+  //   nullable-in nullable-out.
+  static num2zero_normed = (x: number): number => (x == null ? x : (x === 0 ? 0 : x));
+
   static pow = FunctionTool.func2undef_ifany_nullarg(Math.pow);
 
   static product(array: number[]): number { // to deal with nullable
