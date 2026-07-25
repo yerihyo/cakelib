@@ -315,6 +315,33 @@ export default class DateTool {
 
   static subtract2millisecs = (d1: Date, d2: Date): number => MathTool.minus(d1?.getTime(), d2?.getTime());
   static subtract2ms = DateTool.subtract2millisecs;
+
+  // 소요시간(ms) → 사람이 읽는 문자열. (<1s: "123ms", <1m: "1.2s", 그 이상: "1h 02m 03s" / "2m 03s")
+  static millisecs2human = (ms: number): string => {
+    if (ms == null) { return ""; }
+    if (ms < 1000) { return `${ms}ms`; }
+    if (ms < 60000) { return `${(ms / 1000).toFixed(1)}s`; }
+    const total_secs = Math.floor(ms / 1000);
+    const h = Math.floor(total_secs / 3600);
+    const m = Math.floor((total_secs % 3600) / 60);
+    const s = total_secs % 60;
+    const pad = (n: number): string => String(n).padStart(2, "0");
+    return h > 0 ? `${h}h ${pad(m)}m ${pad(s)}s` : `${m}m ${pad(s)}s`;
+  };
+  static ms2human = DateTool.millisecs2human;
+
+  // 경과시간(ms) → 시계 포맷 "H:MM:SS" (하루 넘으면 "Nd H:MM:SS"). 라이브 타이머용.
+  static millisecs2clock = (ms: number): string => {
+    const t = Math.max(0, Math.floor((ms ?? 0) / 1000));
+    const d = Math.floor(t / 86400);
+    const h = Math.floor((t % 86400) / 3600);
+    const m = Math.floor((t % 3600) / 60);
+    const s = t % 60;
+    const pad = (n: number): string => String(n).padStart(2, "0");
+    const hms = `${h}:${pad(m)}:${pad(s)}`;
+    return d > 0 ? `${d}d ${hms}` : hms;
+  };
+  static ms2clock = DateTool.millisecs2clock;
   static subtract2secs = lodash.flow(DateTool.subtract2millisecs, x => MathTool.div(x,1000))
   // static subtract2secs = function (d1: Date, d2: Date): number {
   //   const self = DateTool;
