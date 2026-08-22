@@ -157,6 +157,15 @@ export default class SwrTool {
   static list_swr2one_swr = <T>(list_swr:SWRResponse<T[]>):SWRResponse<T> => SwrTool.swr2codeced<T[],T>(list_swr, SwrTool.codec_list2one<T>()); 
   static list_swr2singleton_swr = SwrTool.list_swr2one_swr;
 
+  /**
+   * codec 을 씌운 SWR view.
+   *
+   * **`data` 의 신원(identity)은 원본이 그대로면 유지된다.** 예전에는 렌더마다 `decode` 를 다시 불러
+   * 같은 데이터인데도 매번 새 객체를 돌려줬고, 그것을 캐시 키·의존성으로 쓰는 쪽이 전부 헛돌았다
+   * (2026-08-21 근태: kit 이 매 렌더 새 객체라 101명 × 12개월 × 31일 ≈ 37,000회 파싱이 매 렌더 반복).
+   * 캐시 키는 `(원본 신원, decode 신원)` 이고 `decode` 는 순수 함수라 낡은 값이 나올 여지가 없다
+   * — 원본을 **제자리에서** 고치는 코드가 있다면 그건 이 캐시와 무관하게 이미 리렌더를 못 만든다.
+   */
   static swr2codeced<P,C>(
     swr: SWRResponse<P>,
     codec: { encode: (c: C) => P, decode: (p: P) => C },
@@ -164,22 +173,25 @@ export default class SwrTool {
     const callname = `SwrTool.swr2codeced @ ${DateTool.time2iso(new Date())}`;
     const {encode, decode} = codec;
 
-    const c_prev:C = decode(swr.data);
+    const c_prev:C = SwrTool.p_decode2decoded(swr.data, decode);
 
     const mutate_out = async (
-      action?: C | Promise<C> | MutatorCallback<C>,
-      opts?: boolean | {revalidate:boolean}, // boolean | MutatorOptions<P> // need to change later
+      ...args: [
+        action?: C | Promise<C> | MutatorCallback<C>,
+        opts?: boolean | {revalidate:boolean},
+      ]
+      // boolean | MutatorOptions<P> // need to change later
     ):Promise<C> => {
-      
+      // ⚠ 인자 **개수**를 그대로 보존한다. SWR 의 `internalMutate` 는 `args.length < 3` 일 때만 "재검증" 으로
+      //   보므로, 인자 없이 불린 것을 `mutate(undefined, undefined)` 로 바꿔 넘기면 캐시가 undefined 로
+      //   덮인 뒤에 재검증된다 (저장할 때마다 화면이 한 틱 비워진다).
+      if (args.length === 0) return decode(await swr.mutate());
 
+      const [action, opts] = args;
       const is_function = x => (typeof x === 'function');
       const c_in = is_function(action) ? (action as MutatorCallback<C>)(c_prev) : (action as C);
       const p_in = encode(await c_in);
 
-      // console.log({
-      //   callname,
-      //   p_in,
-      // })
       const p_out = await swr.mutate(p_in, opts);
       const c_out = decode(p_out);
       return c_out;
@@ -187,9 +199,46 @@ export default class SwrTool {
     return {
       ...swr,
       data:c_prev,
-      mutate: mutate_out, // works only with no parameters
+      mutate: mutate_out,
     };
   }
+
+  /**
+   * `decode(p)` 를 **원본 신원마다 한 번만** 부른다 ([[swr2codeced]] 의 신원 유지).
+   *
+   * 애초에 이게 필요한 이유는 [[swr2codeced]] 에 **`p_prev` 가 없기 때문**이다. 렌더마다 새로 불리는
+   * 순수 함수라 "지난번과 같은 원본인가" 를 스스로 알 수 없고, 그래서 매번 새로 디코드할 수밖에 없었다.
+   * 이 WeakMap 이 그 `p_prev` 자리를 대신한다 — 원본을 키로 두어 "전에 본 적 있는 p 인가" 를 기억한다.
+   *
+   * hook 이 아니다 — `WeakMap` 이라 컴포넌트 밖에서도 되고 원본이 GC 되면 캐시도 같이 사라진다.
+   * `decode` 신원까지 키에 넣으므로 같은 배열을 서로 다른 codec 이 디코드해도 섞이지 않는다.
+   * 매번 새로 만드는 `decode`(inline arrow)를 넘기면 그냥 매번 다시 디코드한다 — 예전과 같은 동작이다.
+   *
+   * **전제 둘** (2026-08-22 에 코드베이스 전수 확인):
+   * ① `decode` 가 순수하다 — `document/` 의 `*2kit` 함수에 비순수 요소 없음 (`new Date()` 는 전부 로그용).
+   * ② `p` 의 신원이 값의 변화를 대변한다 — SWR 이 새 데이터를 새 객체로 넣어 주고, 배열을 제자리에서
+   *    고치는 코드는 없다. (있다면 그건 이 캐시와 무관하게 React 리렌더도 못 만드는 코드다). 즉, Functional 하다.
+   */
+  static p_decode2decoded = (() => {
+    // 캐시는 closure 안 — 바깥에서 만질 수 없다 ([[CacheTool.memo_one]] 이 `prev` 를 숨기는 것과 같은 방식).
+    // WeakMap 이라 원본(SWR 이 들고 있는 배열)이 버려지면 그 칸도 같이 사라진다.
+    //
+    // `memo_one` 을 못 쓰는 이유: 여기는 **모든 kit_swr 이 공유하는 자리**라 직전 1회만 기억하면
+    // 서로 다른 조회들이 매번 서로를 밀어낸다 (`p_prev` 가 하나뿐인 것과 같은 문제).
+    const cache_p2dict = new WeakMap<object, Map<Function, any>>();
+
+    return <P,C>(p:P, decode:(p:P) => C):C => {
+      // 원시값·null 은 WeakMap 키가 될 수 없다. decode 도 대개 즉시 끝난다.
+      if (p == null || (typeof p !== 'object' && typeof p !== 'function')) return decode(p);
+
+      const dict_decode2decoded = cache_p2dict.get(p as any) ?? new Map<Function, any>();
+      if (!dict_decode2decoded.has(decode)) {
+        dict_decode2decoded.set(decode, decode(p));
+        cache_p2dict.set(p as any, dict_decode2decoded);
+      }
+      return dict_decode2decoded.get(decode);
+    };
+  })();
 
   static swr2codecspiped = <P,C>(
     swr: SWRResponse<P>,
