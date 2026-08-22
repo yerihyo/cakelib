@@ -45,13 +45,19 @@ export default class CacheTool {
 
   static nomemo_one = <T>(fn: T):T => fn;
 
-  static memo_one<T, K = any>(
-    fn: ((...args: K[]) => T),
+  /**
+   * 직전 호출 **하나만** 기억한다. 인자를 하나씩 `===` 로 비교하므로 **인자가 곧 의존성**이다
+   * (`useMemo` 처럼 의존성 배열을 따로 들고 다니지 않는다).
+   *
+   * 인자 타입은 그대로 지킨다 — `(...args: K[])` 로 뭉개면 호출부의 인자 개수·타입 검사가 사라진다.
+   */
+  static memo_one<T, A extends any[]>(
+    fn: ((...args: A) => T),
     // options?: {
       // logname?: string,
-      // isEqual?: (x1: K[], x2: K[]) => boolean,
+      // isEqual?: (x1: A, x2: A) => boolean,
     // },
-  ): ((...args: K[]) => T) {
+  ): ((...args: A) => T) {
     // const isEqual = options?.isEqual ?? lodash.isEqual;
     const f_eq = ArrayTool.listpair2eq_every_trinative; // CmpTool.isEqual;
 
