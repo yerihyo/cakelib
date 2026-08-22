@@ -51,7 +51,7 @@ export default class CacheTool {
    *
    * 인자 타입은 그대로 지킨다 — `(...args: K[])` 로 뭉개면 호출부의 인자 개수·타입 검사가 사라진다.
    */
-  static memo_one<A extends any[], T>(
+  static memo_one<T, A extends any[]>(
     fn: ((...args: A) => T),
     // options?: {
       // logname?: string,
