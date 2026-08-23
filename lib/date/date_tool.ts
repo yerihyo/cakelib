@@ -404,7 +404,24 @@ export default class DateTool {
       return day8_out;
     }
   };
-  static day82days_added = DateTool.fxx_date2fxx_day8<[number]>(DateTool.days2added);
+  /**
+   * **달력 기준** 날짜 더하기 — 24시간 더하기가 아니다.
+   *
+   * `days2added`(= +24h × n)로 day8 을 옮기면 **서머타임 해제일에 날짜가 안 넘어간다**:
+   * 2026-11-01 America/Los_Angeles 는 25시간짜리 날이라 `자정 + 24h = 같은 날 23:00` 이고,
+   * 그 값을 day8 로 되돌리면 입력과 같은 날이 나온다. `day8span2day8s` 의 `while (cur < d_to)` 가
+   * 영원히 안 끝난다 (2026-08-22: 근태 연차 조회가 이것으로 브라우저를 멈췄다 — 한국은 DST 가 없어
+   * 서버·현지에서는 안 보이고 DST 지역 개발기에서만 터진다).
+   *
+   * `setDate` 는 달력 기준이라 로컬 시각(자정)을 유지한 채 날짜만 넘긴다.
+   */
+  static days2added_calendar = (d: Date, days: number): Date => {
+    if (d == null) return undefined;
+    const d_out = new Date(d.getTime());
+    d_out.setDate(d_out.getDate() + days);
+    return d_out;
+  };
+  static day82days_added = DateTool.fxx_date2fxx_day8<[number]>(DateTool.days2added_calendar);
   static day82span_1day = (day8:number):Pair<number> => [day8, DateTool.day82days_added(day8, 1)];
   // static day8days2added = DateTool.day82days_added;
 
