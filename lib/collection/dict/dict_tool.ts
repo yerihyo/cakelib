@@ -307,10 +307,28 @@ export default class DictTool{
             }
             return h1
         }
+        /**
+         * 충돌한 값의 짧은 식별자. 키만으로는 그게 무슨 키인지(주문/결제/이벤트) 조차 알 수 없어
+         * 원인을 찾으려면 DB 를 뒤져야 했다 — 충돌한 두 값은 여기 손에 있으니 같이 내보낸다.
+         * (실사고 2026-08-28: `Duplicate key: 'peHyilOVPrOreQboGITZI'` 만 남아, 그것이 payevent key 이고
+         *  QA 픽스처가 원본 결제의 event key 를 그대로 복사했다는 사실을 찾는 데 DB 조사가 필요했다.)
+         * 에러 만들다 또 던지면 원인이 통째로 뒤바뀌므로 무슨 일이 있어도 문자열을 돌려준다.
+         */
+        static value2brief(v): string {
+            try{
+                if(v == null){ return String(v) }
+                if(typeof v !== 'object'){ return String(v).slice(0, 60) }
+                const key = v.key ?? v._id ?? v.id
+                if(key != null){ return `{key:${String(key).slice(0, 40)}}` }
+                return JSON.stringify(v).slice(0, 120)
+            } catch(e){ return '<unprintable>' }
+        }
+
         static no_duplicate_key(h1, h2, k){
             NativeTool.assert(k in h2)
             if(k in h1){
-                throw new Error(`Duplicate key: '${k}'`)
+                const brief = DictTool.WritePolicy.value2brief
+                throw new Error(`Duplicate key: '${k}' (${brief(h1[k])} vs ${brief(h2[k])})`)
             }
             h1[k] = h2[k]
             return h1
