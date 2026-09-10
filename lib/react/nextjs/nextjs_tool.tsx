@@ -75,7 +75,10 @@ export default class NextjsTool{
 
     // router.replace(location.href, url, options);
     // router.replace(as, );
-    return router?.replace(url, undefined, {shallow:true})
+    // scroll:false — 이건 "이동"이 아니라 **화면 상태를 URL 에 받아적는 것**이다.
+    //   Next 의 기본값(scroll:true)이면 필터를 바꾸거나 목록 아래쪽 행을 눌러 상세를 열 때마다
+    //   페이지가 맨 위로 튀어 올라, 방금 누른 행이 시야에서 사라진다.
+    return router?.replace(url, undefined, {shallow:true, scroll:false})
     // router.replace(url, as, options);
     // history.replaceState({}, '', as);
   }
