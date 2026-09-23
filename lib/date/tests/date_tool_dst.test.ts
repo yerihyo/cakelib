@@ -1,8 +1,21 @@
-// ⚠ Date 를 만들기 전에 TZ 를 고정한다 — 이 파일은 **서머타임이 있는 지역**에서만 의미가 있는 검사라,
-//   TZ 를 안 정하면 CI(UTC)에서 조용히 통과해 버린다. import 보다 먼저 실행되도록 맨 위에 둔다.
-process.env.TZ = "America/Los_Angeles";
+// ⚠ 이 파일은 **서머타임이 있는 지역**에서만 의미가 있는 검사다.
+//
+//   예전엔 맨 위에서 `process.env.TZ = "America/Los_Angeles"` 로 고정하려 했지만 **먹지 않는다** —
+//   Node 는 첫 Date 사용 시점에 타임존을 캐시하는데, jest 는 이 파일을 로드하기 훨씬 전에 Date 를 쓴다.
+//   그래서 DST 없는 머신(KST·CI의 UTC)에서는 전제부터 깨져 **상시 실패**했다.
+//
+//   해법: TZ 는 **프로세스 밖에서** 준다.
+//     CI  — `.github/workflows/pr-test.yaml` 의 "DST 회귀" 단계가 `TZ=America/Los_Angeles` 로 따로 돌린다
+//     로컬 — `TZ=America/Los_Angeles yarn jest cakelib/lib/date`
+//   TZ 가 DST 없는 지역이면 조용히 통과하는 대신 **명시적으로 skip** 한다 (통과로 위장하지 않는다).
 
 import DateTool from "../date_tool";
+
+/** 이 실행 환경에 서머타임이 있나 — 1월과 7월의 UTC offset 이 다르면 DST 지역이다. */
+const is_dst_zone = (): boolean =>
+  new Date(2026, 0, 1).getTimezoneOffset() !== new Date(2026, 6, 1).getTimezoneOffset();
+
+const describe_dst = is_dst_zone() ? describe : describe.skip;
 
 /*
  * 2026-08-22 실사고: 근태 "연차 사용"(1~12월 조회)을 열면 **브라우저가 통째로 멈췄다.**
@@ -13,7 +26,7 @@ import DateTool from "../date_tool";
  *
  * 한국은 DST 가 없어 서버·현지에서는 안 보이고 **DST 지역 개발기에서만** 터진다. 그래서 TZ 를 고정해 둔다.
  */
-describe("DateTool day8 산술은 24시간이 아니라 **달력** 기준이다 (DST)", () => {
+describe_dst("DateTool day8 산술은 24시간이 아니라 **달력** 기준이다 (DST) — DST 지역에서만 실행", () => {
   test("전제 — 이 TZ 는 2026-11-01 이 25시간짜리 날이다", () => {
     const midnight = new Date(2026, 10, 1);
     const plus24h = new Date(midnight.getTime() + 24 * 3600 * 1000);
