@@ -533,6 +533,31 @@ export default class UrlTool{
     // 4. 그 외 (단순 텍스트, Unknown 등)
     throw new Error('Invalid string');
 }
+
+  /**
+   * 글 → [글 | http(s) 링크] 조각 — 화면이 **링크만** `<a>` 로 그리고 나머지는 글자 그대로(React 가 escape) 그리게.
+   * `dangerouslySetInnerHTML` 없이 사람이 쓴 글의 링크를 걸 수 있다.
+   *  - `http://`·`https://` 만 링크다. `javascript:`·`data:` 등은 글자로 남는다(XSS).
+   *  - 문장 끝 구두점(`.`·`,`·`)` 등)은 링크에서 빼 다음 글 조각으로 돌린다 — «…/abc.» 의 마침표가 주소가 되지 않게.
+   * null 은 null 그대로(빈 배열로 뭉개지 않는다).
+   */
+  static text2segments_url = (text?: string): { text: string; url?: string }[] | undefined => {
+    if (text == null) return undefined;
+    const out: { text: string; url?: string }[] = [];
+    const re = /https?:\/\/[^\s<>"']+/g;
+    let last = 0;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text)) != null) {
+      const trail = m[0].match(/[).,!?;:\]}>]+$/)?.[0] ?? "";
+      const url = m[0].slice(0, m[0].length - trail.length);
+      if (m.index > last) out.push({ text: text.slice(last, m.index) });
+      if (url.replace(/^https?:\/\//, "")) out.push({ text: url, url });
+      else out.push({ text: url });
+      last = m.index + url.length;
+    }
+    if (last < text.length) out.push({ text: text.slice(last) });
+    return out;
+  };
 }
 
 export class MimetypeTool{
