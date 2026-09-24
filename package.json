@@ -40,6 +40,6 @@
     "react-kakao-maps-sdk": "^1.1.6",
     "react-spring": "^9.7.3",
     "semantic-ui-react": "^2.1.5",
-    "swr": "^v2.1.0"
+    "swr": "^v2.5.1"
   }
 }
