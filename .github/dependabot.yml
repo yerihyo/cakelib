@@ -1,0 +1,41 @@
+# Dependabot 버전 업데이트 설정 (cakelib).
+#
+# cakelib 은 cakeaholic 의 부속 라이브러리지만 **별도 리포**라 alert 도 따로 쌓인다
+#   (2026-09-23 기준 open 23건). 판정은 cakeaholic 쪽 대장에서 함께 한다:
+#   cakeaholic `doc/security-alerts/README.md` / `ledger.jsonl` (key 접두사 `cakelib#`)
+#
+# ⚠️ 먼저 알아야 할 것 — 여기 alert 는 대부분 «선언만 된 의존성» 이다:
+#   - 이 리포에는 **lockfile 이 없다**. 그래서 alert 가 package.json 에 직접 달린다
+#   - cakeaholic 빌드는 cakelib 안에서 `yarn install` 을 하지 않는다 —
+#     Dockerfile 이 `COPY frontend/cakelib ./cakelib` 로 **소스만** 가져가고,
+#     컴파일은 cakeaholic 의 tsconfig path alias(`@cakelib/* → cakelib/lib/*`)를 통해
+#     **cakeaholic 의 node_modules** 를 쓴다
+#   - 따라서 여기 `next@^14` 에 뜨는 CVE 는 설치된 적도 배포된 적도 없는 버전에 대한 경고다
+#     (실제로 링크되는 건 cakeaholic 의 next 15.x)
+#
+#   근본 해결은 버전 올리기가 아니라 `next`/`react`/`@mui/*` 를 `dependencies` 에서
+#   `peerDependencies` 로 옮기는 구조 결정이다. **아직 결정되지 않았다** —
+#   그 전까지 이 설정은 선언된 범위가 실제(cakeaholic)와 벌어지지 않게 유지하는 역할만 한다.
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Seoul"
+    open-pull-requests-limit: 3
+    groups:
+      npm-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    ignore:
+      # 이 셋의 major 는 cakeaholic 과 맞춰서 올려야 한다 (여기서 단독으로 올리면 실제와 더 어긋난다)
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
