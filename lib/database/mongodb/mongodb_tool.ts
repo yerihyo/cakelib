@@ -7,6 +7,23 @@ import TreeTool, { Treetraverse } from "../../tree/tree_tool";
 import DateTool from "../../date/date_tool";
 import { Pair } from "../../native/native_tool";
 
+// 사용자 입력(req.body/req.query/route param/header)에서 온 값을 Mongo 질의의 «값» 자리에 넣기 전에 검사한다.
+//   `{code6: {$ne: ""}}` 처럼 객체가 들어가면 연산자로 해석돼 조건이 무력화된다(NoSQL 주입).
+//   이 예외는 «입력이 틀렸다» 는 뜻이다 — 라우트는 원래의 invalid-input/not-found 응답으로 바꾸고 내용은 새지 않게 한다.
+export class MongovalueInvalidError extends Error {
+  readonly field: string;
+  constructor(field: string) {
+    super(`Invalid mongo query value: ${field}`);
+    // TS 가 ES5 로 내리면 Error 상속의 prototype 이 끊겨 instanceof 가 false 가 된다 — 복구한다.
+    Object.setPrototypeOf(this, MongovalueInvalidError.prototype);
+    this.name = "MongovalueInvalidError";
+    this.field = field;
+  }
+  static error2is = (e: unknown): e is MongovalueInvalidError => e instanceof MongovalueInvalidError;
+}
+
+export type Mongoprimitive = string | number | boolean;
+
 export default class MongodbTool {
 
   static query_idnull = () => ({'_id':null});
@@ -127,9 +144,12 @@ export default class MongodbTool {
     // if(!ArrayTool.is_array(values_norm)) throw new Error(`values_norm: ${values_norm}`);
     // if((values_norm as unknown) == 'nIizUPQSY7ShRHcXPJlZZ') throw new Error(`values_norm: ${values_norm}`)
 
+    // 원소 1개면 `{$in:[x]}` 를 `x` 로 푼다 — 단 x 가 **primitive 일 때만** (2026-09-29).
+    //   원소가 객체면 풀지 않는다: `{$in:[{$ne:null}]}` 를 풀면 `{$ne:null}` 연산자가 되어 조건이 «전부» 로 넓어진다.
+    //   null 도 풀지 않는다 (`{$in:[null]}` 과 `null` 은 같은 뜻이라 풀 이유가 없다).
     const query_out: X | {$in: X[]} = query == null
       ? undefined
-      : values_norm?.length == 1
+      : (values_norm?.length == 1 && MongodbTool.value2is_primitive(values_norm[0]))
         ? ArrayTool.l2one(values_norm)
         : {$in: values_norm};
 
@@ -144,11 +164,66 @@ export default class MongodbTool {
   //       : {$in: values};
   // }
   
+  /**
+   * **권한 게이트용** — 질의 식에서 «이 필드가 어떤 값들로 한정되는가» 를 읽는다. 가드가 fail-closed 가 되도록 엄격하다 (2026-09-29).
+   *
+   * 게이트가 클라가 만든 질의(jstr_mongoparam · update task 의 filter)의 값을 읽어 권한을 판정하는데,
+   * 예전 판독기는 `{$ne: null}` 같은 연산자 객체·null 원소·`{$in:[{$ne:null}]}` 을 값인 것처럼 흘려보냈다.
+   * 게이트는 «이 값들만 나온다» 고 믿고 통과시키는데 질의는 그보다 넓게 매칭될 수 있다.
+   *
+   * 인정하는 모양 (이것만 «값이 이 목록으로 한정된다» 는 뜻이다):
+   *   - 비어 있지 않은 문자열           `"k1"`             → `["k1"]`
+   *   - `{$in: [문자열...]}` 한 키뿐   `{$in:["k1","k2"]}` → `["k1","k2"]`   (`{$in:[]}` → `[]` — 아무것도 안 맞는다)
+   *   - `{$eq: 문자열}` 한 키뿐        `{$eq:"k1"}`        → `["k1"]`
+   * 그 밖(연산자 객체·`$in` 에 다른 연산자 동반·null/빈 문자열/객체 원소·배열·숫자·null)은 {@link QEXPR_UNPARSEABLE}.
+   *
+   * 반환값 3 가지를 **구분해서** 다룬다 (nullable 규칙):
+   *   - `undefined`          — 필드가 **없다**. 게이트는 원래 규칙대로(«Brand not specified» 등) 판단한다
+   *   - `string[]`           — 값이 이 목록으로 한정된다
+   *   - `QEXPR_UNPARSEABLE`  — 필드는 **있는데** 해석할 수 없다. 이 값을 근거로 허락하면 안 된다(거부)
+   * 던지는 판이 필요하면 {@link qexpr2strings_orthrow}.
+   */
+  static readonly QEXPR_UNPARSEABLE: unique symbol = Symbol("MongodbTool.QEXPR_UNPARSEABLE");
+
+  static qexpr2is_unparseable = (x: unknown): x is typeof MongodbTool.QEXPR_UNPARSEABLE =>
+    x === MongodbTool.QEXPR_UNPARSEABLE;
+
+  static qexpr2strings_strict = (qexpr: unknown): string[] | undefined | typeof MongodbTool.QEXPR_UNPARSEABLE => {
+    const UNPARSEABLE: typeof MongodbTool.QEXPR_UNPARSEABLE = MongodbTool.QEXPR_UNPARSEABLE;
+    const is_key = (x: unknown): x is string => typeof x === "string" && x.length > 0;
+
+    if (qexpr === undefined) return undefined; // 필드 없음
+    if (is_key(qexpr)) return [qexpr];
+    if (qexpr == null || typeof qexpr !== "object" || Array.isArray(qexpr)) return UNPARSEABLE;
+
+    const ops = Object.keys(qexpr);
+    if (ops.length !== 1) return UNPARSEABLE;
+    const [op] = ops;
+    const operand = (qexpr as Record<string, unknown>)[op];
+
+    if (op === "$eq") return is_key(operand) ? [operand] : UNPARSEABLE;
+    if (op === "$in") {
+      if (!Array.isArray(operand)) return UNPARSEABLE;
+      return operand.every(is_key) ? (operand as string[]) : UNPARSEABLE;
+    }
+    return UNPARSEABLE;
+  }
+
+  /** {@link qexpr2strings_strict} 의 던지는 판 — 해석할 수 없으면 {@link MongovalueInvalidError}. 필드가 없으면 `undefined`. */
+  static qexpr2strings_orthrow = (qexpr: unknown, name: string): string[] | undefined => {
+    const values = MongodbTool.qexpr2strings_strict(qexpr);
+    if (MongodbTool.qexpr2is_unparseable(values)) throw new MongovalueInvalidError(name);
+    return values;
+  }
+
+  /**
+   * (예전 이름) 질의 식 → 값 목록. **호출처가 전부 권한 게이트**라 {@link qexpr2strings_orthrow} 와 같은 엄격한 계약으로 바꿨다 (2026-09-29).
+   * 해석할 수 없는 모양이면 던진다 — 이 함수를 쓰는 게이트는 따로 손대지 않아도 fail-closed 가 된다.
+   * 필드가 없으면(`undefined`) 예전처럼 `undefined`. `null` 은 «있는데 해석 불가» 로 본다(`{f:null}` 은 필드 없는 문서와 매칭된다).
+   * 연산자를 정당하게 쓰는 질의에서 «이 경로로는 판정 못 함 → 다른 경로로» 가 필요하면 {@link qexpr2strings_strict} 를 직접 쓴다.
+   */
   static qexpr_in2values = <T>(qexpr: (T | { '$in': T[] })): T[] => {
-    if (qexpr == null) { return undefined; }
-    return DictTool.is_dict(qexpr)
-      ? (qexpr as { '$in': T[] })?.['$in']
-      : ArrayTool.one2l(qexpr as T);
+    return MongodbTool.qexpr2strings_orthrow(qexpr, 'qexpr') as unknown as T[];
   }
 
   static fvpairs_bicmp2query = (
@@ -360,6 +435,50 @@ export default class MongodbTool {
     };
     return transducer;
   };
+
+  // --- 사용자 입력 값 → 질의 값 (NoSQL 주입 방어, 2026-09-29) ---
+  //   string / 유한 number / boolean 만 통과. object·array·null·undefined·NaN·Infinity 는 거부.
+  //   null/undefined 도 거부한다: `{key: undefined}` 는 드라이버가 null 로 보내 «필드 없는 문서» 와 매칭된다.
+  //   값이 선택적이면 caller 가 null 을 먼저 따로 처리하고(nullable 규칙) 있을 때만 이것을 부른다.
+  //   참고: Next 의 req.query 는 string | string[] 만 만든다(`?a[b]=c` 는 키 "a[b]" 로 남는다) — 객체는 JSON body 로 들어온다.
+  static value2is_primitive = (value: unknown): value is Mongoprimitive => {
+    if (typeof value === "string" || typeof value === "boolean") return true;
+    return typeof value === "number" && Number.isFinite(value);
+  }
+
+  static value2primitive_orthrow = (value: unknown, name: string): Mongoprimitive => {
+    if (!MongodbTool.value2is_primitive(value)) throw new MongovalueInvalidError(name);
+    return value;
+  }
+
+  // key·token·code 처럼 문자열이어야 하는 자리 — 숫자·boolean 도 거부한다.
+  static value2string_orthrow = (value: unknown, name: string): string => {
+    if (typeof value !== "string") throw new MongovalueInvalidError(name);
+    return value;
+  }
+
+  // 목록 필드({$in: [...]} 등)용 — 배열이어야 하고 모든 원소가 primitive 여야 한다. 빈 배열은 그대로 돌려준다.
+  static values2primitives_orthrow = (values: unknown, name: string): Mongoprimitive[] => {
+    if (!Array.isArray(values)) throw new MongovalueInvalidError(name);
+    if (!values.every(MongodbTool.value2is_primitive)) throw new MongovalueInvalidError(name);
+    return values;
+  }
+
+  static values2strings_orthrow = (values: unknown, name: string): string[] => {
+    if (!Array.isArray(values)) throw new MongovalueInvalidError(name);
+    if (!values.every((v) => typeof v === "string")) throw new MongovalueInvalidError(name);
+    return values;
+  }
+
+  // 던지지 않는 판 — 형식이 틀리면 undefined (이미 «undefined = 무효» 계약인 곳용, 예: Orderauth.data2validated).
+  static value2string_orundef = (value: unknown): string | undefined => {
+    return typeof value === "string" ? value : undefined;
+  }
+
+  static values2strings_orundef = (values: unknown): string[] | undefined => {
+    if (!Array.isArray(values)) return undefined;
+    return values.every((v) => typeof v === "string") ? values : undefined;
+  }
 }
 
 export class Mongosubquery {
