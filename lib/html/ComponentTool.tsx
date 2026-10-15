@@ -156,6 +156,45 @@ export default class ComponentTool {
 
       return info;
     }
+
+    /** 가로 스크롤 상자의 양끝 판정 — container2info 와 같은 기준 */
+    static dims2edges = (dims: { scrollLeft: number, offsetWidth: number, scrollWidth: number }): { is_scrollable_left: boolean, is_scrollable_right: boolean } => ({
+      is_scrollable_left: dims.scrollLeft > 0,
+      is_scrollable_right: dims.offsetWidth + dims.scrollLeft < dims.scrollWidth,
+    });
+
+    /**
+     * 양끝에 닿았는지만 추적한다 — **값이 바뀔 때만** state 를 갱신한다.
+     *
+     * 왜: use_info 는 스크롤 이벤트마다 새 객체로 state 를 갱신해, 이 훅을 쓰는 컴포넌트 아래가 매 프레임 통째로 다시 그려졌다
+     *   (cakeaholic 주문목록: 프레임당 140ms → 7fps. 리스너를 막으면 16.7ms, 2026-10-15 측정). 리스너 정리도 없었다.
+     *   스크롤 양(px)이 필요하면 누르는 순간 container2info(element) 로 읽는다.
+     * enabled: 상자가 실제로 그려졌는가 — 그려진 뒤에 리스너를 단다. 내용 폭이 바뀌어도(칸 추가) ResizeObserver 로 다시 잰다.
+     */
+    static use_edges = (ref: MutableRefObject<HTMLElement>, enabled: boolean): { is_scrollable_left: boolean, is_scrollable_right: boolean } | undefined => {
+      const [edges, set_edges] = React.useState<{ is_scrollable_left: boolean, is_scrollable_right: boolean }>();
+
+      React.useEffect(() => {
+        const el = ref.current;
+        if (!enabled || !el) { return; }
+
+        const update = () => {
+          const next = ComponentTool.Scrollinfo.dims2edges(el);
+          set_edges(prev => (prev?.is_scrollable_left === next.is_scrollable_left && prev?.is_scrollable_right === next.is_scrollable_right) ? prev : next);
+        };
+        update();
+        el.addEventListener('scroll', update, { passive: true });
+        const observer = new ResizeObserver(update);
+        observer.observe(el);
+        if (el.firstElementChild) { observer.observe(el.firstElementChild); }
+        return () => {
+          el.removeEventListener('scroll', update);
+          observer.disconnect();
+        };
+      }, [ref, enabled]);
+
+      return edges;
+    }
   }
 
   static scrollTo(element: HTMLElement, scrollTo: { top?: number, left?: number }, callback: () => void) {
