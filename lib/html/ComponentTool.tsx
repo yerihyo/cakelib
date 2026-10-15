@@ -116,11 +116,11 @@ export default class ComponentTool {
       //     'element.offsetWidth':element.offsetWidth,
       //     'element.scrollWidth':element.scrollWidth,
       // })
+      // 스크롤 가능한 폭은 clientWidth 기준이다 (offsetWidth 는 테두리·세로 스크롤바까지 넣어 끝을 일찍 판정한다)
       const leftscrollMax = element.scrollLeft;
-      const rightscrollMax = element.scrollWidth - (element.offsetWidth + element.scrollLeft);
+      const rightscrollMax = element.scrollWidth - (element.clientWidth + element.scrollLeft);
       return {
-        is_scrollable_left: element.scrollLeft > 0,
-        is_scrollable_right: (element.offsetWidth + element.scrollLeft < element.scrollWidth),
+        ...ComponentTool.Scrollinfo.dims2edges(element),
         scrollLeft: element.scrollLeft,
         offsetWidth: element.offsetWidth,
         scrollWidth: element.scrollWidth,
@@ -129,6 +129,11 @@ export default class ComponentTool {
       };
     }
 
+    /**
+     * @deprecated use_edges 를 쓴다. 이 훅은 스크롤 이벤트마다 새 객체로 state 를 갱신해 쓰는 컴포넌트 아래를 매 프레임 다시 그리고
+     *   (cakeaholic 주문목록 7fps, 2026-10-15), ref.current 가 바뀔 때마다 리스너를 정리 없이 하나씩 더 단다.
+     *   스크롤 양(px)이 필요하면 누르는 순간 container2info(element) 로 읽는다.
+     */
     static use_info = (ref: MutableRefObject<HTMLElement>): (typeof ComponentTool.Scrollinfo.prototype) => {
       const cls = ComponentTool.Scrollinfo;
       const callname = `ComponentTool.Scrollinfo.use_info @ ${DateTool.time2iso(new Date())}`;
@@ -157,11 +162,17 @@ export default class ComponentTool {
       return info;
     }
 
-    /** 가로 스크롤 상자의 양끝 판정 — container2info 와 같은 기준 */
-    static dims2edges = (dims: { scrollLeft: number, offsetWidth: number, scrollWidth: number }): { is_scrollable_left: boolean, is_scrollable_right: boolean } => ({
-      is_scrollable_left: dims.scrollLeft > 0,
-      is_scrollable_right: dims.offsetWidth + dims.scrollLeft < dims.scrollWidth,
-    });
+    /** 양끝 판정의 오차 — 화면 확대·고해상도에서 scrollLeft 가 소수(예: 1999.5)가 되어 끝에서도 0.5px 가 남는다 */
+    static EDGE_TOLERANCE_PX = 1;
+
+    /** 가로 스크롤 상자의 양끝 판정 — 판정 식은 여기 한 곳뿐이다 (container2info 도 이것을 쓴다) */
+    static dims2edges = (dims: { scrollLeft: number, clientWidth: number, scrollWidth: number }): { is_scrollable_left: boolean, is_scrollable_right: boolean } => {
+      const tolerance = ComponentTool.Scrollinfo.EDGE_TOLERANCE_PX;
+      return {
+        is_scrollable_left: dims.scrollLeft >= tolerance,
+        is_scrollable_right: dims.scrollWidth - dims.clientWidth - dims.scrollLeft >= tolerance,
+      };
+    }
 
     /**
      * 양끝에 닿았는지만 추적한다 — **값이 바뀔 때만** state 를 갱신한다.
@@ -169,31 +180,50 @@ export default class ComponentTool {
      * 왜: use_info 는 스크롤 이벤트마다 새 객체로 state 를 갱신해, 이 훅을 쓰는 컴포넌트 아래가 매 프레임 통째로 다시 그려졌다
      *   (cakeaholic 주문목록: 프레임당 140ms → 7fps. 리스너를 막으면 16.7ms, 2026-10-15 측정). 리스너 정리도 없었다.
      *   스크롤 양(px)이 필요하면 누르는 순간 container2info(element) 로 읽는다.
-     * enabled: 상자가 실제로 그려졌는가 — 그려진 뒤에 리스너를 단다. 내용 폭이 바뀌어도(칸 추가) ResizeObserver 로 다시 잰다.
+     *
+     * - enabled: 상자가 실제로 그려졌는가 — 그려진 뒤에 리스너를 단다. false 면 undefined(«아직 모름») 를 돌려준다
+     * - 다시 재는 때: 스크롤 · 상자 크기 변화(ResizeObserver) · 안쪽 요소 추가/삭제(MutationObserver — 내용이 상자 밖으로 넘쳐
+     *   늘어나는 경우는 크기 감시로 안 잡힌다). 한 프레임에 한 번으로 묶는다
+     * - 제약: 훅이 살아 있는 동안 ref.current 가 **다른 DOM 요소로 바뀌면** 옛 요소에 리스너가 남는다 (ref 객체는 그대로라 effect 가
+     *   다시 돌지 않는다). 상자가 바뀔 수 있으면 이 훅을 쓰는 컴포넌트를 상자 안에 두어 같이 다시 마운트되게 한다
      */
     static use_edges = (ref: MutableRefObject<HTMLElement>, enabled: boolean): { is_scrollable_left: boolean, is_scrollable_right: boolean } | undefined => {
-      const [edges, set_edges] = React.useState<{ is_scrollable_left: boolean, is_scrollable_right: boolean }>();
+      const edges_hook: Reacthook<{ is_scrollable_left: boolean, is_scrollable_right: boolean }> = React.useState<{ is_scrollable_left: boolean, is_scrollable_right: boolean }>();
+      const set_edges = edges_hook[1];
 
       React.useEffect(() => {
         const el = ref.current;
-        if (!enabled || !el) { return; }
+        if (!enabled || !el) {
+          set_edges(undefined);
+          return;
+        }
 
         const update = () => {
           const next = ComponentTool.Scrollinfo.dims2edges(el);
           set_edges(prev => (prev?.is_scrollable_left === next.is_scrollable_left && prev?.is_scrollable_right === next.is_scrollable_right) ? prev : next);
         };
-        update();
-        el.addEventListener('scroll', update, { passive: true });
-        const observer = new ResizeObserver(update);
-        observer.observe(el);
-        if (el.firstElementChild) { observer.observe(el.firstElementChild); }
-        return () => {
-          el.removeEventListener('scroll', update);
-          observer.disconnect();
+        let frame: number = undefined;
+        const schedule = () => {
+          if (frame !== undefined) { return; }
+          frame = requestAnimationFrame(() => { frame = undefined; update(); });
         };
-      }, [ref, enabled]);
 
-      return edges;
+        update();
+        el.addEventListener('scroll', schedule, { passive: true });
+        // 옛 브라우저(iOS Safari 13.4 이전)엔 ResizeObserver 가 없다 — 없으면 크기 감시만 건너뛴다 (스크롤·요소 추가로는 계속 잰다)
+        const resizeobserver = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(schedule);
+        resizeobserver?.observe(el);
+        const mutationobserver = new MutationObserver(schedule);
+        mutationobserver.observe(el, { childList: true, subtree: true });
+        return () => {
+          el.removeEventListener('scroll', schedule);
+          resizeobserver?.disconnect();
+          mutationobserver.disconnect();
+          if (frame !== undefined) { cancelAnimationFrame(frame); }
+        };
+      }, [ref, enabled, set_edges]);
+
+      return edges_hook[0];
     }
   }
 
